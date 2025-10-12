@@ -8,6 +8,7 @@ namespace EVDealerSales.DataAccess.Entities
         public string PasswordHash { get; set; }
         public string FullName { get; set; }
         public RoleType Role { get; set; } // "Customer", "Staff", "Manager"
+        public string PhoneNumber { get; set; }
 
         // Navigation for relations
         public ICollection<TestDrive> TestDrivesAsCustomer { get; set; }

@@ -103,6 +103,7 @@ namespace EVDealerSales.Business.Services
                 {
                     FullName = userRegistrationDto.FullName,
                     Email = userRegistrationDto.Email,
+                    PhoneNumber = userRegistrationDto.PhoneNumber,
                     Role = RoleType.Customer,
                     PasswordHash = hashedPassword ?? throw new Exception("Password hashing failed."),
                 };
@@ -115,6 +116,7 @@ namespace EVDealerSales.Business.Services
                 {
                     FullName = user.FullName,
                     Email = user.Email,
+                    PhoneNumber = user.PhoneNumber,
                     Role = user.Role,
                 };
 
