@@ -1,5 +1,6 @@
 using EVDealerSales.DataAccess;
 using EVDealerSales.Presentation.Architecture;
+using EVDealerSales.Presentation.Helper;
 using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -47,7 +48,7 @@ try
     using (var scope = app.Services.CreateScope())
     {
         var dbContext = scope.ServiceProvider.GetRequiredService<EVDealerSalesDbContext>();
-        //await DbSeeder.SeedUsersAsync(dbContext);
+        await DbSeeder.SeedUsersAsync(dbContext);
         //await DbSeeder.SeedVehiclesAsync(dbContext);
         //await DbSeeder.SeedReportsDataAsync(dbContext);
     }

@@ -1,4 +1,6 @@
-﻿using EVDealerSales.DataAccess;
+﻿using EVDealerSales.Business.Interfaces;
+using EVDealerSales.Business.Services;
+using EVDealerSales.DataAccess;
 using EVDealerSales.DataAccess.Commons;
 using EVDealerSales.DataAccess.Interfaces;
 using EVDealerSales.DataAccess.Repository;
@@ -53,7 +55,7 @@ namespace EVDealerSales.Presentation.Architecture
             services.AddScoped<ICurrentTime, CurrentTime>();
             services.AddScoped<IClaimsService, ClaimsService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-
+            services.AddScoped<IAuthService, AuthService>();
             services.AddHttpContextAccessor();
 
             return services;
@@ -107,6 +109,9 @@ namespace EVDealerSales.Presentation.Architecture
                 });
             services.AddAuthorization(options =>
             {
+                options.AddPolicy("CustomerPolicy", policy =>
+                    policy.RequireRole("Customer"));
+
                 options.AddPolicy("StaffPolicy", policy =>
                     policy.RequireRole("DealerStaff"));
 

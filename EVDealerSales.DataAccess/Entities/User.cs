@@ -1,11 +1,13 @@
-﻿namespace EVDealerSales.DataAccess.Entities
+﻿using EVDealerSales.BusinessObject.Enums;
+
+namespace EVDealerSales.DataAccess.Entities
 {
     public class User : BaseEntity
     {
         public string Email { get; set; }
         public string PasswordHash { get; set; }
         public string FullName { get; set; }
-        public string Role { get; set; } // "Customer", "Staff", "Manager"
+        public RoleType Role { get; set; } // "Customer", "Staff", "Manager"
 
         // Navigation for relations
         public ICollection<TestDrive> TestDrivesAsCustomer { get; set; }
