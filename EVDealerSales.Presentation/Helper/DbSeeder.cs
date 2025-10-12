@@ -20,6 +20,7 @@ namespace EVDealerSales.Presentation.Helper
                 {
                     FullName = "Manager 1",
                     Email = "manager@gmail.com",
+                    PhoneNumber = "0786315267",
                     PasswordHash = passwordHasher.HashPassword("123")!,
                     Role = RoleType.DealerManager,
                 };
@@ -33,6 +34,7 @@ namespace EVDealerSales.Presentation.Helper
                 {
                     FullName = "Staff 1",
                     Email = "staff@gmail.com",
+                    PhoneNumber = "0786315267",
                     PasswordHash = passwordHasher.HashPassword("123")!,
                     Role = RoleType.DealerStaff,
                 };
@@ -46,6 +48,7 @@ namespace EVDealerSales.Presentation.Helper
                 {
                     FullName = "Customer 1",
                     Email = "customer@gmail.com",
+                    PhoneNumber = "0786315267",
                     PasswordHash = passwordHasher.HashPassword("123")!,
                     Role = RoleType.Customer,
                 };
