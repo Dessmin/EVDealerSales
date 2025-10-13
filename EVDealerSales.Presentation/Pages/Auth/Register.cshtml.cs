@@ -44,7 +44,7 @@ namespace EVDealerSales.Presentation.Pages.Auth
             // Nếu user đã login, redirect về trang chủ
             if (User.Identity?.IsAuthenticated == true)
             {
-                Response.Redirect("/LandingPage");
+                Response.Redirect("/Home/LandingPage");
             }
         }
 
