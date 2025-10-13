@@ -1,5 +1,6 @@
 ﻿using EVDealerSales.Business.Interfaces;
 using EVDealerSales.BusinessObject.DTOs.AuthDTOs;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -34,7 +35,7 @@ namespace EVDealerSales.Presentation.Pages.Auth
         {
             if (User.Identity?.IsAuthenticated == true)
             {
-                Response.Redirect("/LandingPage");
+                Response.Redirect("/Home/LandingPage");
             }
         }
 
@@ -71,13 +72,18 @@ namespace EVDealerSales.Presentation.Pages.Auth
                     return Redirect(returnUrl);
                 }
 
-                return RedirectToPage("/LandingPage");
+                return RedirectToPage("/Home/LandingPage");
             }
             catch (Exception ex)
             {
                 ErrorMessage = ex.Message;
                 return Page();
             }
+        }
+        public async Task<IActionResult> OnPostLogout()
+        {
+            HttpContext.Session.Remove("AuthToken");
+            return RedirectToPage("/Home/LandingPage");
         }
     }
 }
