@@ -1,0 +1,101 @@
+@page "{id:guid}"
+@model EVDealerSales.Presentation.Pages.Vehicle.DetailsModel
+@{
+    ViewData["Title"] = "Vehicle Details";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            @if (Model.Vehicle == null)
+            {
+                <div class="alert alert-danger">Vehicle not found.</div>
+                <a asp-page="Index" class="btn btn-secondary">Back to List</a>
+            }
+            else
+            {
+                <div class="card shadow">
+                    <div class="card-header bg-info text-white">
+                        <h4 class="mb-0">
+                            <i class="bi bi-eye me-2"></i>
+                            Vehicle Details
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <img src="@Model.Vehicle.ImageUrl" alt="@Model.Vehicle.ModelName" 
+                                     class="img-fluid rounded shadow-sm">
+                            </div>
+                            <div class="col-md-6">
+                                <h3 class="mb-3">@Model.Vehicle.ModelName @Model.Vehicle.TrimName</h3>
+                                
+                                <div class="mb-3">
+                                    @if (Model.Vehicle.IsActive)
+                                    {
+                                        <span class="badge bg-success fs-6">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary fs-6">Inactive</span>
+                                    }
+                                </div>
+
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th width="40%">Model Year:</th>
+                                        <td>@Model.Vehicle.ModelYear</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Base Price:</th>
+                                        <td class="fs-5 text-primary fw-bold">$@Model.Vehicle.BasePrice.ToString("N2")</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Battery Capacity:</th>
+                                        <td>@Model.Vehicle.BatteryCapacity kWh</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Range:</th>
+                                        <td>@Model.Vehicle.RangeKM km</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Charging Time:</th>
+                                        <td>@Model.Vehicle.ChargingTime minutes</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Top Speed:</th>
+                                        <td>@Model.Vehicle.TopSpeed km/h</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Created:</th>
+                                        <td>@Model.Vehicle.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                    </tr>
+                                    @if (Model.Vehicle.UpdatedAt.HasValue)
+                                    {
+                                        <tr>
+                                            <th>Last Updated:</th>
+                                            <td>@Model.Vehicle.UpdatedAt.Value.ToString("MMM dd, yyyy")</td>
+                                        </tr>
+                                    }
+                                </table>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex gap-2">
+                            <a asp-page="Edit" asp-route-id="@Model.Vehicle.Id" class="btn btn-warning">
+                                <i class="bi bi-pencil me-1"></i>
+                                Edit
+                            </a>
+                            <a asp-page="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i>
+                                Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
