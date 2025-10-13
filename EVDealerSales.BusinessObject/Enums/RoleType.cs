@@ -2,7 +2,8 @@
 {
     public enum RoleType
     {
-        DealerStaff = 0,
-        DealerManager = 1
+        Customer =0,
+        DealerStaff = 1,
+        DealerManager = 2
     }
 }

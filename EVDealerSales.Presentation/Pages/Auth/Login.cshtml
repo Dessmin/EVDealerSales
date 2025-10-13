@@ -1,0 +1,70 @@
+﻿@page
+@model EVDealerSales.Presentation.Pages.Auth.LoginModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/auth.css" />
+}
+
+<div class="auth-split-container">
+    <div class="auth-image-section">
+        <div class="auth-image-content">
+            <img src="https://images.unsplash.com/photo-1706883376540-b21e5559fc45?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                 alt="EV Charging Station" class="auth-hero-image" />
+            <div class="auth-image-overlay">
+                <div class="auth-brand-logo">
+                    <i class="fas fa-bolt"></i>
+                    <span>EVDealerSales</span>
+                </div>
+                <h2 class="auth-image-title">Power Your Future</h2>
+                <p class="auth-image-subtitle">Join the electric revolution with premium EV solutions</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-form-section">
+        <div class="auth-form-container">
+            <div class="auth-form-header">
+                <h1 class="auth-form-title">Welcome back</h1>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger">
+                    @Model.ErrorMessage
+                </div>
+            }
+
+            <form method="post" class="auth-form">
+                <div class="form-group">
+                    <label asp-for="Email" class="form-label">Email</label>
+                    <input asp-for="Email" class="form-input" type="email" placeholder="Enter your email" />
+                    <span asp-validation-for="Email" class="form-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Password" class="form-label">Password</label>
+                    <input asp-for="Password" class="form-input" type="password" placeholder="Enter your password" />
+                    <span asp-validation-for="Password" class="form-error"></span>
+                </div>
+
+                <button type="submit" class="auth-submit-button">
+                    Login
+                </button>
+            </form>
+
+            <div class="auth-form-footer">
+                <p class="auth-switch-text">
+                    Don't have an account?
+                    <a asp-page="/Auth/Register" class="auth-switch-link">Create account</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,44 +1,65 @@
-﻿namespace EVDealerSales.Presentation.Helper
+﻿using EVDealerSales.Business.Utils;
+using EVDealerSales.BusinessObject.Enums;
+using EVDealerSales.DataAccess;
+using EVDealerSales.DataAccess.Entities;
+using Microsoft.EntityFrameworkCore;
+
+namespace EVDealerSales.Presentation.Helper
 {
     public static class DbSeeder
     {
-        //    public static async Task SeedUsersAsync(EVDealerSalesDbContext context)
-        //    {
-        //        // apply migrations if not yet applied
-        //        await context.Database.MigrateAsync();
+        public static async Task SeedUsersAsync(EVDealerSalesDbContext context)
+        {
+            // apply migrations if not yet applied
+            await context.Database.MigrateAsync();
 
-        //        if (!await context.Users.AnyAsync(u => u.Role == RoleType.DealerManager))
-        //        {
-        //            var passwordHasher = new PasswordHasher();
-        //            var manager = new User
-        //            {
-        //                FullName = "Manager 1",
-        //                Email = "manager@gmail.com",
-        //                Phone = "0999000000",
-        //                PasswordHash = passwordHasher.HashPassword("123")!,
-        //                Role = RoleType.DealerManager,
-        //                IsActive = true
-        //            };
-        //            await context.Users.AddAsync(manager);
-        //        }
+            if (!await context.Users.AnyAsync(u => u.Role == RoleType.DealerManager))
+            {
+                var passwordHasher = new PasswordHasher();
+                var manager = new User
+                {
+                    FullName = "Manager 1",
+                    Email = "manager@gmail.com",
+                    PhoneNumber = "0786315267",
+                    PasswordHash = passwordHasher.HashPassword("123")!,
+                    Role = RoleType.DealerManager,
+                };
+                await context.Users.AddAsync(manager);
+            }
 
-        //        if (!await context.Users.AnyAsync(u => u.Role == RoleType.DealerStaff))
-        //        {
-        //            var passwordHasher = new PasswordHasher();
-        //            var staff = new User
-        //            {
-        //                FullName = "Staff 1",
-        //                Email = "staff@gmail.com",
-        //                Phone = "0888000000",
-        //                PasswordHash = passwordHasher.HashPassword("123")!,
-        //                Role = RoleType.DealerStaff,
-        //                IsActive = true
-        //            };
-        //            await context.Users.AddAsync(staff);
-        //        }
+            if (!await context.Users.AnyAsync(u => u.Role == RoleType.DealerStaff))
+            {
+                var passwordHasher = new PasswordHasher();
+                var staff = new User
+                {
+                    FullName = "Staff 1",
+                    Email = "staff@gmail.com",
+                    PhoneNumber = "0786315267",
+                    PasswordHash = passwordHasher.HashPassword("123")!,
+                    Role = RoleType.DealerStaff,
+                };
+                await context.Users.AddAsync(staff);
+            }
 
-        //        await context.SaveChangesAsync();
-        //    }
+            if (!await context.Users.AnyAsync(u => u.Role == RoleType.Customer))
+            {
+                var passwordHasher = new PasswordHasher();
+                var customer = new User
+                {
+                    FullName = "Customer 1",
+                    Email = "customer@gmail.com",
+                    PhoneNumber = "0786315267",
+                    PasswordHash = passwordHasher.HashPassword("123")!,
+                    Role = RoleType.Customer,
+                };
+                await context.Users.AddAsync(customer);
+
+            }
+
+            await context.SaveChangesAsync();
+        }
+    }
+}
 
         //    public static async Task SeedVehiclesAsync(EVDealerSalesDbContext context)
         //    {
@@ -309,5 +330,3 @@
         //            await context.SaveChangesAsync();
         //        }
         //}
-    }
-}
