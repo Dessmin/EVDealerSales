@@ -1,4 +1,11 @@
 ﻿/* Landing Page Styles */
+:root {
+    --primary-color: #0070f3;
+    --secondary-color: #1a1a1a;
+    --text-primary: #ffffff;
+    --text-secondary: #aaaaaa
+    --text-muted: #666666;
+}
 
 /* Hero Section */
 .hero-section {
