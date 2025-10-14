@@ -1,428 +1,304 @@
-@page
+﻿@page
+@using EVDealerSales.BusinessObject.DTOs.VehicleDTOs
+@using EVDealerSales.Business.Utils
 @model EVDealerSales.Presentation.Pages.Vehicle.IndexModel
 @{
-    ViewData["Title"] = "Vehicles Management";
+    ViewData["Title"] = "Vehicle Management";
 }
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>
-            <i class="fa-solid fa-car me-2"></i>
-            Vehicles Management
-        </h2>
-        <a asp-page="Create" class="btn btn-primary">
-            <i class="bi bi-plus-circle me-1"></i>
-            Add New Vehicle
-        </a>
-    </div>
+@section Styles {
+    <head>
+        <link rel="stylesheet" href="~/css/vehicle.css" />
+    </head>
+}
 
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["ErrorMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-
-    <!-- Search and Filter Section -->
-    <div class="card shadow mb-3">
-        <div class="card-header bg-light">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
-                    <i class="bi bi-funnel me-2"></i>
-                    Search & Filters
-                </h5>
-                <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
-                    <i class="bi bi-chevron-down"></i>
-                </button>
-            </div>
-        </div>
-        <div class="collapse show" id="filterCollapse">
-            <div class="card-body">
-                <form method="get">
-                    <input type="hidden" name="pageNumber" value="1" />
-                    <input type="hidden" name="pageSize" asp-for="PageSize" />
-
-                    <!-- Search -->
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label class="form-label fw-bold">Search by Name</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-search"></i></span>
-                                <input type="text" class="form-control" name="searchTerm" asp-for="SearchTerm" 
-                                       placeholder="Search by model or trim name...">
-                            </div>
-                        </div>
+    <div class="vehicle-container">
+        <div class="container-fluid">
+            <div class="vehicle-header">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h1>
+                            <i class="fas fa-car-side"></i>
+                            Vehicle Inventory
+                        </h1>
+                        <p style="color: #666; margin: 0.5rem 0 0 0; font-size: 0.875rem;">
+                            Manage your electric vehicle inventory and specifications
+                        </p>
                     </div>
-
-                    <hr>
-
-                    <!-- Price Range -->
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Price Range ($)</label>
-                            <div class="row g-2">
-                                <div class="col">
-                                    <input type="number" class="form-control" name="minPrice" asp-for="MinPrice" 
-                                           placeholder="Min" step="1" min="0" pattern="[0-9]*">
-                                </div>
-                                <div class="col-auto align-self-center">-</div>
-                                <div class="col">
-                                    <input type="number" class="form-control" name="maxPrice" asp-for="MaxPrice" 
-                                           placeholder="Max" step="1" min="0" pattern="[0-9]*">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Range (km) -->
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Range (km)</label>
-                            <div class="row g-2">
-                                <div class="col">
-                                    <input type="number" class="form-control" name="minRange" asp-for="MinRange" 
-                                           placeholder="Min" step="1" min="0" pattern="[0-9]*">
-                                </div>
-                                <div class="col-auto align-self-center">-</div>
-                                <div class="col">
-                                    <input type="number" class="form-control" name="maxRange" asp-for="MaxRange" 
-                                           placeholder="Max" step="1" min="0" pattern="[0-9]*">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Battery Capacity -->
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Battery Capacity (kWh)</label>
-                            <div class="row g-2">
-                                <div class="col">
-                                    <input type="number" class="form-control" name="minBattery" asp-for="MinBattery" 
-                                           placeholder="Min" step="1" min="0" pattern="[0-9]*">
-                                </div>
-                                <div class="col-auto align-self-center">-</div>
-                                <div class="col">
-                                    <input type="number" class="form-control" name="maxBattery" asp-for="MaxBattery" 
-                                           placeholder="Max" step="1" min="0" pattern="[0-9]*">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Top Speed -->
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Top Speed (km/h)</label>
-                            <div class="row g-2">
-                                <div class="col">
-                                    <input type="number" class="form-control" name="minSpeed" asp-for="MinSpeed" 
-                                           placeholder="Min" step="1" min="0" pattern="[0-9]*">
-                                </div>
-                                <div class="col-auto align-self-center">-</div>
-                                <div class="col">
-                                    <input type="number" class="form-control" name="maxSpeed" asp-for="MaxSpeed" 
-                                           placeholder="Max" step="1" min="0" pattern="[0-9]*">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Charging Time & Model Year -->
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Charging Time (min)</label>
-                            <div class="row g-2">
-                                <div class="col">
-                                    <input type="number" class="form-control" name="minCharging" asp-for="MinCharging" 
-                                           placeholder="Min" step="1" min="0" pattern="[0-9]*">
-                                </div>
-                                <div class="col-auto align-self-center">-</div>
-                                <div class="col">
-                                    <input type="number" class="form-control" name="maxCharging" asp-for="MaxCharging" 
-                                           placeholder="Max" step="1" min="0" pattern="[0-9]*">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label fw-bold">Model Year</label>
-                            <input type="number" class="form-control" name="modelYear" asp-for="ModelYear" 
-                                   placeholder="e.g., 2025" step="1" min="2000" max="2100" pattern="[0-9]*">
-                        </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label fw-bold">Sort By</label>
-                            <select class="form-select" name="sortBy" asp-for="SortBy">
-                                <option value="">Default (Newest)</option>
-                                <option value="name">Name</option>
-                                <option value="price">Price</option>
-                                <option value="range">Range</option>
-                                <option value="battery">Battery</option>
-                                <option value="speed">Top Speed</option>
-                                <option value="charging">Charging Time</option>
-                                <option value="year">Model Year</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Sort Direction -->
-                    <div class="row mb-3">
-                        <div class="col-md-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="sortDesc" asp-for="SortDesc">
-                                <label class="form-check-label" asp-for="SortDesc">
-                                    Sort Descending
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-search me-1"></i>
-                            Apply Filters
-                        </button>
-                        <a asp-page="./Index" asp-route-pageNumber="1" asp-route-pageSize="@Model.PageSize" class="btn btn-outline-secondary">
-                            <i class="bi bi-x-circle me-1"></i>
-                            Clear All
+                    <div class="header-actions">
+                        <a asp-page="./Create" class="btn-modern">
+                            <i class="fas fa-plus"></i>
+                            Add Vehicle
                         </a>
                     </div>
+                </div>
+            </div>
+
+            <div class="vehicle-card">
+                <div class="vehicle-card-body">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert-modern success">
+                            <i class="fas fa-check-circle"></i>
+                            @TempData["SuccessMessage"]
+                        </div>
+                    }
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert-modern error">
+                            <i class="fas fa-exclamation-circle"></i>
+                            @TempData["ErrorMessage"]
+                        </div>
+                    }
+
+                    <form method="get" class="search-container">
+                        <div class="flex-grow-1">
+                            <input type="text"
+                                   class="search-modern"
+                                   name="SearchTerm"
+                                   value="@Model.SearchTerm"
+                                   placeholder="Search by model or trim..." />
+                        </div>
+                        <div class="search-filters">
+                            <select name="SortBy" class="form-control-modern" style="width: auto; min-width: 150px;">
+                                <option value="">Sort By</option>
+                                <option value="ModelName" selected="@(Model.SortBy == "ModelName")">Model Name</option>
+                                <option value="ModelYear" selected="@(Model.SortBy == "ModelYear")">Model Year</option>
+                                <option value="BasePrice" selected="@(Model.SortBy == "BasePrice")">Base Price</option>
+                            </select>
+                            <select name="SortDesc" class="form-control-modern" style="width: auto; min-width: 120px;">
+                                <option value="false" selected="@(!Model.SortDesc)">Ascending</option>
+                                <option value="true" selected="@Model.SortDesc">Descending</option>
+                            </select>
+                            <button type="submit" class="btn-modern">
+                                <i class="fas fa-search"></i>
+                                Search
+                            </button>
+                            @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                            {
+                                <a asp-page-handler="ClearFilters" class="btn-modern-secondary">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            }
+                        </div>
+                    </form>
+
+                    <div class="table-modern">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 80px;">Image</th>
+                                    <th>Vehicle</th>
+                                    <th>Specifications</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th style="width: 150px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Vehicles.TotalCount == 0)
+                                {
+                                    <tr>
+                                        <td colspan="6" style="text-align: center; padding: 3rem; color: #666;">
+                                            <div style="margin-bottom: 1rem;">
+                                                <i class="fas fa-car-side" style="font-size: 2rem; color: #333;"></i>
+                                            </div>
+                                            <div style="font-size: 1rem; margin-bottom: 0.5rem; color: #ccc;">No vehicles found</div>
+                                            <div style="font-size: 0.875rem;">
+                                                @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                                                {
+                                                    <span>Try adjusting your search criteria</span>
+                                                }
+                                                else
+                                                {
+                                                    <span>Get started by adding your first vehicle</span>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @foreach (var vehicle in Model.Vehicles)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="vehicle-thumbnail">
+                                                    <img src="@vehicle.ImageUrl" alt="@vehicle.ModelName" />
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <div style="font-weight: 500; color: #fff; font-size: 0.875rem;">
+                                                        @vehicle.ModelName @vehicle.TrimName
+                                                    </div>
+                                                    <div style="font-size: 0.75rem; color: #666;">
+                                                        @vehicle.ModelYear
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div style="display: flex; gap: 1rem; font-size: 0.75rem;">
+                                                    <div>
+                                                        <i class="fas fa-battery-full" style="color: #0070f3;"></i>
+                                                        @vehicle.BatteryCapacity kWh
+                                                    </div>
+                                                    <div>
+                                                        <i class="fas fa-road" style="color: #00d4aa;"></i>
+                                                        @vehicle.RangeKM km
+                                                    </div>
+                                                    <div>
+                                                        <i class="fas fa-tachometer-alt" style="color: #ff6b35;"></i>
+                                                        @vehicle.TopSpeed km/h
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div style="font-weight: 500; color: #0070f3; font-size: 0.875rem;">
+                                                    $@vehicle.BasePrice.ToString("N0")
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="status-badge @(vehicle.IsActive ? "active" : "inactive")">
+                                                    @(vehicle.IsActive ? "Active" : "Inactive")
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <a asp-page="./Details"
+                                                       asp-route-id="@vehicle.Id"
+                                                       class="btn-action view"
+                                                       title="View Details">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a asp-page="./Edit"
+                                                       asp-route-id="@vehicle.Id"
+                                                       class="btn-action edit"
+                                                       title="Edit Vehicle">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <button type="button"
+                                                            class="btn-action delete"
+                                                            onclick="showDeleteModal('@vehicle.Id', '@vehicle.ModelName @vehicle.TrimName')"
+                                                            title="Delete Vehicle">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @if (Model.Vehicles.TotalPages > 1)
+                    {
+                        <div class="pagination-modern">
+                            @if (Model.Vehicles.HasPrevious)
+                            {
+                                <a class="page-link"
+                                   asp-page="./Index"
+                                   asp-route-PageNumber="@(Model.Vehicles.CurrentPage - 1)"
+                                   asp-route-PageSize="@Model.Vehicles.PageSize"
+                                   asp-route-SearchTerm="@Model.SearchTerm"
+                                   asp-route-SortBy="@Model.SortBy"
+                                   asp-route-SortDesc="@Model.SortDesc">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            }
+
+                            @for (var i = Math.Max(1, Model.Vehicles.CurrentPage - 2); i <= Math.Min(Model.Vehicles.TotalPages, Model.Vehicles.CurrentPage + 2); i++)
+                            {
+                                <a class="page-link @(i == Model.Vehicles.CurrentPage ? "active" : "")"
+                                   asp-page="./Index"
+                                   asp-route-PageNumber="@i"
+                                   asp-route-PageSize="@Model.Vehicles.PageSize"
+                                   asp-route-SearchTerm="@Model.SearchTerm"
+                                   asp-route-SortBy="@Model.SortBy"
+                                   asp-route-SortDesc="@Model.SortDesc">
+                                    @i
+                                </a>
+                            }
+
+                            @if (Model.Vehicles.HasNext)
+                            {
+                                <a class="page-link"
+                                   asp-page="./Index"
+                                   asp-route-PageNumber="@(Model.Vehicles.CurrentPage + 1)"
+                                   asp-route-PageSize="@Model.Vehicles.PageSize"
+                                   asp-route-SearchTerm="@Model.SearchTerm"
+                                   asp-route-SortBy="@Model.SortBy"
+                                   asp-route-SortDesc="@Model.SortDesc">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="deleteModal" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Confirm Delete</h3>
+                <button class="modal-close" onclick="hideDeleteModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="background: rgba(238, 0, 0, 0.1); border: 1px solid #e00; border-radius: 6px; padding: 0.75rem; margin-bottom: 1rem;">
+                    <div style="color: #e00; font-weight: 500; margin-bottom: 0.25rem; font-size: 0.875rem;">
+                        <i class="fas fa-exclamation-triangle"></i> Warning
+                    </div>
+                    <div style="color: #ccc; font-size: 0.75rem;">
+                        This action cannot be undone. The vehicle will be permanently removed from the system.
+                    </div>
+                </div>
+
+                <p id="deleteMessage" style="margin-bottom: 1rem; color: #ccc; font-size: 0.875rem;"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-modern-secondary" onclick="hideDeleteModal()">Cancel</button>
+                <form id="deleteForm" method="post" asp-page-handler="Delete" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="deleteVehicleId" />
+                    <button type="submit" class="btn-modern-danger">
+                        <i class="fas fa-trash"></i>
+                        Delete Vehicle
+                    </button>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Results Table -->
-    <div class="card shadow">
-        <div class="card-header bg-light">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h5 class="mb-0">
-                        Showing @Model.Vehicles.Count of @Model.Vehicles.TotalCount vehicles
-                        @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
-                        {
-                            <span class="badge bg-info">Search: @Model.SearchTerm</span>
-                        }
-                    </h5>
-                </div>
-                <div class="col-md-6 text-end">
-                    <form method="get" class="d-inline-flex gap-2">
-                        <!-- Preserve all filter parameters -->
-                        <input type="hidden" name="searchTerm" value="@Model.SearchTerm" />
-                        <input type="hidden" name="minPrice" value="@Model.MinPrice" />
-                        <input type="hidden" name="maxPrice" value="@Model.MaxPrice" />
-                        <input type="hidden" name="minRange" value="@Model.MinRange" />
-                        <input type="hidden" name="maxRange" value="@Model.MaxRange" />
-                        <input type="hidden" name="minBattery" value="@Model.MinBattery" />
-                        <input type="hidden" name="maxBattery" value="@Model.MaxBattery" />
-                        <input type="hidden" name="minSpeed" value="@Model.MinSpeed" />
-                        <input type="hidden" name="maxSpeed" value="@Model.MaxSpeed" />
-                        <input type="hidden" name="minCharging" value="@Model.MinCharging" />
-                        <input type="hidden" name="maxCharging" value="@Model.MaxCharging" />
-                        <input type="hidden" name="modelYear" value="@Model.ModelYear" />
-                        <input type="hidden" name="sortBy" value="@Model.SortBy" />
-                        <input type="hidden" name="sortDesc" value="@Model.SortDesc" />
+@section Scripts {
+        <script>
+            function showDeleteModal(vehicleId, vehicleName) {
+                const modal = document.getElementById('deleteModal');
+                const form = document.getElementById('deleteForm');
+                const message = document.getElementById('deleteMessage');
+                const hiddenId = document.getElementById('deleteVehicleId');
 
-                        <label class="col-form-label">Items per page:</label>
-                        <select name="pageSize" asp-for="PageSize" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="20">20</option>
-                            <option value="50">50</option>
-                        </select>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Image</th>
-                            <th>Model</th>
-                            <th>Year</th>
-                            <th>Price</th>
-                            <th>Battery (kWh)</th>
-                            <th>Range (km)</th>
-                            <th>Speed (km/h)</th>
-                            <th>Charging (min)</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (Model.Vehicles != null && Model.Vehicles.Any())
-                        {
-                            @foreach (var vehicle in Model.Vehicles)
-                            {
-                                <tr>
-                                    <td>
-                                        <img src="@vehicle.ImageUrl" alt="@vehicle.ModelName" 
-                                             class="img-thumbnail" style="width: 80px; height: 60px; object-fit: cover;">
-                                    </td>
-                                    <td>
-                                        <strong>@vehicle.ModelName</strong><br>
-                                        <small class="text-muted">@vehicle.TrimName</small>
-                                    </td>
-                                    <td>@vehicle.ModelYear</td>
-                                    <td><strong>$@vehicle.BasePrice.ToString("N0")</strong></td>
-                                    <td>@vehicle.BatteryCapacity.ToString("N0")</td>
-                                    <td>@vehicle.RangeKM</td>
-                                    <td>@vehicle.TopSpeed</td>
-                                    <td>@vehicle.ChargingTime</td>
-                                    <td>
-                                        @if (vehicle.IsActive)
-                                        {
-                                            <span class="badge bg-success">Active</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary">Inactive</span>
-                                        }
-                                    </td>
-                                    <td>
-                                        <div class="btn-group" role="group">
-                                            <a asp-page="Details" asp-route-id="@vehicle.Id" 
-                                               class="btn btn-sm btn-info" title="Details">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-                                            <a asp-page="Edit" asp-route-id="@vehicle.Id" 
-                                               class="btn btn-sm btn-warning" title="Edit">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-                                            <button type="button" class="btn btn-sm btn-danger" 
-                                                    data-bs-toggle="modal" 
-                                                    data-bs-target="#deleteModal-@vehicle.Id" 
-                                                    title="Delete">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </div>
+                hiddenId.value = vehicleId;
+                message.innerHTML = `Are you sure you want to delete <strong style="color: #0070f3;">${vehicleName}</strong>?`;
 
-                                        <!-- Delete Modal -->
-                                        <div class="modal fade" id="deleteModal-@vehicle.Id" tabindex="-1">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title">Confirm Delete</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        Are you sure you want to delete <strong>@vehicle.ModelName @vehicle.TrimName</strong>?
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                        <form method="post" asp-page-handler="Delete" asp-route-id="@vehicle.Id">
-                                                            @Html.AntiForgeryToken()
-                                                            <input type="hidden" name="PageNumber" value="@Model.PageNumber" />
-                                                            <input type="hidden" name="PageSize" value="@Model.PageSize" />
-                                                            <input type="hidden" name="searchTerm" value="@Model.SearchTerm" />
-                                                            <input type="hidden" name="minPrice" value="@Model.MinPrice" />
-                                                            <input type="hidden" name="maxPrice" value="@Model.MaxPrice" />
-                                                            <button type="submit" class="btn btn-danger">Delete</button>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        }
-                        else
-                        {
-                            <tr>
-                                <td colspan="10" class="text-center">No vehicles found matching your criteria</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        @if (Model.Vehicles.TotalPages > 1)
-        {
-            <div class="card-footer">
-                <nav aria-label="Vehicle pagination">
-                    <ul class="pagination justify-content-center mb-0">
-                        @{
-                            var routeValues = new Dictionary<string, string?>
-                            {
-                                ["pageSize"] = Model.PageSize.ToString(),
-                                ["searchTerm"] = Model.SearchTerm,
-                                ["minPrice"] = Model.MinPrice?.ToString(),
-                                ["maxPrice"] = Model.MaxPrice?.ToString(),
-                                ["minRange"] = Model.MinRange?.ToString(),
-                                ["maxRange"] = Model.MaxRange?.ToString(),
-                                ["minBattery"] = Model.MinBattery?.ToString(),
-                                ["maxBattery"] = Model.MaxBattery?.ToString(),
-                                ["minSpeed"] = Model.MinSpeed?.ToString(),
-                                ["maxSpeed"] = Model.MaxSpeed?.ToString(),
-                                ["minCharging"] = Model.MinCharging?.ToString(),
-                                ["maxCharging"] = Model.MaxCharging?.ToString(),
-                                ["modelYear"] = Model.ModelYear?.ToString(),
-                                ["sortBy"] = Model.SortBy,
-                                ["sortDesc"] = Model.SortDesc.ToString()
-                            };
-                        }
+                modal.style.display = 'flex';
+            }
 
-                        <!-- First Page -->
-                        <li class="page-item @(Model.Vehicles.HasPrevious ? "" : "disabled")">
-                            <a class="page-link" asp-page="./Index" asp-all-route-data="@(new Dictionary<string, string?>(routeValues) { ["pageNumber"] = "1" })">
-                                <i class="bi bi-chevron-double-left"></i>
-                            </a>
-                        </li>
+            function hideDeleteModal() {
+                document.getElementById('deleteModal').style.display = 'none';
+            }
 
-                        <!-- Previous Page -->
-                        <li class="page-item @(Model.Vehicles.HasPrevious ? "" : "disabled")">
-                            <a class="page-link" asp-page="./Index" asp-all-route-data="@(new Dictionary<string, string?>(routeValues) { ["pageNumber"] = (Model.PageNumber - 1).ToString() })">
-                                <i class="bi bi-chevron-left"></i>
-                            </a>
-                        </li>
+            document.getElementById('deleteModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    hideDeleteModal();
+                }
+            });
 
-                        <!-- Page Numbers -->
-                        @{
-                            var startPage = Math.Max(1, Model.PageNumber - 2);
-                            var endPage = Math.Min(Model.Vehicles.TotalPages, Model.PageNumber + 2);
-
-                            for (var i = startPage; i <= endPage; i++)
-                            {
-                                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
-                                    <a class="page-link" asp-page="./Index" asp-all-route-data="@(new Dictionary<string, string?>(routeValues) { ["pageNumber"] = i.ToString() })">
-                                        @i
-                                    </a>
-                                </li>
-                            }
-                        }
-
-                        <!-- Next Page -->
-                        <li class="page-item @(Model.Vehicles.HasNext ? "" : "disabled")">
-                            <a class="page-link" asp-page="./Index" asp-all-route-data="@(new Dictionary<string, string?>(routeValues) { ["pageNumber"] = (Model.PageNumber + 1).ToString() })">
-                                <i class="bi bi-chevron-right"></i>
-                            </a>
-                        </li>
-
-                        <!-- Last Page -->
-                        <li class="page-item @(Model.Vehicles.HasNext ? "" : "disabled")">
-                            <a class="page-link" asp-page="./Index" asp-all-route-data="@(new Dictionary<string, string?>(routeValues) { ["pageNumber"] = Model.Vehicles.TotalPages.ToString() })">
-                                <i class="bi bi-chevron-double-right"></i>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-                <div class="text-center mt-2">
-                    <small class="text-muted">
-                        Page @Model.PageNumber of @Model.Vehicles.TotalPages 
-                        (@Model.Vehicles.TotalCount total items)
-                    </small>
-                </div>
-            </div>
-        }
-    </div>
-</div>
+            setTimeout(function () {
+                const alerts = document.querySelectorAll('.alert-modern');
+                alerts.forEach(alert => alert.style.display = 'none');
+            }, 5000);
+        </script>
+}
