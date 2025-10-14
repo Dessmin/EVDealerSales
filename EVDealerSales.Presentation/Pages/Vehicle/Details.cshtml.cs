@@ -1,4 +1,4 @@
-using EVDealerSales.Business.Interfaces;
+﻿using EVDealerSales.Business.Interfaces;
 using EVDealerSales.BusinessObject.DTOs.VehicleDTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -49,6 +49,32 @@ namespace EVDealerSales.Presentation.Pages.Vehicle
                 TempData["ErrorMessage"] = "An error occurred while loading vehicle details.";
                 return RedirectToPage("Index");
             }
+        }
+
+        public async Task<IActionResult> OnPostDeleteAsync(Guid id)
+        {
+            try
+            {
+                _logger.LogInformation("Attempting to delete vehicle with ID: {VehicleId} from details page", id);
+
+                var deleted = await _vehicleService.DeleteVehicleAsync(id);
+
+                if (deleted)
+                {
+                    TempData["SuccessMessage"] = "Vehicle deleted successfully.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Vehicle not found or could not be deleted.";
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting vehicle with ID: {VehicleId}", id);
+                TempData["ErrorMessage"] = "An error occurred while deleting the vehicle.";
+            }
+
+            return RedirectToPage("Index");
         }
     }
 }
