@@ -1,0 +1,428 @@
+@page
+@model EVDealerSales.Presentation.Pages.Vehicle.IndexModel
+@{
+    ViewData["Title"] = "Vehicles Management";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fa-solid fa-car me-2"></i>
+            Vehicles Management
+        </h2>
+        <a asp-page="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i>
+            Add New Vehicle
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Search and Filter Section -->
+    <div class="card shadow mb-3">
+        <div class="card-header bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-funnel me-2"></i>
+                    Search & Filters
+                </h5>
+                <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+                    <i class="bi bi-chevron-down"></i>
+                </button>
+            </div>
+        </div>
+        <div class="collapse show" id="filterCollapse">
+            <div class="card-body">
+                <form method="get">
+                    <input type="hidden" name="pageNumber" value="1" />
+                    <input type="hidden" name="pageSize" asp-for="PageSize" />
+
+                    <!-- Search -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Search by Name</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                <input type="text" class="form-control" name="searchTerm" asp-for="SearchTerm" 
+                                       placeholder="Search by model or trim name...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Price Range -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Price Range ($)</label>
+                            <div class="row g-2">
+                                <div class="col">
+                                    <input type="number" class="form-control" name="minPrice" asp-for="MinPrice" 
+                                           placeholder="Min" step="1" min="0" pattern="[0-9]*">
+                                </div>
+                                <div class="col-auto align-self-center">-</div>
+                                <div class="col">
+                                    <input type="number" class="form-control" name="maxPrice" asp-for="MaxPrice" 
+                                           placeholder="Max" step="1" min="0" pattern="[0-9]*">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Range (km) -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Range (km)</label>
+                            <div class="row g-2">
+                                <div class="col">
+                                    <input type="number" class="form-control" name="minRange" asp-for="MinRange" 
+                                           placeholder="Min" step="1" min="0" pattern="[0-9]*">
+                                </div>
+                                <div class="col-auto align-self-center">-</div>
+                                <div class="col">
+                                    <input type="number" class="form-control" name="maxRange" asp-for="MaxRange" 
+                                           placeholder="Max" step="1" min="0" pattern="[0-9]*">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Battery Capacity -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Battery Capacity (kWh)</label>
+                            <div class="row g-2">
+                                <div class="col">
+                                    <input type="number" class="form-control" name="minBattery" asp-for="MinBattery" 
+                                           placeholder="Min" step="1" min="0" pattern="[0-9]*">
+                                </div>
+                                <div class="col-auto align-self-center">-</div>
+                                <div class="col">
+                                    <input type="number" class="form-control" name="maxBattery" asp-for="MaxBattery" 
+                                           placeholder="Max" step="1" min="0" pattern="[0-9]*">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Top Speed -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Top Speed (km/h)</label>
+                            <div class="row g-2">
+                                <div class="col">
+                                    <input type="number" class="form-control" name="minSpeed" asp-for="MinSpeed" 
+                                           placeholder="Min" step="1" min="0" pattern="[0-9]*">
+                                </div>
+                                <div class="col-auto align-self-center">-</div>
+                                <div class="col">
+                                    <input type="number" class="form-control" name="maxSpeed" asp-for="MaxSpeed" 
+                                           placeholder="Max" step="1" min="0" pattern="[0-9]*">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charging Time & Model Year -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Charging Time (min)</label>
+                            <div class="row g-2">
+                                <div class="col">
+                                    <input type="number" class="form-control" name="minCharging" asp-for="MinCharging" 
+                                           placeholder="Min" step="1" min="0" pattern="[0-9]*">
+                                </div>
+                                <div class="col-auto align-self-center">-</div>
+                                <div class="col">
+                                    <input type="number" class="form-control" name="maxCharging" asp-for="MaxCharging" 
+                                           placeholder="Max" step="1" min="0" pattern="[0-9]*">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Model Year</label>
+                            <input type="number" class="form-control" name="modelYear" asp-for="ModelYear" 
+                                   placeholder="e.g., 2025" step="1" min="2000" max="2100" pattern="[0-9]*">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Sort By</label>
+                            <select class="form-select" name="sortBy" asp-for="SortBy">
+                                <option value="">Default (Newest)</option>
+                                <option value="name">Name</option>
+                                <option value="price">Price</option>
+                                <option value="range">Range</option>
+                                <option value="battery">Battery</option>
+                                <option value="speed">Top Speed</option>
+                                <option value="charging">Charging Time</option>
+                                <option value="year">Model Year</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Sort Direction -->
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="sortDesc" asp-for="SortDesc">
+                                <label class="form-check-label" asp-for="SortDesc">
+                                    Sort Descending
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search me-1"></i>
+                            Apply Filters
+                        </button>
+                        <a asp-page="./Index" asp-route-pageNumber="1" asp-route-pageSize="@Model.PageSize" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-1"></i>
+                            Clear All
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Table -->
+    <div class="card shadow">
+        <div class="card-header bg-light">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5 class="mb-0">
+                        Showing @Model.Vehicles.Count of @Model.Vehicles.TotalCount vehicles
+                        @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
+                        {
+                            <span class="badge bg-info">Search: @Model.SearchTerm</span>
+                        }
+                    </h5>
+                </div>
+                <div class="col-md-6 text-end">
+                    <form method="get" class="d-inline-flex gap-2">
+                        <!-- Preserve all filter parameters -->
+                        <input type="hidden" name="searchTerm" value="@Model.SearchTerm" />
+                        <input type="hidden" name="minPrice" value="@Model.MinPrice" />
+                        <input type="hidden" name="maxPrice" value="@Model.MaxPrice" />
+                        <input type="hidden" name="minRange" value="@Model.MinRange" />
+                        <input type="hidden" name="maxRange" value="@Model.MaxRange" />
+                        <input type="hidden" name="minBattery" value="@Model.MinBattery" />
+                        <input type="hidden" name="maxBattery" value="@Model.MaxBattery" />
+                        <input type="hidden" name="minSpeed" value="@Model.MinSpeed" />
+                        <input type="hidden" name="maxSpeed" value="@Model.MaxSpeed" />
+                        <input type="hidden" name="minCharging" value="@Model.MinCharging" />
+                        <input type="hidden" name="maxCharging" value="@Model.MaxCharging" />
+                        <input type="hidden" name="modelYear" value="@Model.ModelYear" />
+                        <input type="hidden" name="sortBy" value="@Model.SortBy" />
+                        <input type="hidden" name="sortDesc" value="@Model.SortDesc" />
+
+                        <label class="col-form-label">Items per page:</label>
+                        <select name="pageSize" asp-for="PageSize" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Image</th>
+                            <th>Model</th>
+                            <th>Year</th>
+                            <th>Price</th>
+                            <th>Battery (kWh)</th>
+                            <th>Range (km)</th>
+                            <th>Speed (km/h)</th>
+                            <th>Charging (min)</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Vehicles != null && Model.Vehicles.Any())
+                        {
+                            @foreach (var vehicle in Model.Vehicles)
+                            {
+                                <tr>
+                                    <td>
+                                        <img src="@vehicle.ImageUrl" alt="@vehicle.ModelName" 
+                                             class="img-thumbnail" style="width: 80px; height: 60px; object-fit: cover;">
+                                    </td>
+                                    <td>
+                                        <strong>@vehicle.ModelName</strong><br>
+                                        <small class="text-muted">@vehicle.TrimName</small>
+                                    </td>
+                                    <td>@vehicle.ModelYear</td>
+                                    <td><strong>$@vehicle.BasePrice.ToString("N0")</strong></td>
+                                    <td>@vehicle.BatteryCapacity.ToString("N0")</td>
+                                    <td>@vehicle.RangeKM</td>
+                                    <td>@vehicle.TopSpeed</td>
+                                    <td>@vehicle.ChargingTime</td>
+                                    <td>
+                                        @if (vehicle.IsActive)
+                                        {
+                                            <span class="badge bg-success">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Inactive</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-page="Details" asp-route-id="@vehicle.Id" 
+                                               class="btn btn-sm btn-info" title="Details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a asp-page="Edit" asp-route-id="@vehicle.Id" 
+                                               class="btn btn-sm btn-warning" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-danger" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteModal-@vehicle.Id" 
+                                                    title="Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+
+                                        <!-- Delete Modal -->
+                                        <div class="modal fade" id="deleteModal-@vehicle.Id" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Confirm Delete</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Are you sure you want to delete <strong>@vehicle.ModelName @vehicle.TrimName</strong>?
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form method="post" asp-page-handler="Delete" asp-route-id="@vehicle.Id">
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="PageNumber" value="@Model.PageNumber" />
+                                                            <input type="hidden" name="PageSize" value="@Model.PageSize" />
+                                                            <input type="hidden" name="searchTerm" value="@Model.SearchTerm" />
+                                                            <input type="hidden" name="minPrice" value="@Model.MinPrice" />
+                                                            <input type="hidden" name="maxPrice" value="@Model.MaxPrice" />
+                                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="10" class="text-center">No vehicles found matching your criteria</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @if (Model.Vehicles.TotalPages > 1)
+        {
+            <div class="card-footer">
+                <nav aria-label="Vehicle pagination">
+                    <ul class="pagination justify-content-center mb-0">
+                        @{
+                            var routeValues = new Dictionary<string, string?>
+                            {
+                                ["pageSize"] = Model.PageSize.ToString(),
+                                ["searchTerm"] = Model.SearchTerm,
+                                ["minPrice"] = Model.MinPrice?.ToString(),
+                                ["maxPrice"] = Model.MaxPrice?.ToString(),
+                                ["minRange"] = Model.MinRange?.ToString(),
+                                ["maxRange"] = Model.MaxRange?.ToString(),
+                                ["minBattery"] = Model.MinBattery?.ToString(),
+                                ["maxBattery"] = Model.MaxBattery?.ToString(),
+                                ["minSpeed"] = Model.MinSpeed?.ToString(),
+                                ["maxSpeed"] = Model.MaxSpeed?.ToString(),
+                                ["minCharging"] = Model.MinCharging?.ToString(),
+                                ["maxCharging"] = Model.MaxCharging?.ToString(),
+                                ["modelYear"] = Model.ModelYear?.ToString(),
+                                ["sortBy"] = Model.SortBy,
+                                ["sortDesc"] = Model.SortDesc.ToString()
+                            };
+                        }
+
+                        <!-- First Page -->
+                        <li class="page-item @(Model.Vehicles.HasPrevious ? "" : "disabled")">
+                            <a class="page-link" asp-page="./Index" asp-all-route-data="@(new Dictionary<string, string?>(routeValues) { ["pageNumber"] = "1" })">
+                                <i class="bi bi-chevron-double-left"></i>
+                            </a>
+                        </li>
+
+                        <!-- Previous Page -->
+                        <li class="page-item @(Model.Vehicles.HasPrevious ? "" : "disabled")">
+                            <a class="page-link" asp-page="./Index" asp-all-route-data="@(new Dictionary<string, string?>(routeValues) { ["pageNumber"] = (Model.PageNumber - 1).ToString() })">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+
+                        <!-- Page Numbers -->
+                        @{
+                            var startPage = Math.Max(1, Model.PageNumber - 2);
+                            var endPage = Math.Min(Model.Vehicles.TotalPages, Model.PageNumber + 2);
+
+                            for (var i = startPage; i <= endPage; i++)
+                            {
+                                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                    <a class="page-link" asp-page="./Index" asp-all-route-data="@(new Dictionary<string, string?>(routeValues) { ["pageNumber"] = i.ToString() })">
+                                        @i
+                                    </a>
+                                </li>
+                            }
+                        }
+
+                        <!-- Next Page -->
+                        <li class="page-item @(Model.Vehicles.HasNext ? "" : "disabled")">
+                            <a class="page-link" asp-page="./Index" asp-all-route-data="@(new Dictionary<string, string?>(routeValues) { ["pageNumber"] = (Model.PageNumber + 1).ToString() })">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+
+                        <!-- Last Page -->
+                        <li class="page-item @(Model.Vehicles.HasNext ? "" : "disabled")">
+                            <a class="page-link" asp-page="./Index" asp-all-route-data="@(new Dictionary<string, string?>(routeValues) { ["pageNumber"] = Model.Vehicles.TotalPages.ToString() })">
+                                <i class="bi bi-chevron-double-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="text-center mt-2">
+                    <small class="text-muted">
+                        Page @Model.PageNumber of @Model.Vehicles.TotalPages 
+                        (@Model.Vehicles.TotalCount total items)
+                    </small>
+                </div>
+            </div>
+        }
+    </div>
+</div>

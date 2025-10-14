@@ -1,0 +1,127 @@
+﻿@page "{id:guid}"
+@model EVDealerSales.Presentation.Pages.Vehicle.DetailVehiclesModel
+@{
+    ViewData["Title"] = $"{Model.Vehicle?.ModelName} {Model.Vehicle?.TrimName}" ?? "Vehicle Details";
+}
+
+@section Styles {
+        {{/* Đặt nội dung CSS link vào đây để nó được render trong
+    <head>
+        của _Layout.cshtml */}}
+        <link rel="stylesheet" href="~/css/vehicle.css" />
+    </head>
+}
+
+    <div class="vehicle-detail-container">
+        <div class="detail-back-nav">
+            <a asp-page="/Vehicle/BrowseVehicles" class="back-link">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Browse</span>
+            </a>
+        </div>
+
+        <div class="detail-hero">
+            <div class="detail-image-wrapper">
+                <img src="@Model.Vehicle.ImageUrl" alt="@Model.Vehicle.ModelName @Model.Vehicle.TrimName" class="detail-vehicle-image" />
+                @if (!Model.Vehicle.IsActive)
+                {
+                    <div class="detail-inactive-badge">
+                        <i class="fas fa-ban"></i>
+                        <span>Currently Unavailable</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="detail-content">
+            <div class="detail-header">
+                <div class="detail-title-section">
+                    <h1 class="detail-model-name">@Model.Vehicle.ModelName</h1>
+                    <p class="detail-trim-year">
+                        @Model.Vehicle.TrimName @if(Model.Vehicle.ModelYear.HasValue) {
+                        <span>• @Model.Vehicle.ModelYear</span>
+                                                }
+                    </p>
+                </div>
+                <div class="detail-price-section">
+                    <p class="detail-price-label">Starting at</p>
+                    <p class="detail-price">$@Model.Vehicle.BasePrice.ToString("N0")</p>
+                </div>
+            </div>
+
+            <div class="detail-specs-section">
+                <h2 class="detail-section-title">
+                    <i class="fas fa-bolt"></i>
+                    Electric Performance
+                </h2>
+                <div class="detail-specs-grid">
+                    <div class="detail-spec-card">
+                        <div class="spec-icon">
+                            <i class="fas fa-battery-full"></i>
+                        </div>
+                        <div class="spec-content">
+                            <p class="spec-label">Battery Capacity</p>
+                            <p class="spec-value">@Model.Vehicle.BatteryCapacity kWh</p>
+                        </div>
+                    </div>
+
+                    <div class="detail-spec-card">
+                        <div class="spec-icon">
+                            <i class="fas fa-road"></i>
+                        </div>
+                        <div class="spec-content">
+                            <p class="spec-label">Range</p>
+                            <p class="spec-value">@Model.Vehicle.RangeKM km</p>
+                        </div>
+                    </div>
+
+                    <div class="detail-spec-card">
+                        <div class="spec-icon">
+                            <i class="fas fa-charging-station"></i>
+                        </div>
+                        <div class="spec-content">
+                            <p class="spec-label">Charging Time</p>
+                            <p class="spec-value">@Model.Vehicle.ChargingTime hrs</p>
+                        </div>
+                    </div>
+
+                    <div class="detail-spec-card">
+                        <div class="spec-icon">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <div class="spec-content">
+                            <p class="spec-label">Top Speed</p>
+                            <p class="spec-value">@Model.Vehicle.TopSpeed km/h</p>
+                        </div>
+                    </div>
+                </div>       
+            </div>
+
+            <div class="detail-cta-section">
+                <a asp-page="/Staff/CheckCustomerEmail" asp-route-vehicleId="@Model.Vehicle.Id" class="detail-appointment-btn">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Make an Appointment</span>
+                </a>
+                <p class="detail-cta-note">Schedule a test drive and experience the future of driving</p>
+            </div>
+        </div>
+    </div>
+
+@section Scripts {
+        <script>
+            // Add smooth scroll behavior
+            document.addEventListener('DOMContentLoaded', function() {
+                const detailContent = document.querySelector('.detail-content');
+                if (detailContent) {
+                    detailContent.style.opacity = '0';
+                    detailContent.style.transform = 'translateY(20px)';
+
+                    setTimeout(() => {
+                        detailContent.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                        detailContent.style.opacity = '1';
+                        detailContent.style.transform = 'translateY(0)';
+                    }, 100);
+                }
+            });
+        </script>
+}
