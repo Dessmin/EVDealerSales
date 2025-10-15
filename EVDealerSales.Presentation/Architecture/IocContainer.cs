@@ -57,6 +57,7 @@ namespace EVDealerSales.Presentation.Architecture
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IVehicleService, VehicleService>();
+            services.AddScoped<ITestDriveService, TestDriveService>();
             services.AddHttpContextAccessor();
 
             return services;

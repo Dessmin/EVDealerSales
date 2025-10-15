@@ -1,0 +1,430 @@
+@page "{id:guid}"
+@model EVDealerSales.Presentation.Pages.TestDrive.DetailsModel
+@{
+    ViewData["Title"] = "Test Drive Details";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/testdrive.css" />
+}
+
+<div class="testdrive-container">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="testdrive-header">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h1>
+                        <i class="fas fa-calendar-check"></i>
+                        Test Drive Details
+                    </h1>
+                    <p class="header-subtitle">
+                        View and manage test drive appointment information
+                    </p>
+                </div>
+                <div class="header-actions">
+                    @if (User.IsInRole("DealerStaff") || User.IsInRole("DealerManager"))
+                    {
+                        <a asp-page="Index" class="btn-testdrive-secondary">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to List
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-page="MyTestDrives" class="btn-testdrive-secondary">
+                            <i class="fas fa-arrow-left"></i>
+                            My Test Drives
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Alerts -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert-testdrive success">
+                <i class="fas fa-check-circle"></i>
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert-testdrive error">
+                <i class="fas fa-exclamation-circle"></i>
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        @if (Model.TestDrive == null)
+        {
+            <div class="empty-state-testdrive">
+                <div class="empty-icon-testdrive">
+                    <i class="fas fa-calendar-xmark"></i>
+                </div>
+                <h3 class="empty-title-testdrive">Test Drive Not Found</h3>
+                <p class="empty-description-testdrive">
+                    The test drive you're looking for doesn't exist or has been removed.
+                </p>
+                <a asp-page="Index" class="btn-testdrive">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to List
+                </a>
+            </div>
+        }
+        else
+        {
+            <!-- Main Card -->
+            <div class="testdrive-card">
+                <div class="testdrive-card-header">
+                    <h3>
+                        <i class="fas fa-info-circle"></i>
+                        Appointment Information
+                    </h3>
+                    @switch (Model.TestDrive.Status)
+                    {
+                        case EVDealerSales.BusinessObject.Enums.TestDriveStatus.Pending:
+                            <span class="status-badge-testdrive pending">
+                                <i class="fas fa-clock"></i> Pending
+                            </span>
+                            break;
+                        case EVDealerSales.BusinessObject.Enums.TestDriveStatus.Confirmed:
+                            <span class="status-badge-testdrive confirmed">
+                                <i class="fas fa-check-circle"></i> Confirmed
+                            </span>
+                            break;
+                        case EVDealerSales.BusinessObject.Enums.TestDriveStatus.Completed:
+                            <span class="status-badge-testdrive completed">
+                                <i class="fas fa-check-double"></i> Completed
+                            </span>
+                            break;
+                        case EVDealerSales.BusinessObject.Enums.TestDriveStatus.Canceled:
+                            <span class="status-badge-testdrive canceled">
+                                <i class="fas fa-times-circle"></i> Canceled
+                            </span>
+                            break;
+                    }
+                </div>
+                <div class="testdrive-card-body">
+                    <!-- Vehicle Information -->
+                    <div style="margin-bottom: 2rem;">
+                        <h5 style="color: #fff; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-car" style="color: #0070f3;"></i>
+                            Vehicle Information
+                        </h5>
+                        <div class="vehicle-info-testdrive">
+                            <div class="vehicle-thumbnail-testdrive">
+                                <img src="@Model.TestDrive.VehicleImageUrl"
+                                     alt="@Model.TestDrive.VehicleModelName" />
+                            </div>
+                            <div class="vehicle-details-testdrive">
+                                <div class="vehicle-name">
+                                    @Model.TestDrive.VehicleModelName @Model.TestDrive.VehicleTrimName
+                                </div>
+                                <div class="vehicle-trim">
+                                    Electric Vehicle
+                                </div>
+                                <div style="margin-top: 0.75rem;">
+                                    <a asp-page="/Vehicle/DetailVehicles" asp-route-id="@Model.TestDrive.VehicleId"
+                                       class="btn-testdrive-secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                                        <i class="fas fa-info-circle"></i> View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="border-top: 1px solid #1a1a1a; margin: 2rem 0;"></div>
+
+                    <!-- Customer & Staff Information -->
+                    <div class="testdrive-details-grid">
+                        <!-- Customer Info -->
+                        <div>
+                            <h5 style="color: #fff; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fas fa-user" style="color: #0070f3;"></i>
+                                Customer Information
+                            </h5>
+                            <div class="testdrive-detail-item">
+                                <div class="detail-label">Full Name</div>
+                                <div class="detail-value">@Model.TestDrive.CustomerName</div>
+                            </div>
+                            <div class="testdrive-detail-item">
+                                <div class="detail-label">Email</div>
+                                <div class="detail-value">@Model.TestDrive.CustomerEmail</div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(Model.TestDrive.CustomerPhone))
+                            {
+                                <div class="testdrive-detail-item">
+                                    <div class="detail-label">Phone</div>
+                                    <div class="detail-value">@Model.TestDrive.CustomerPhone</div>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Staff Info -->
+                        <div>
+                            <h5 style="color: #fff; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fas fa-user-tie" style="color: #00d4aa;"></i>
+                                Staff Assignment
+                            </h5>
+                            @if (!string.IsNullOrEmpty(Model.TestDrive.StaffName))
+                            {
+                                <div class="testdrive-detail-item">
+                                    <div class="detail-label">Staff Name</div>
+                                    <div class="detail-value">@Model.TestDrive.StaffName</div>
+                                </div>
+                                <div class="testdrive-detail-item">
+                                    <div class="detail-label">Staff Email</div>
+                                    <div class="detail-value">@Model.TestDrive.StaffEmail</div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert-testdrive warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    No staff assigned yet
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div style="border-top: 1px solid #1a1a1a; margin: 2rem 0;"></div>
+
+                    <!-- Schedule Information -->
+                    <h5 style="color: #fff; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-calendar-alt" style="color: #0070f3;"></i>
+                        Schedule Information
+                    </h5>
+                    <div style="background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+                        <div class="testdrive-details-grid">
+                            <div>
+                                <h6 style="color: #0070f3; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-clock"></i>
+                                    Scheduled Date & Time
+                                </h6>
+                                <p style="font-size: 1.25rem; color: #fff; margin: 0;">
+                                    <strong>@Model.TestDrive.ScheduledAt.ToString("MMMM dd, yyyy")</strong>
+                                    <br />
+                                    <strong>@Model.TestDrive.ScheduledAt.ToString("hh:mm tt")</strong>
+                                </p>
+                                <small style="color: #888;">Duration: ~2 hours</small>
+                            </div>
+                            <div>
+                                <h6 style="color: #888; margin-bottom: 1rem;">Timeline</h6>
+                                <ul style="list-style: none; padding: 0; margin: 0;">
+                                    <li style="margin-bottom: 0.75rem; color: #ccc; display: flex; align-items: center; gap: 0.5rem;">
+                                        <i class="fas fa-plus-circle" style="color: #22c55e;"></i>
+                                        <strong>Created:</strong>
+                                        <span style="color: #888;">@Model.TestDrive.CreatedAt.ToString("MMM dd, yyyy hh:mm tt")</span>
+                                    </li>
+                                    @if (Model.TestDrive.ConfirmedAt.HasValue)
+                                    {
+                                        <li style="margin-bottom: 0.75rem; color: #ccc; display: flex; align-items: center; gap: 0.5rem;">
+                                            <i class="fas fa-check-circle" style="color: #3b82f6;"></i>
+                                            <strong>Confirmed:</strong>
+                                            <span style="color: #888;">@Model.TestDrive.ConfirmedAt.Value.ToString("MMM dd, yyyy hh:mm tt")</span>
+                                        </li>
+                                    }
+                                    @if (Model.TestDrive.CompletedAt.HasValue)
+                                    {
+                                        <li style="margin-bottom: 0.75rem; color: #ccc; display: flex; align-items: center; gap: 0.5rem;">
+                                            <i class="fas fa-check-double" style="color: #22c55e;"></i>
+                                            <strong>Completed:</strong>
+                                            <span style="color: #888;">@Model.TestDrive.CompletedAt.Value.ToString("MMM dd, yyyy hh:mm tt")</span>
+                                        </li>
+                                    }
+                                    @if (Model.TestDrive.CanceledAt.HasValue)
+                                    {
+                                        <li style="margin-bottom: 0.75rem; color: #ccc; display: flex; align-items: center; gap: 0.5rem;">
+                                            <i class="fas fa-times-circle" style="color: #ef4444;"></i>
+                                            <strong>Canceled:</strong>
+                                            <span style="color: #888;">@Model.TestDrive.CanceledAt.Value.ToString("MMM dd, yyyy hh:mm tt")</span>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    @if (!string.IsNullOrEmpty(Model.TestDrive.Notes))
+                    {
+                        <div style="border-top: 1px solid #1a1a1a; margin: 2rem 0;"></div>
+                        <h5 style="color: #fff; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-sticky-note" style="color: #f59e0b;"></i>
+                            Notes
+                        </h5>
+                        <div style="background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 8px; padding: 1rem; margin-bottom: 2rem;">
+                            <p style="color: #ccc; margin: 0;">@Model.TestDrive.Notes</p>
+                        </div>
+                    }
+
+                    <!-- Cancellation Reason -->
+                    @if (!string.IsNullOrEmpty(Model.TestDrive.CancellationReason))
+                    {
+                        <div class="alert-testdrive error" style="margin-bottom: 2rem;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div>
+                                <strong>Cancellation Reason:</strong><br />
+                                @Model.TestDrive.CancellationReason
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Action Buttons -->
+                    <div style="border-top: 1px solid #1a1a1a; padding-top: 1.5rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                        @if (User.IsInRole("DealerStaff") || User.IsInRole("DealerManager"))
+                        {
+                            @if (Model.TestDrive.Status == EVDealerSales.BusinessObject.Enums.TestDriveStatus.Pending)
+                            {
+                                <button type="button" class="btn-testdrive-success" data-bs-toggle="modal" data-bs-target="#confirmModal">
+                                    <i class="fas fa-check-circle"></i> Confirm
+                                </button>
+                            }
+
+                            @if (Model.TestDrive.Status == EVDealerSales.BusinessObject.Enums.TestDriveStatus.Confirmed)
+                            {
+                                <button type="button" class="btn-testdrive" data-bs-toggle="modal" data-bs-target="#completeModal">
+                                    <i class="fas fa-check-double"></i> Complete
+                                </button>
+                            }
+                        }
+
+                        @if (Model.TestDrive.Status != EVDealerSales.BusinessObject.Enums.TestDriveStatus.Completed &&
+                                            Model.TestDrive.Status != EVDealerSales.BusinessObject.Enums.TestDriveStatus.Canceled)
+                        {
+                            <button type="button" class="btn-testdrive-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                                <i class="fas fa-times-circle"></i> Cancel
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content-testdrive">
+            <form method="post" asp-page-handler="Confirm" asp-route-id="@Model.TestDrive?.Id">
+                <div class="modal-header-testdrive" style="background: rgba(34, 197, 94, 0.1); border-bottom-color: rgba(34, 197, 94, 0.3);">
+                    <h3 style="color: #22c55e;">
+                        <i class="fas fa-check-circle"></i>
+                        Confirm Test Drive
+                    </h3>
+                    <button type="button" class="modal-close-testdrive" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body-testdrive">
+                    <p style="margin-bottom: 1rem;">Are you sure you want to confirm this test drive appointment?</p>
+                    <div class="form-group-testdrive">
+                        <label class="form-label-testdrive">Confirmation Notes (Optional)</label>
+                        <textarea class="form-control-testdrive" name="notes" rows="3"
+                                  placeholder="Any notes about the confirmation..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer-testdrive">
+                    <button type="button" class="btn-testdrive-secondary" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-testdrive-success">
+                        <i class="fas fa-check"></i> Confirm
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Complete Modal -->
+<div class="modal fade" id="completeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content-testdrive">
+            <form method="post" asp-page-handler="Complete" asp-route-id="@Model.TestDrive?.Id">
+                <div class="modal-header-testdrive" style="background: rgba(0, 112, 243, 0.1); border-bottom-color: rgba(0, 112, 243, 0.3);">
+                    <h3 style="color: #0070f3;">
+                        <i class="fas fa-check-double"></i>
+                        Complete Test Drive
+                    </h3>
+                    <button type="button" class="modal-close-testdrive" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body-testdrive">
+                    <p style="margin-bottom: 1rem;">Mark this test drive as completed?</p>
+                    <div class="form-group-testdrive">
+                        <label class="form-label-testdrive">Completion Notes (Optional)</label>
+                        <textarea class="form-control-testdrive" name="notes" rows="3"
+                                  placeholder="How did the test drive go? Any feedback?"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer-testdrive">
+                    <button type="button" class="btn-testdrive-secondary" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-testdrive">
+                        <i class="fas fa-check"></i> Complete
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content-testdrive">
+            <form method="post" asp-page-handler="Cancel" asp-route-id="@Model.TestDrive?.Id">
+                <div class="modal-header-testdrive" style="background: rgba(239, 68, 68, 0.1); border-bottom-color: rgba(239, 68, 68, 0.3);">
+                    <h3 style="color: #ef4444;">
+                        <i class="fas fa-times-circle"></i>
+                        Cancel Test Drive
+                    </h3>
+                    <button type="button" class="modal-close-testdrive" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body-testdrive">
+                    <div class="alert-testdrive warning" style="margin-bottom: 1rem;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        This action cannot be undone
+                    </div>
+                    <p style="margin-bottom: 1rem;">Are you sure you want to cancel this test drive?</p>
+                    <div class="form-group-testdrive">
+                        <label class="form-label-testdrive">Cancellation Reason (Optional)</label>
+                        <textarea class="form-control-testdrive" name="reason" rows="3"
+                                  placeholder="Why is this test drive being canceled?"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer-testdrive">
+                    <button type="button" class="btn-testdrive-secondary" data-bs-dismiss="modal">
+                        Keep
+                    </button>
+                    <button type="submit" class="btn-testdrive-danger">
+                        <i class="fas fa-times"></i> Cancel Appointment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function () {
+            const alerts = document.querySelectorAll('.alert-testdrive');
+            alerts.forEach(alert => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            });
+        }, 5000);
+    </script>
+}

@@ -2,8 +2,9 @@
 {
     public enum TestDriveStatus
     {
-        Scheduled = 0,
-        Completed = 1,
-        Canceled = 2,
+        Pending = 0,        // Đăng ký mới, chờ staff xác nhận
+        Confirmed = 1,      // Staff đã xác nhận lịch hẹn
+        Completed = 2,      // Đã hoàn thành buổi lái thử
+        Canceled = 3,       // Đã hủy
     }
 }

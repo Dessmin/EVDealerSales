@@ -57,6 +57,14 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-page="/Service/Index">Services</a>
                         </li>
+                        @if (isAuthenticated && userRole == "Customer")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-page="/TestDrive/Register">
+                                    Test Drive
+                                </a>
+                            </li>
+                        }
                     </ul>
 
                     <div class="navbar-nav">
@@ -160,6 +168,30 @@
                                             <a class="dropdown-item" asp-page="/Report/Dashboard">
                                                 <i class="bi bi-bar-chart-line me-2"></i>
                                                 Reports
+                                            </a>
+                                        </li>
+                                    }
+                                    else if (userRole == "Customer")
+                                    {
+                                        <li class="dropdown-header">Test Drive</li>
+                                        <li>
+                                            <a class="dropdown-item" asp-page="/TestDrive/Register">
+                                                <i class="bi bi-calendar-plus me-2"></i>
+                                                Book Test Drive
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-page="/TestDrive/MyTestDrives">
+                                                <i class="bi bi-calendar-check me-2"></i>
+                                                My Test Drives
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li class="dropdown-header">Orders</li>
+                                        <li>
+                                            <a class="dropdown-item" asp-page="/Order/MyOrders">
+                                                <i class="bi bi-bag-check me-2"></i>
+                                                My Orders
                                             </a>
                                         </li>
                                     }

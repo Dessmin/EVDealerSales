@@ -1,0 +1,247 @@
+@page
+@model EVDealerSales.Presentation.Pages.TestDrive.RegisterModel
+@{
+    ViewData["Title"] = "Register Test Drive";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/testdrive.css" />
+}
+
+<div class="testdrive-container">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Header -->
+                <div class="testdrive-header">
+                    <div>
+                        <h1>
+                            <i class="fas fa-calendar-plus"></i>
+                            Register for Test Drive
+                        </h1>
+                        <p class="header-subtitle">
+                            Book your test drive appointment and experience our electric vehicles
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Main Form Card -->
+                <div class="testdrive-card">
+                    <div class="testdrive-card-header">
+                        <h3>
+                            <i class="fas fa-clipboard-list"></i>
+                            Appointment Details
+                        </h3>
+                    </div>
+                    <div class="testdrive-card-body">
+                        <form method="post" id="testDriveForm" class="form-testdrive">
+                            <div asp-validation-summary="ModelOnly" class="alert-testdrive error" role="alert"></div>
+
+                            <!-- Vehicle Selection -->
+                            <div class="form-group-testdrive">
+                                <label asp-for="TestDrive.VehicleId" class="form-label-testdrive">
+                                    <i class="fas fa-car"></i> Select Vehicle
+                                </label>
+                                <select asp-for="TestDrive.VehicleId" asp-items="Model.VehicleList"
+                                        class="form-control-testdrive" id="vehicleSelect" required>
+                                    <option value="">-- Choose an electric vehicle --</option>
+                                </select>
+                                <span asp-validation-for="TestDrive.VehicleId" class="text-danger"></span>
+                            </div>
+
+                            <!-- Selected Vehicle Info Card -->
+                            @if (Model.SelectedVehicle != null)
+                            {
+                                <div class="vehicle-info-testdrive" id="vehicleInfo" style="margin-bottom: 1.5rem;">
+                                    <div class="vehicle-thumbnail-testdrive">
+                                        <img src="@Model.SelectedVehicle.ImageUrl"
+                                             alt="@Model.SelectedVehicle.ModelName"
+                                             id="vehicleImage">
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <h5 id="vehicleTitle" style="color: #fff; font-size: 1.25rem; margin-bottom: 0.5rem;">
+                                            @Model.SelectedVehicle.ModelName @Model.SelectedVehicle.TrimName
+                                        </h5>
+                                        <p id="vehiclePrice" style="color: #0070f3; font-size: 1.5rem; font-weight: 600; margin-bottom: 0.75rem;">
+                                            $@Model.SelectedVehicle.BasePrice.ToString("N0")
+                                        </p>
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                                            <div>
+                                                <small style="color: #888; font-size: 0.75rem;">Battery Capacity</small>
+                                                <div id="vehicleBattery" style="color: #ccc; font-weight: 500;">
+                                                    @Model.SelectedVehicle.BatteryCapacity kWh
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <small style="color: #888; font-size: 0.75rem;">Range</small>
+                                                <div id="vehicleRange" style="color: #ccc; font-weight: 500;">
+                                                    @Model.SelectedVehicle.RangeKM km
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="vehicle-info-testdrive" id="vehicleInfo" style="margin-bottom: 1.5rem; display: none;">
+                                    <div class="vehicle-thumbnail-testdrive">
+                                        <img src="" alt="" id="vehicleImage">
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <h5 id="vehicleTitle" style="color: #fff; font-size: 1.25rem; margin-bottom: 0.5rem;"></h5>
+                                        <p id="vehiclePrice" style="color: #0070f3; font-size: 1.5rem; font-weight: 600; margin-bottom: 0.75rem;"></p>
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                                            <div>
+                                                <small style="color: #888; font-size: 0.75rem;">Battery Capacity</small>
+                                                <div id="vehicleBattery" style="color: #ccc; font-weight: 500;"></div>
+                                            </div>
+                                            <div>
+                                                <small style="color: #888; font-size: 0.75rem;">Range</small>
+                                                <div id="vehicleRange" style="color: #ccc; font-weight: 500;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Customer Email -->
+                            <div class="form-group-testdrive">
+                                <label asp-for="TestDrive.CustomerEmail" class="form-label-testdrive">
+                                    <i class="fas fa-envelope"></i> Your Email
+                                </label>
+                                <input asp-for="TestDrive.CustomerEmail" class="form-control-testdrive"
+                                       type="email" value="@(User.Identity?.Name ?? "")" required>
+                                <span asp-validation-for="TestDrive.CustomerEmail" class="text-danger"></span>
+                            </div>
+
+                            <!-- Scheduled Date & Time -->
+                            <div class="form-group-testdrive">
+                                <label asp-for="TestDrive.ScheduledAt" class="form-label-testdrive">
+                                    <i class="fas fa-calendar-alt"></i> Preferred Date & Time
+                                </label>
+                                <div style="position: relative;">
+                                    <input asp-for="TestDrive.ScheduledAt" class="form-control-testdrive"
+                                           type="datetime-local" required id="scheduledAt"
+                                           style="padding-right: 3rem;">
+                                    <i class="fas fa-calendar-alt"
+                                       style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%);
+                                              color: var(--text-muted); pointer-events: none; font-size: 1.125rem;"></i>
+                                </div>
+                                <span asp-validation-for="TestDrive.ScheduledAt" class="text-danger"></span>
+                                <small style="color: #888; font-size: 0.875rem; margin-top: 0.5rem; display: block;">
+                                    <i class="fas fa-info-circle"></i> Each test drive session is ~2 hours. Please book at least 24 hours in advance.
+                                </small>
+                            </div>
+
+                            <!-- Notes -->
+                            <div class="form-group-testdrive">
+                                <label asp-for="TestDrive.Notes" class="form-label-testdrive">
+                                    <i class="fas fa-sticky-note"></i> Notes (Optional)
+                                </label>
+                                <textarea asp-for="TestDrive.Notes" class="form-control-testdrive" rows="4"
+                                          placeholder="Any special requests or notes about your test drive..."></textarea>
+                                <span asp-validation-for="TestDrive.Notes" class="text-danger"></span>
+                            </div>
+
+                            <!-- Important Information -->
+                            <div class="alert-testdrive info">
+                                <i class="fas fa-info-circle"></i>
+                                <div>
+                                    <strong style="display: block; margin-bottom: 0.5rem;">Important Information</strong>
+                                    <ul style="margin: 0; padding-left: 1.25rem; color: #ccc;">
+                                        <li>You can only have one active test drive booking at a time</li>
+                                        <li>Your booking will be in "Pending" status until confirmed by our staff</li>
+                                        <li>You'll receive a notification once your booking is confirmed</li>
+                                        <li>Please bring your driver's license on the day of the test drive</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #1a1a1a;">
+                                <a asp-page="/Vehicle/BrowseVehicles" class="btn-testdrive-secondary">
+                                    <i class="fas fa-times-circle"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn-testdrive">
+                                    <i class="fas fa-check-circle"></i> Register Test Drive
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // Vehicle selection handler
+        document.getElementById('vehicleSelect').addEventListener('change', function() {
+            const vehicleId = this.value;
+            const vehicleInfo = document.getElementById('vehicleInfo');
+
+            if (!vehicleId) {
+                vehicleInfo.style.display = 'none';
+                return;
+            }
+
+            // Fetch vehicle details via AJAX
+            fetch(`/TestDrive/Register?handler=VehicleDetails&vehicleId=${vehicleId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        vehicleInfo.style.display = 'flex';
+                        document.getElementById('vehicleTitle').textContent = `${data.modelName} ${data.trimName}`;
+                        document.getElementById('vehiclePrice').textContent = `$${data.basePrice.toLocaleString()}`;
+                        document.getElementById('vehicleImage').src = data.imageUrl;
+                        document.getElementById('vehicleImage').alt = data.modelName;
+                        document.getElementById('vehicleBattery').textContent = `${data.batteryCapacity} kWh`;
+                        document.getElementById('vehicleRange').textContent = `${data.rangeKM} km`;
+
+                        // Smooth scroll to vehicle info
+                        vehicleInfo.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching vehicle details:', error);
+                    vehicleInfo.style.display = 'none';
+                });
+        });
+
+        // Set minimum date to tomorrow at 9 AM
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(9, 0, 0, 0);
+        const minDate = tomorrow.toISOString().slice(0, 16);
+        document.getElementById('scheduledAt').min = minDate;
+
+        // Set default value to tomorrow at 10 AM if not set
+        if (!document.getElementById('scheduledAt').value) {
+            tomorrow.setHours(10, 0, 0, 0);
+            document.getElementById('scheduledAt').value = tomorrow.toISOString().slice(0, 16);
+        }
+
+        // Form validation enhancement
+        const form = document.getElementById('testDriveForm');
+        form.addEventListener('submit', function(e) {
+            const scheduledAt = new Date(document.getElementById('scheduledAt').value);
+            const now = new Date();
+            const minBookingTime = new Date(now.getTime() + (24 * 60 * 60 * 1000)); // 24 hours from now
+
+            if (scheduledAt < minBookingTime) {
+                e.preventDefault();
+                alert('Please select a date and time at least 24 hours in advance.');
+                return false;
+            }
+
+            // Add loading state
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        });
+    </script>
+}
