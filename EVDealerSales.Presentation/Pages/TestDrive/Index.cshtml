@@ -1,0 +1,347 @@
+@page
+@model EVDealerSales.Presentation.Pages.TestDrive.IndexModel
+@{
+    ViewData["Title"] = "Test Drives Management";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fa-solid fa-car-side me-2"></i>
+            Test Drives Management
+        </h2>
+        <a asp-page="RegisterForCustomer" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i>
+            Register for Customer
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Search and Filter Section -->
+    <div class="card shadow mb-3">
+        <div class="card-header bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-funnel me-2"></i>
+                    Search & Filters
+                </h5>
+                <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+                    <i class="bi bi-chevron-down"></i>
+                </button>
+            </div>
+        </div>
+        <div class="collapse show" id="filterCollapse">
+            <div class="card-body">
+                <form method="get">
+                    <input type="hidden" name="pageNumber" value="1" />
+                    <input type="hidden" name="pageSize" asp-for="PageSize" />
+
+                    <!-- Search & Customer Email -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Search by Customer/Vehicle</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                <input type="text" class="form-control" name="searchTerm" asp-for="SearchTerm" 
+                                       placeholder="Search by customer name or vehicle...">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Customer Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                <input type="email" class="form-control" name="customerEmail" asp-for="CustomerEmail" 
+                                       placeholder="Filter by customer email...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status & Date Range -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Status</label>
+                            <select class="form-select" name="status" asp-for="Status">
+                                <option value="">All Status</option>
+                                <option value="0">Pending</option>
+                                <option value="1">Confirmed</option>
+                                <option value="2">Completed</option>
+                                <option value="3">Canceled</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">From Date</label>
+                            <input type="date" class="form-control" name="fromDate" asp-for="FromDate">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">To Date</label>
+                            <input type="date" class="form-control" name="toDate" asp-for="ToDate">
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search me-1"></i> Apply Filters
+                        </button>
+                        <a asp-page="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-1"></i> Clear Filters
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Drives List -->
+    <div class="card shadow">
+        <div class="card-body">
+            @if (Model.TestDrives == null || !Model.TestDrives.Any())
+            {
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    No test drives found.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Customer</th>
+                                <th>Vehicle</th>
+                                <th>Scheduled At</th>
+                                <th>Status</th>
+                                <th>Staff</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var testDrive in Model.TestDrives)
+                            {
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <strong>@testDrive.CustomerName</strong>
+                                            <br/>
+                                            <small class="text-muted">@testDrive.CustomerEmail</small>
+                                            @if (!string.IsNullOrEmpty(testDrive.CustomerPhone))
+                                            {
+                                                <br/>
+                                                <small class="text-muted"><i class="bi bi-telephone"></i> @testDrive.CustomerPhone</small>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            @if (!string.IsNullOrEmpty(testDrive.VehicleImageUrl))
+                                            {
+                                                <img src="@testDrive.VehicleImageUrl" alt="@testDrive.VehicleModelName" 
+                                                     class="rounded me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                            }
+                                            <div>
+                                                <strong>@testDrive.VehicleModelName</strong>
+                                                <br/>
+                                                <small class="text-muted">@testDrive.VehicleTrimName</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <strong>@testDrive.ScheduledAt.ToString("MMM dd, yyyy")</strong>
+                                        <br/>
+                                        <small class="text-muted">@testDrive.ScheduledAt.ToString("hh:mm tt")</small>
+                                    </td>
+                                    <td>
+                                        @switch (testDrive.Status)
+                                        {
+                                            case EVDealerSales.BusinessObject.Enums.TestDriveStatus.Pending:
+                                                <span class="badge bg-warning text-dark">
+                                                    <i class="bi bi-clock"></i> Pending
+                                                </span>
+                                                break;
+                                            case EVDealerSales.BusinessObject.Enums.TestDriveStatus.Confirmed:
+                                                <span class="badge bg-info">
+                                                    <i class="bi bi-check-circle"></i> Confirmed
+                                                </span>
+                                                break;
+                                            case EVDealerSales.BusinessObject.Enums.TestDriveStatus.Completed:
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-check-all"></i> Completed
+                                                </span>
+                                                break;
+                                            case EVDealerSales.BusinessObject.Enums.TestDriveStatus.Canceled:
+                                                <span class="badge bg-danger">
+                                                    <i class="bi bi-x-circle"></i> Canceled
+                                                </span>
+                                                break;
+                                        }
+                                        @if (testDrive.ConfirmedAt.HasValue)
+                                        {
+                                            <br/>
+                                            <small class="text-muted">Confirmed: @testDrive.ConfirmedAt.Value.ToString("MMM dd")</small>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(testDrive.StaffName))
+                                        {
+                                            <div>
+                                                <strong>@testDrive.StaffName</strong>
+                                                <br/>
+                                                <small class="text-muted">@testDrive.StaffEmail</small>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <small class="text-muted">Not assigned</small>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group-vertical btn-group-sm" role="group">
+                                            <a asp-page="Details" asp-route-id="@testDrive.Id" 
+                                               class="btn btn-sm btn-outline-info">
+                                                <i class="bi bi-eye"></i> Details
+                                            </a>
+                                            
+                                            @if (testDrive.Status == EVDealerSales.BusinessObject.Enums.TestDriveStatus.Pending)
+                                            {
+                                                <form method="post" asp-page-handler="Confirm" asp-route-id="@testDrive.Id" 
+                                                      onsubmit="return confirm('Confirm this test drive?');" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-success w-100">
+                                                        <i class="bi bi-check-circle"></i> Confirm
+                                                    </button>
+                                                </form>
+                                            }
+                                            
+                                            @if (testDrive.Status == EVDealerSales.BusinessObject.Enums.TestDriveStatus.Confirmed)
+                                            {
+                                                <form method="post" asp-page-handler="Complete" asp-route-id="@testDrive.Id" 
+                                                      onsubmit="return confirm('Mark this test drive as completed?');" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-primary w-100">
+                                                        <i class="bi bi-check-all"></i> Complete
+                                                    </button>
+                                                </form>
+                                            }
+                                            
+                                            @if (testDrive.Status != EVDealerSales.BusinessObject.Enums.TestDriveStatus.Completed && 
+                                                 testDrive.Status != EVDealerSales.BusinessObject.Enums.TestDriveStatus.Canceled)
+                                            {
+                                                <button type="button" class="btn btn-sm btn-danger w-100" 
+                                                        data-bs-toggle="modal" data-bs-target="#cancelModal-@testDrive.Id">
+                                                    <i class="bi bi-x-circle"></i> Cancel
+                                                </button>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Cancel Modal -->
+                                <div class="modal fade" id="cancelModal-@testDrive.Id" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form method="post" asp-page-handler="Cancel" asp-route-id="@testDrive.Id">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Cancel Test Drive</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Are you sure you want to cancel this test drive?</p>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Cancellation Reason (Optional)</label>
+                                                        <textarea class="form-control" name="reason" rows="3" 
+                                                                  placeholder="Enter reason for cancellation..."></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-danger">Cancel Test Drive</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                @if (Model.TestDrives.TotalPages > 1)
+                {
+                    <nav aria-label="Page navigation" class="mt-3">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item @(!Model.TestDrives.HasPrevious ? "disabled" : "")">
+                                <a class="page-link" 
+                                   asp-page="Index" 
+                                   asp-route-pageNumber="@(Model.PageNumber - 1)"
+                                   asp-route-pageSize="@Model.PageSize"
+                                   asp-route-searchTerm="@Model.SearchTerm"
+                                   asp-route-customerEmail="@Model.CustomerEmail"
+                                   asp-route-status="@Model.Status"
+                                   asp-route-fromDate="@Model.FromDate"
+                                   asp-route-toDate="@Model.ToDate">
+                                    Previous
+                                </a>
+                            </li>
+
+                            @for (int i = 1; i <= Model.TestDrives.TotalPages; i++)
+                            {
+                                <li class="page-item @(Model.PageNumber == i ? "active" : "")">
+                                    <a class="page-link" 
+                                       asp-page="Index" 
+                                       asp-route-pageNumber="@i"
+                                       asp-route-pageSize="@Model.PageSize"
+                                       asp-route-searchTerm="@Model.SearchTerm"
+                                       asp-route-customerEmail="@Model.CustomerEmail"
+                                       asp-route-status="@Model.Status"
+                                       asp-route-fromDate="@Model.FromDate"
+                                       asp-route-toDate="@Model.ToDate">
+                                        @i
+                                    </a>
+                                </li>
+                            }
+
+                            <li class="page-item @(!Model.TestDrives.HasNext ? "disabled" : "")">
+                                <a class="page-link" 
+                                   asp-page="Index" 
+                                   asp-route-pageNumber="@(Model.PageNumber + 1)"
+                                   asp-route-pageSize="@Model.PageSize"
+                                   asp-route-searchTerm="@Model.SearchTerm"
+                                   asp-route-customerEmail="@Model.CustomerEmail"
+                                   asp-route-status="@Model.Status"
+                                   asp-route-fromDate="@Model.FromDate"
+                                   asp-route-toDate="@Model.ToDate">
+                                    Next
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+
+                    <div class="text-center text-muted">
+                        Showing @((Model.PageNumber - 1) * Model.PageSize + 1) to 
+                        @Math.Min(Model.PageNumber * Model.PageSize, Model.TestDrives.TotalCount) of 
+                        @Model.TestDrives.TotalCount test drives
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
