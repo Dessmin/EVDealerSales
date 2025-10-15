@@ -1,0 +1,152 @@
+@page
+@model EVDealerSales.Presentation.Pages.TestDrive.RegisterForCustomerModel
+@{
+    ViewData["Title"] = "Register Test Drive for Customer";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-person-plus me-2"></i>
+                        Register Test Drive for Walk-in Customer
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-4">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <strong>Staff Registration:</strong> This form is for registering test drives for walk-in customers. 
+                        The test drive will be automatically confirmed upon submission.
+                    </div>
+
+                    <form method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <!-- Customer Information -->
+                        <h5 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-person me-2"></i>Customer Information
+                        </h5>
+
+                        <div class="mb-3">
+                            <label asp-for="TestDrive.CustomerEmail" class="form-label fw-bold">
+                                <i class="bi bi-envelope me-1"></i> Customer Email <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="TestDrive.CustomerEmail" class="form-control form-control-lg" 
+                                   type="email" placeholder="customer@example.com" required>
+                            <span asp-validation-for="TestDrive.CustomerEmail" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                The customer must be registered in the system. Please ensure the email is correct.
+                            </small>
+                        </div>
+
+                        <!-- Vehicle Selection -->
+                        <h5 class="border-bottom pb-2 mb-3 mt-4">
+                            <i class="bi bi-car-front me-2"></i>Vehicle Selection
+                        </h5>
+
+                        <div class="mb-3">
+                            <label asp-for="TestDrive.VehicleId" class="form-label fw-bold">
+                                <i class="bi bi-car-front-fill me-1"></i> Select Vehicle <span class="text-danger">*</span>
+                            </label>
+                            <select asp-for="TestDrive.VehicleId" asp-items="Model.VehicleList" 
+                                    class="form-select form-select-lg" required>
+                                <option value="">-- Select a vehicle --</option>
+                            </select>
+                            <span asp-validation-for="TestDrive.VehicleId" class="text-danger"></span>
+                        </div>
+
+                        <!-- Schedule Information -->
+                        <h5 class="border-bottom pb-2 mb-3 mt-4">
+                            <i class="bi bi-calendar-event me-2"></i>Schedule Information
+                        </h5>
+
+                        <div class="mb-3">
+                            <label asp-for="TestDrive.ScheduledAt" class="form-label fw-bold">
+                                <i class="bi bi-clock me-1"></i> Scheduled Date & Time <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="TestDrive.ScheduledAt" class="form-control form-control-lg" 
+                                   type="datetime-local" required id="scheduledAt">
+                            <span asp-validation-for="TestDrive.ScheduledAt" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                <i class="bi bi-info-circle"></i> Duration: 2 hours per test drive session
+                            </small>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="mb-3">
+                            <label asp-for="TestDrive.Notes" class="form-label fw-bold">
+                                <i class="bi bi-sticky me-1"></i> Notes (Optional)
+                            </label>
+                            <textarea asp-for="TestDrive.Notes" class="form-control" rows="3" 
+                                      placeholder="Any special notes or customer preferences..."></textarea>
+                            <span asp-validation-for="TestDrive.Notes" class="text-danger"></span>
+                        </div>
+
+                        <!-- Validation Checklist -->
+                        <div class="card bg-light mb-4">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="bi bi-check2-square me-2"></i>Pre-Registration Checklist:
+                                </h6>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check1" required>
+                                    <label class="form-check-label" for="check1">
+                                        Customer's driver's license has been verified
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check2" required>
+                                    <label class="form-check-label" for="check2">
+                                        Customer is registered in the system with this email
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check3" required>
+                                    <label class="form-check-label" for="check3">
+                                        Selected vehicle is available for the scheduled time
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check4" required>
+                                    <label class="form-check-label" for="check4">
+                                        Customer understands test drive duration is 2 hours
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-2 justify-content-end mt-4">
+                            <a asp-page="Index" class="btn btn-secondary btn-lg">
+                                <i class="bi bi-x-circle me-1"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle-fill me-1"></i> Register & Confirm
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        // Set minimum date to current time
+        const now = new Date();
+        const minDate = now.toISOString().slice(0, 16);
+        document.getElementById('scheduledAt').min = minDate;
+        
+        // Set default value to current time + 1 hour if not set
+        if (!document.getElementById('scheduledAt').value) {
+            now.setHours(now.getHours() + 1);
+            now.setMinutes(0, 0, 0);
+            document.getElementById('scheduledAt').value = now.toISOString().slice(0, 16);
+        }
+    </script>
+}
