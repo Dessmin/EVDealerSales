@@ -1439,3 +1439,185 @@
                 font-size: 1.75rem;
             }
 }
+
+/* Compare Button */
+.btn-compare {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    background: transparent;
+    color: #0070f3;
+    border: 1px solid #0070f3;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+    .btn-compare:hover {
+        background: #0070f3;
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 112, 243, 0.3);
+    }
+
+    .btn-compare.selected {
+        background: linear-gradient(135deg, #0070f3 0%, #00d4aa 100%);
+        color: #fff;
+        border-color: transparent;
+    }
+
+        .btn-compare.selected:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 212, 170, 0.4);
+        }
+
+.vehicle-actions {
+    display: flex;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-top: 1px solid #222;
+}
+
+/* Compare Bar (floating bottom bar) */
+.compare-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #0070f3 0%, #00d4aa 100%);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    display: none;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+.compare-bar-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    gap: 2rem;
+}
+
+.compare-bar-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #fff;
+    font-weight: 600;
+    font-size: 1rem;
+    white-space: nowrap;
+}
+
+.compare-bar-items {
+    display: flex;
+    gap: 1rem;
+    flex: 1;
+}
+
+.compare-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 0.875rem;
+}
+
+    .compare-item .remove-item {
+        background: transparent;
+        border: none;
+        color: #fff;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        font-size: 1.25rem;
+        transition: transform 0.2s ease;
+    }
+
+        .compare-item .remove-item:hover {
+            transform: scale(1.2);
+        }
+
+.compare-bar-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-compare-now {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    background: #fff;
+    color: #0070f3;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+    .btn-compare-now:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+    }
+
+.btn-clear {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+    .btn-clear:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+@media (max-width: 768px) {
+    .compare-bar-content {
+        flex-direction: column;
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    .compare-bar-items {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .compare-bar-actions {
+        width: 100%;
+    }
+
+    .btn-compare-now,
+    .btn-clear {
+        flex: 1;
+    }
+}

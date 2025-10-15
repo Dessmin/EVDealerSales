@@ -143,6 +143,13 @@
                                 View Details
                                 <i class="bi bi-arrow-right"></i>
                             </a>
+                            <button type="button"
+                                    class="btn-compare"
+                                    onclick="addToCompare('@vehicle.Id', '@vehicle.ModelName @vehicle.TrimName')"
+                                    data-vehicle-id="@vehicle.Id">
+                                <i class="bi bi-plus-circle"></i>
+                                Compare
+                            </button>
                         </div>
                     </div>
                 }
@@ -188,3 +195,138 @@
         }
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        let compareList = JSON.parse(sessionStorage.getItem('compareList') || '[]');
+
+        // Update UI on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCompareButtons();
+            if (compareList.length > 0) {
+                showCompareBar();
+            }
+        });
+
+        function addToCompare(vehicleId, vehicleName) {
+            // Check if already in list
+            const existingItem = compareList.find(item => item.id === vehicleId);
+
+            if (existingItem) {
+                // Remove from list
+                compareList = compareList.filter(item => item.id !== vehicleId);
+                sessionStorage.setItem('compareList', JSON.stringify(compareList));
+                updateCompareButtons();
+
+                if (compareList.length === 0) {
+                    hideCompareBar();
+                } else {
+                    updateCompareBar();
+                }
+                return;
+            }
+
+            // Check limit
+            if (compareList.length >= 2) {
+                alert('You can only compare 2 vehicles at a time. Please remove one first.');
+                return;
+            }
+
+            // Add to list
+            compareList.push({ id: vehicleId, name: vehicleName });
+            sessionStorage.setItem('compareList', JSON.stringify(compareList));
+            updateCompareButtons();
+            showCompareBar();
+
+            // Auto-redirect if 2 vehicles selected
+            if (compareList.length === 2) {
+                setTimeout(() => {
+                    window.location.href = `/Vehicle/Compare?id1=${compareList[0].id}&id2=${compareList[1].id}`;
+                }, 500);
+            }
+        }
+
+        function updateCompareButtons() {
+            document.querySelectorAll('.btn-compare').forEach(btn => {
+                const vehicleId = btn.getAttribute('data-vehicle-id');
+                const isSelected = compareList.some(item => item.id === vehicleId);
+
+                if (isSelected) {
+                    btn.classList.add('selected');
+                    btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Selected';
+                } else {
+                    btn.classList.remove('selected');
+                    btn.innerHTML = '<i class="bi bi-plus-circle"></i> Compare';
+                }
+            });
+        }
+
+        function showCompareBar() {
+            let compareBar = document.getElementById('compareBar');
+            if (!compareBar) {
+                compareBar = document.createElement('div');
+                compareBar.id = 'compareBar';
+                compareBar.className = 'compare-bar';
+                document.body.appendChild(compareBar);
+            }
+            updateCompareBar();
+            compareBar.style.display = 'flex';
+        }
+
+        function updateCompareBar() {
+            const compareBar = document.getElementById('compareBar');
+            if (!compareBar) return;
+
+            compareBar.innerHTML = `
+                <div class="compare-bar-content">
+                    <div class="compare-bar-title">
+                        <i class="bi bi-cart-check"></i>
+                        <span>Compare Vehicles (${compareList.length}/2)</span>
+                    </div>
+                    <div class="compare-bar-items">
+                        ${compareList.map(item => `
+                            <div class="compare-item">
+                                <span>${item.name}</span>
+                                <button onclick="addToCompare('${item.id}', '${item.name}')" class="remove-item">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="compare-bar-actions">
+                        ${compareList.length === 2 ? `
+                            <button onclick="goToCompare()" class="btn-compare-now">
+                                <i class="bi bi-arrow-right-circle"></i>
+                                Compare Now
+                            </button>
+                        ` : ''}
+                        <button onclick="clearCompareList()" class="btn-clear">
+                            <i class="bi bi-trash"></i>
+                            Clear
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function hideCompareBar() {
+            const compareBar = document.getElementById('compareBar');
+            if (compareBar) {
+                compareBar.style.display = 'none';
+            }
+        }
+
+        function clearCompareList() {
+            compareList = [];
+            sessionStorage.removeItem('compareList');
+            updateCompareButtons();
+            hideCompareBar();
+        }
+
+        function goToCompare() {
+            if (compareList.length === 2) {
+                window.location.href = `/Vehicle/Compare?id1=${compareList[0].id}&id2=${compareList[1].id}`;
+            }
+        }
+    </script>
+}
