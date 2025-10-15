@@ -116,6 +116,71 @@ namespace EVDealerSales.Presentation.Helper
                             ChargingTime = 18,
                             TopSpeed = 230,
                             IsActive = true
+                        },
+                        new Vehicle
+                        {
+                            ModelName = "Mustang Mach-E",
+                            TrimName = "California Route 1",
+                            ModelYear = 2025,
+                            BasePrice = 57800M,
+                            ImageUrl = "https://dailymuabanxe.net/wp-content/uploads/2022/06/Ford-Mustang_Mach-E-7.jpg",
+                            BatteryCapacity = 98.8M,
+                            RangeKM = 491,
+                            ChargingTime = 38,
+                            TopSpeed = 180,
+                            IsActive = true
+                        },               
+                        new Vehicle
+                        {
+                            ModelName = "A6 e-tron",
+                            TrimName = "Premium",
+                            ModelYear = 2025,
+                            BasePrice = 75000M,
+                            ImageUrl = "https://naoevo.vn/uploads/images/tintuc/2024/T8/audi-a6-e-tron/audi-a6-e-tron-6.jpg",
+                            BatteryCapacity = 100M,
+                            RangeKM = 487,
+                            ChargingTime = 25,
+                            TopSpeed = 210,
+                            IsActive = true
+                        },
+                        new Vehicle
+                        {
+                            ModelName = "Lyriq",
+                            TrimName = "Luxury AWD",
+                            ModelYear = 2025,
+                            BasePrice = 62000M,
+                            ImageUrl = "https://image.cnbcfm.com/api/v1/image/108090905-1737582348519-Lyriq-V.JPG?v=1737582364&w=1920&h=1080",
+                            BatteryCapacity = 100M,
+                            RangeKM = 483,
+                            ChargingTime = 30,
+                            TopSpeed = 200,
+                            IsActive = true
+                        },
+                        new Vehicle
+                        {
+                            ModelName = "Taycan",
+                            TrimName = "4S",
+                            ModelYear = 2025,
+                            BasePrice = 106000M,
+                            ImageUrl = "https://i1-vnexpress.vnecdn.net/2024/10/18/Porsche-Taycan-Vnexpress-net-11-JPG.jpg?w=2400&h=0&q=100&dpr=1&fit=crop&s=LoskMEDqKHzXgrHyeWd5Ag&t=image",
+                            BatteryCapacity = 93.4M,
+                            RangeKM = 407,
+                            ChargingTime = 22,
+                            TopSpeed = 250,
+                            IsActive = true
+                        },
+                        new Vehicle
+                        {
+                            ModelName = "Bolt EV",
+                            TrimName = "LT",
+                            ModelYear = 2025,
+                            BasePrice = 32000M,
+                            ImageUrl = "https://hips.hearstapps.com/hmg-prod/images/2020-chevrolet-bolt-ev-premier-101-1588025513.jpg",
+                            BatteryCapacity = 65M,
+                            RangeKM = 416,
+                            ChargingTime = 30,
+                            TopSpeed = 146,
+                            IsActive = true
                         }
                     };
 
