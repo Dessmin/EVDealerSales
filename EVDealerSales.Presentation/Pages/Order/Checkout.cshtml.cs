@@ -42,12 +42,8 @@ namespace EVDealerSales.Presentation.Pages.Order
                     return RedirectToPage("/Order/OrderDetail", new { id = orderId });
                 }
 
-                // Create payment intent
-                var paymentIntent = await _paymentService.CreatePaymentIntentAsync(orderId);
-                ClientSecret = paymentIntent.ClientSecret;
-                StripePublishableKey = _configuration["StripeSettings:PublishableKey"] ?? "";
-
-                return Page();
+                var checkoutUrl = await _paymentService.CreateCheckoutSessionAsync(orderId);
+                return Redirect(checkoutUrl);
             }
             catch (UnauthorizedAccessException ex)
             {

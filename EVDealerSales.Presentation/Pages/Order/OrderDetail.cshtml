@@ -228,6 +228,9 @@
                 <div class="action-buttons">
                     @if (Model.Order.Status == OrderStatus.Pending && Model.Order.PaymentStatus != PaymentStatus.Paid)
                     {
+                        <a asp-page="/Order/Checkout" asp-route-orderId="@Model.Order.Id" class="btn btn-success">
+                            <i class="bi bi-credit-card"></i> Pay Now
+                        </a>
                         <button type="button" class="btn btn-danger" onclick="cancelOrder('@Model.Order.Id', '@Model.Order.OrderNumber')">
                             <i class="bi bi-x-circle"></i> Cancel Order
                         </button>
@@ -244,6 +247,9 @@
             if (confirm(`Are you sure you want to cancel Order #${orderNumber}?`)) {
                 const reason = prompt('Please provide a reason for cancellation (optional):');
                 
+                if(reason === null) {
+                    return;
+                }
                 fetch(`/Order/OrderDetail?id=${orderId}&handler=Cancel`, {
                     method: 'POST',
                     headers: {
