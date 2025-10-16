@@ -29,13 +29,22 @@ namespace EVDealerSales.Presentation.Pages.Auth
         [Required(ErrorMessage = "Password is required")]
         public string Password { get; set; } = string.Empty;
 
+        [BindProperty(SupportsGet = true)]
+        public string? ReturnUrl { get; set; }
         public string? ErrorMessage { get; set; }
 
         public void OnGet()
         {
             if (User.Identity?.IsAuthenticated == true)
             {
-                Response.Redirect("/Home/LandingPage");
+                if (!string.IsNullOrEmpty(ReturnUrl))
+                {
+                    Response.Redirect(ReturnUrl);
+                }
+                else
+                {
+                    Response.Redirect("/Home/LandingPage");
+                }
             }
         }
 
@@ -65,11 +74,10 @@ namespace EVDealerSales.Presentation.Pages.Auth
                 // Lưu token vào session
                 HttpContext.Session.SetString("AuthToken", result.Token);
 
-                // Redirect về trang chủ hoặc returnUrl
-                var returnUrl = Request.Query["returnUrl"].ToString();
-                if (!string.IsNullOrEmpty(returnUrl))
+                // Redirect to return URL or home page
+                if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
                 {
-                    return Redirect(returnUrl);
+                    return Redirect(ReturnUrl);
                 }
 
                 return RedirectToPage("/Home/LandingPage");

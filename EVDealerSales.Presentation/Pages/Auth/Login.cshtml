@@ -12,14 +12,14 @@
     <div class="auth-image-section">
         <div class="auth-image-content">
             <img src="https://images.unsplash.com/photo-1706883376540-b21e5559fc45?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                 alt="EV Charging Station" class="auth-hero-image" />
+                 alt="EV Showroom" class="auth-hero-image" />
             <div class="auth-image-overlay">
                 <div class="auth-brand-logo">
                     <i class="fas fa-bolt"></i>
                     <span>EVDealerSales</span>
                 </div>
-                <h2 class="auth-image-title">Power Your Future</h2>
-                <p class="auth-image-subtitle">Join the electric revolution with premium EV solutions</p>
+                <h2 class="auth-image-title">Welcome Back</h2>
+                <p class="auth-image-subtitle">Log in to continue your electric journey</p>
             </div>
         </div>
     </div>
@@ -27,7 +27,7 @@
     <div class="auth-form-section">
         <div class="auth-form-container">
             <div class="auth-form-header">
-                <h1 class="auth-form-title">Welcome back</h1>
+                <h1 class="auth-form-title">Sign in to your account</h1>
             </div>
 
             @if (!string.IsNullOrEmpty(Model.ErrorMessage))
@@ -38,6 +38,8 @@
             }
 
             <form method="post" class="auth-form">
+                <input type="hidden" name="ReturnUrl" value="@Model.ReturnUrl" />
+
                 <div class="form-group">
                     <label asp-for="Email" class="form-label">Email</label>
                     <input asp-for="Email" class="form-input" type="email" placeholder="Enter your email" />
@@ -46,19 +48,26 @@
 
                 <div class="form-group">
                     <label asp-for="Password" class="form-label">Password</label>
-                    <input asp-for="Password" class="form-input" type="password" placeholder="Enter your password" />
+                    <div class="password-input-container">
+                        <input asp-for="Password" class="form-input" type="password" id="loginPassword" placeholder="Enter your password" />
+                        <button type="button" class="password-toggle" onclick="togglePassword('loginPassword', this)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
                     <span asp-validation-for="Password" class="form-error"></span>
                 </div>
 
                 <button type="submit" class="auth-submit-button">
-                    Login
+                    Sign in
                 </button>
             </form>
 
             <div class="auth-form-footer">
                 <p class="auth-switch-text">
                     Don't have an account?
-                    <a asp-page="/Auth/Register" class="auth-switch-link">Create account</a>
+                    <a asp-page="/Auth/Register"
+                       asp-route-returnUrl="@Model.ReturnUrl"
+                       class="auth-switch-link">Register</a>
                 </p>
             </div>
         </div>
@@ -67,4 +76,18 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                button.querySelector('i').classList.remove('fa-eye');
+                button.querySelector('i').classList.add('fa-eye-slash');
+            } else {
+                input.type = "password";
+                button.querySelector('i').classList.remove('fa-eye-slash');
+                button.querySelector('i').classList.add('fa-eye');
+            }
+        }
+    </script>
 }
