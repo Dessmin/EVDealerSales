@@ -531,21 +531,29 @@ namespace EVDealerSales.Business.Services
                     return (false, "Customer not found");
                 }
 
-                // Check if customer has any pending or confirmed test drive
-                var existingCustomerTestDrive = await _unitOfWork.TestDrives.GetQueryable()
+                var testDriveEnd = scheduledAt.AddHours(TEST_DRIVE_DURATION_HOURS);
+
+                // Check if customer has any overlapping test drive in the same time period
+                var overlappingCustomerTestDrives = await _unitOfWork.TestDrives.GetQueryable()
                     .Where(td => td.CustomerId == customer.Id 
                         && !td.IsDeleted
                         && (td.Status == TestDriveStatus.Pending || td.Status == TestDriveStatus.Confirmed)
                         && (excludeTestDriveId == null || td.Id != excludeTestDriveId))
-                    .FirstOrDefaultAsync();
+                    .ToListAsync();
 
-                if (existingCustomerTestDrive != null)
+                foreach (var existingTestDrive in overlappingCustomerTestDrives)
                 {
-                    return (false, $"Customer already has a {existingCustomerTestDrive.Status.ToString().ToLower()} test drive scheduled at {existingCustomerTestDrive.ScheduledAt:yyyy-MM-dd HH:mm}");
+                    var existingEnd = existingTestDrive.ScheduledAt.AddHours(TEST_DRIVE_DURATION_HOURS);
+                    
+                    // Check for time overlap
+                    if (scheduledAt < existingEnd && testDriveEnd > existingTestDrive.ScheduledAt)
+                    {
+                        return (false, $"Customer already has a {existingTestDrive.Status.ToString().ToLower()} test drive that overlaps with this time. Existing test drive: {existingTestDrive.ScheduledAt:yyyy-MM-dd HH:mm} - {existingEnd:yyyy-MM-dd HH:mm}");
+                    }
                 }
 
                 // Check if vehicle has overlapping test drive
-                var testDriveEnd = scheduledAt.AddHours(TEST_DRIVE_DURATION_HOURS);
+                
 
                 var overlappingTestDrive = await _unitOfWork.TestDrives.GetQueryable()
                     .Where(td => td.VehicleId == vehicleId

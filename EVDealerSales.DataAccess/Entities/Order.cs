@@ -6,19 +6,25 @@ namespace EVDealerSales.DataAccess.Entities
     {
         // Customer who made the order
         public Guid CustomerId { get; set; }
-        public User Customer { get; set; }
+        public User? Customer { get; set; }
 
         // Dealer staff who processes it
         public Guid? StaffId { get; set; }
-        public User Staff { get; set; }
+        public User? Staff { get; set; }
 
+        public string OrderNumber { get; set; } = string.Empty; // e.g., ORD-20251016-0001
         public OrderStatus Status { get; set; }
         public decimal TotalAmount { get; set; }
 
+        // Shipping Information
+        public string? ShippingAddress { get; set; }
+
+        public string? Notes { get; set; }
+
         // Navigation
-        public ICollection<OrderItem> Items { get; set; }
-        public ICollection<Invoice> Invoices { get; set; }
-        public Delivery Delivery { get; set; }
-        public ICollection<Feedback> Feedbacks { get; set; }
+        public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
+        public ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
+        public Delivery? Delivery { get; set; }
+        public ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
     }
 }

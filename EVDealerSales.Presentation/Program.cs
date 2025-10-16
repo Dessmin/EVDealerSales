@@ -2,6 +2,8 @@ using EVDealerSales.DataAccess;
 using EVDealerSales.Presentation.Architecture;
 using EVDealerSales.Presentation.Helper;
 using System.IdentityModel.Tokens.Jwt;
+using Stripe;
+using EVDealerSales.Presentation.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +11,42 @@ builder.Services.SetupIocContainer();
 builder.Configuration
     .AddJsonFile("appsettings.json", true, true)
     .AddEnvironmentVariables();
+
+// Configure Stripe settings
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+
+// Validate Stripe configuration
+var stripeSecretKey = builder.Configuration["Stripe:SecretKey"];
+var stripePublishableKey = builder.Configuration["Stripe:PublishableKey"];
+
+// Set Stripe API key
+StripeConfiguration.ApiKey = stripeSecretKey;
+
+// Set up Stripe app info
+var appInfo = new AppInfo { Name = "MovieTheater", Version = "v1" };
+StripeConfiguration.AppInfo = appInfo;
+
+// Register HTTP client for Stripe
+builder.Services.AddHttpClient("Stripe");
+
+// Register the StripeClient as a service
+builder.Services.AddTransient<IStripeClient, StripeClient>(s =>
+{
+    var clientFactory = s.GetRequiredService<IHttpClientFactory>();
+
+    var sysHttpClient = new SystemNetHttpClient(
+        clientFactory.CreateClient("Stripe"),
+        StripeConfiguration.MaxNetworkRetries,
+        appInfo,
+        StripeConfiguration.EnableTelemetry);
+
+    return new StripeClient(stripeSecretKey, httpClient: sysHttpClient);
+});
+
+if (string.IsNullOrEmpty(stripeSecretKey))
+{
+    Console.WriteLine("CRITICAL: Stripe Secret Key is missing! Payment processing will fail.");
+}
 
 // Add services to the container.
 builder.Services.AddRazorPages();

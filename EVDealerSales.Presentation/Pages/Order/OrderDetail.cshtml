@@ -1,0 +1,271 @@
+@page
+@using EVDealerSales.BusinessObject.Enums
+@model EVDealerSales.Presentation.Pages.Order.OrderDetailModel
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/order.css" />
+}
+
+<div class="order-detail-container">
+    <div class="container">
+        <div class="order-detail-header">
+            <a asp-page="/Order/MyOrders" class="btn-back">
+                <i class="bi bi-arrow-left"></i> Back to My Orders
+            </a>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                @Model.ErrorMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @if (Model.Order != null)
+        {
+            <div class="order-detail-content">
+                <!-- Order Information Card -->
+                <div class="detail-card">
+                    <div class="card-header">
+                        <h2><i class="bi bi-receipt"></i> Order Information</h2>
+                        <span class="@(Model.Order.Status == OrderStatus.Confirmed ? "badge badge-success" : 
+                                       Model.Order.Status == OrderStatus.Delivered ? "badge badge-info" :
+                                       Model.Order.Status == OrderStatus.Cancelled ? "badge badge-danger" : 
+                                       "badge badge-warning")">
+                            @Model.Order.Status.ToString()
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>Order Number:</label>
+                                <span class="value-text">#@Model.Order.OrderNumber</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Order Date:</label>
+                                <span class="value-text">@Model.Order.CreatedAt.ToString("MMM dd, yyyy hh:mm tt")</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Total Amount:</label>
+                                <span class="value-text total-amount">$@Model.Order.TotalAmount.ToString("N0")</span>
+                            </div>
+                            @if (!string.IsNullOrEmpty(Model.Order.ShippingAddress))
+                            {
+                                <div class="info-item full-width">
+                                    <label>Shipping Address:</label>
+                                    <span class="value-text">@Model.Order.ShippingAddress</span>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.Order.Notes))
+                            {
+                                <div class="info-item full-width">
+                                    <label>Notes:</label>
+                                    <span class="value-text">@Model.Order.Notes</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Items -->
+                <div class="detail-card">
+                    <div class="card-header">
+                        <h2><i class="bi bi-car-front-fill"></i> Order Items</h2>
+                    </div>
+                    <div class="card-body">
+                        @foreach (var item in Model.Order.Items)
+                        {
+                            <div class="vehicle-item">
+                                <div class="vehicle-image">
+                                    <img src="@(string.IsNullOrEmpty(item.VehicleImageUrl) ? "/placeholder.svg" : item.VehicleImageUrl)" 
+                                         alt="@item.VehicleModelName" />
+                                </div>
+                                <div class="vehicle-info">
+                                    <h3>@item.VehicleModelName @item.VehicleTrimName</h3>
+                                    <p class="vehicle-year">@item.Year Model</p>
+                                    <p class="vehicle-price">$@item.UnitPrice.ToString("N0")</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Invoice Information -->
+                @if (Model.Order.Invoice != null)
+                {
+                    <div class="detail-card">
+                        <div class="card-header">
+                            <h2><i class="bi bi-file-text"></i> Invoice</h2>
+                            <span class="@(Model.Order.Invoice.Status == InvoiceStatus.Paid ? "badge badge-success" : 
+                                           Model.Order.Invoice.Status == InvoiceStatus.Canceled ? "badge badge-danger" : 
+                                           "badge badge-warning")">
+                                @Model.Order.Invoice.Status.ToString()
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <label>Invoice Number:</label>
+                                    <span class="value-text">#@Model.Order.Invoice.InvoiceNumber</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>Issue Date:</label>
+                                    <span class="value-text">@Model.Order.Invoice.IssueDate.ToString("MMM dd, yyyy")</span>
+                                </div>
+                                @if (Model.Order.Invoice.DueDate.HasValue)
+                                {
+                                    <div class="info-item">
+                                        <label>Due Date:</label>
+                                        <span class="value-text">@Model.Order.Invoice.DueDate.Value.ToString("MMM dd, yyyy")</span>
+                                    </div>
+                                }
+                                <div class="info-item">
+                                    <label>Total Amount:</label>
+                                    <span class="value-text total-amount">$@Model.Order.Invoice.TotalAmount.ToString("N0")</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Payment Information -->
+                @if (Model.Order.Payment != null)
+                {
+                    <div class="detail-card">
+                        <div class="card-header">
+                            <h2><i class="bi bi-credit-card"></i> Payment</h2>
+                            <span class="@(Model.Order.Payment.Status == PaymentStatus.Paid ? "badge badge-success" : 
+                                           Model.Order.Payment.Status == PaymentStatus.Failed ? "badge badge-danger" : 
+                                           "badge badge-warning")">
+                                @Model.Order.Payment.Status.ToString()
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <label>Amount:</label>
+                                    <span class="value-text">$@Model.Order.Payment.Amount.ToString("N0")</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>Payment Method:</label>
+                                    <span class="value-text">@(Model.Order.Payment.PaymentMethod ?? "N/A")</span>
+                                </div>
+                                @if (Model.Order.Payment.PaymentDate.HasValue)
+                                {
+                                    <div class="info-item">
+                                        <label>Payment Date:</label>
+                                        <span class="value-text">@Model.Order.Payment.PaymentDate.Value.ToString("MMM dd, yyyy hh:mm tt")</span>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.Order.Payment.TransactionId))
+                                {
+                                    <div class="info-item">
+                                        <label>Transaction ID:</label>
+                                        <span class="value-text">@Model.Order.Payment.TransactionId</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+                else if (Model.Order.Status == OrderStatus.Confirmed && Model.Order.PaymentStatus != PaymentStatus.Paid)
+                {
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Payment pending. Please complete the payment to proceed with your order.
+                    </div>
+                    <a asp-page="/Order/Checkout" asp-route-orderId="@Model.Order.Id" class="btn btn-success btn-lg">
+                        <i class="bi bi-credit-card"></i> Pay Now
+                    </a>
+                }
+
+                <!-- Delivery Information -->
+                @if (Model.Order.Delivery != null)
+                {
+                    <div class="detail-card">
+                        <div class="card-header">
+                            <h2><i class="bi bi-truck"></i> Delivery</h2>
+                            <span class="@(Model.Order.Delivery.Status == DeliveryStatus.Delivered ? "badge badge-success" : 
+                                           Model.Order.Delivery.Status == DeliveryStatus.InTransit ? "badge badge-info" : 
+                                           "badge badge-warning")">
+                                @Model.Order.Delivery.Status.ToString()
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-grid">
+                                @if (Model.Order.Delivery.EstimatedDeliveryDate.HasValue)
+                                {
+                                    <div class="info-item">
+                                        <label>Estimated Delivery:</label>
+                                        <span class="value-text">@Model.Order.Delivery.EstimatedDeliveryDate.Value.ToString("MMM dd, yyyy")</span>
+                                    </div>
+                                }
+                                @if (Model.Order.Delivery.ActualDeliveryDate.HasValue)
+                                {
+                                    <div class="info-item">
+                                        <label>Delivered On:</label>
+                                        <span class="value-text">@Model.Order.Delivery.ActualDeliveryDate.Value.ToString("MMM dd, yyyy")</span>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.Order.Delivery.TrackingNumber))
+                                {
+                                    <div class="info-item">
+                                        <label>Tracking Number:</label>
+                                        <span class="value-text">@Model.Order.Delivery.TrackingNumber</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    @if (Model.Order.Status == OrderStatus.Pending && Model.Order.PaymentStatus != PaymentStatus.Paid)
+                    {
+                        <button type="button" class="btn btn-danger" onclick="cancelOrder('@Model.Order.Id', '@Model.Order.OrderNumber')">
+                            <i class="bi bi-x-circle"></i> Cancel Order
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function cancelOrder(orderId, orderNumber) {
+            if (confirm(`Are you sure you want to cancel Order #${orderNumber}?`)) {
+                const reason = prompt('Please provide a reason for cancellation (optional):');
+                
+                fetch(`/Order/OrderDetail?id=${orderId}&handler=Cancel`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    },
+                    body: JSON.stringify({ reason: reason })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Order cancelled successfully');
+                        window.location.href = '/Order/MyOrders';
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while cancelling the order');
+                });
+            }
+        }
+    </script>
+}

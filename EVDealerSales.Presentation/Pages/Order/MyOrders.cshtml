@@ -1,0 +1,216 @@
+@page
+@using EVDealerSales.BusinessObject.DTOs.OrderDTOs
+@using EVDealerSales.BusinessObject.Enums
+@model EVDealerSales.Presentation.Pages.Order.MyOrdersModel
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/order.css" />
+}
+
+<div class="order-container">
+    <div class="container-fluid">
+        <div class="order-header">
+            <h1 class="order-title">
+                <i class="bi bi-bag-check-fill"></i>
+                My Orders
+            </h1>
+            <p class="order-subtitle">Track and manage your vehicle orders</p>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill"></i>
+                @Model.SuccessMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                @Model.ErrorMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @if (Model.Orders.TotalCount == 0)
+        {
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-cart-x"></i>
+                </div>
+                <h3 class="empty-title">No orders yet</h3>
+                <p class="empty-description">Start shopping for your dream electric vehicle</p>
+                <a asp-page="/Vehicle/BrowseVehicles" class="btn btn-primary">
+                    <i class="bi bi-search"></i>
+                    Browse Vehicles
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="orders-list">
+                @foreach (var order in Model.Orders)
+                {
+                    <div class="order-card">
+                        <div class="order-card-header">
+                            <div class="order-info">
+                                <h3 class="order-number">Order #@order.OrderNumber</h3>
+                                <span class="order-date">
+                                    <i class="bi bi-calendar3"></i>
+                                    @order.CreatedAt.ToString("MMM dd, yyyy")
+                                </span>
+                            </div>
+                            <div class="order-status">
+                                @switch (order.Status)
+                                {
+                                    case OrderStatus.Pending:
+                                        <span class="badge badge-warning">
+                                            <i class="bi bi-clock-history"></i> Pending
+                                        </span>
+                                        break;
+                                    case OrderStatus.Confirmed:
+                                        <span class="badge badge-success">
+                                            <i class="bi bi-check-circle"></i> Confirmed
+                                        </span>
+                                        break;
+                                    case OrderStatus.Delivered:
+                                        <span class="badge badge-info">
+                                            <i class="bi bi-box-seam"></i> Delivered
+                                        </span>
+                                        break;
+                                    case OrderStatus.Cancelled:
+                                        <span class="badge badge-danger">
+                                            <i class="bi bi-x-circle"></i> Cancelled
+                                        </span>
+                                        break;
+                                }
+                            </div>
+                        </div>
+
+                        <div class="order-card-body">
+                            @foreach (var item in order.Items)
+                            {
+                                <div class="order-item">
+                                    <div class="item-image">
+                                        <img src="@(string.IsNullOrEmpty(item.VehicleImageUrl) ? "/placeholder.svg" : item.VehicleImageUrl)" 
+                                             alt="@item.VehicleModelName" />
+                                    </div>
+                                    <div class="item-details">
+                                        <h4 class="item-name">@item.VehicleModelName @item.VehicleTrimName</h4>
+                                        <p class="item-year">@item.Year Model</p>
+                                        <p class="item-price">$@item.UnitPrice.ToString("N0")</p>
+                                    </div>
+                                </div>
+                            }
+
+                            <div class="order-summary">
+                                <div class="summary-row">
+                                    <span>Total Amount:</span>
+                                    <strong>$@order.TotalAmount.ToString("N0")</strong>
+                                </div>
+                                
+                                @if (order.PaymentStatus.HasValue)
+                                {
+                                    <div class="summary-row">
+                                        <span>Payment Status:</span>
+                                        <span class="@(order.PaymentStatus == PaymentStatus.Paid ? "text-success" : order.PaymentStatus == PaymentStatus.Failed ? "text-danger" : "text-warning")">
+                                            @order.PaymentStatus.ToString()
+                                        </span>
+                                    </div>
+                                }
+
+                                @if (!string.IsNullOrEmpty(order.ShippingAddress))
+                                {
+                                    <div class="summary-row">
+                                        <span>Shipping Address:</span>
+                                        <span class="text-muted">@order.ShippingAddress</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="order-card-footer">
+                            <a asp-page="/Order/OrderDetail" asp-route-id="@order.Id" class="btn btn-outline-primary">
+                                <i class="bi bi-eye"></i>
+                                View Details
+                            </a>
+                            
+                            @if (order.Status == OrderStatus.Pending && order.PaymentStatus != PaymentStatus.Paid)
+                            {
+                                <a asp-page="/Order/Checkout" asp-route-orderId="@order.Id" class="btn btn-success">
+                                    <i class="bi bi-credit-card"></i>
+                                    Pay Now
+                                </a>
+                                <button type="button" class="btn btn-danger" onclick="cancelOrder('@order.Id', '@order.OrderNumber')">
+                                    <i class="bi bi-x-circle"></i>
+                                    Cancel Order
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (Model.Orders.TotalPages > 1)
+            {
+                <div class="pagination-container">
+                    <div class="pagination-info">
+                        Showing @((Model.Orders.CurrentPage - 1) * Model.Orders.PageSize + 1) - @Math.Min(Model.Orders.CurrentPage * Model.Orders.PageSize, Model.Orders.TotalCount) of @Model.Orders.TotalCount orders
+                    </div>
+                    <div class="pagination-controls">
+                        @if (Model.Orders.HasPrevious)
+                        {
+                            <a class="page-btn" asp-page="./MyOrders" asp-route-PageNumber="@(Model.Orders.CurrentPage - 1)" asp-route-PageSize="@Model.Orders.PageSize">
+                                <i class="bi bi-chevron-left"></i> Previous
+                            </a>
+                        }
+                        @if (Model.Orders.HasNext)
+                        {
+                            <a class="page-btn" asp-page="./MyOrders" asp-route-PageNumber="@(Model.Orders.CurrentPage + 1)" asp-route-PageSize="@Model.Orders.PageSize">
+                                Next <i class="bi bi-chevron-right"></i>
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function cancelOrder(orderId, orderNumber) {
+            if (confirm(`Are you sure you want to cancel Order #${orderNumber}?`)) {
+                const reason = prompt('Please provide a reason for cancellation (optional):');
+                
+                fetch(`/Order/OrderDetail?id=${orderId}&handler=Cancel`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    },
+                    body: JSON.stringify({ reason: reason })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Order cancelled successfully');
+                        window.location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while cancelling the order');
+                });
+            }
+        }
+    </script>
+}
