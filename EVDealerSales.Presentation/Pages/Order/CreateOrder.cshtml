@@ -1,0 +1,302 @@
+@page
+@model EVDealerSales.Presentation.Pages.Order.CreateOrderModel
+@{
+    ViewData["Title"] = "Create Order";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/order.css" />
+}
+
+<div class="checkout-container">
+    <div class="container">
+        <div class="checkout-header">
+            <a asp-page="/Vehicle/DetailVehicles" asp-route-id="@Model.Vehicle?.Id" class="btn-back">
+                <i class="bi bi-arrow-left"></i> Back to Vehicle
+            </a>
+            <h1><i class="bi bi-bag-check"></i> Create Order</h1>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                @Model.ErrorMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @if (Model.Vehicle != null)
+        {
+            <form method="post" asp-route-vehicleId="@Model.Vehicle.Id">
+                <div class="row">
+                    <!-- Vehicle Information -->
+                    <div class="col-lg-5">
+                        <div class="detail-card">
+                            <div class="card-header">
+                                <h2><i class="bi bi-car-front-fill"></i> Vehicle Details</h2>
+                            </div>
+                            <div class="card-body">
+                                <div class="vehicle-preview">
+                                    <img src="@(string.IsNullOrEmpty(Model.Vehicle.ImageUrl) ? "/placeholder.svg" : Model.Vehicle.ImageUrl)" 
+                                         alt="@Model.Vehicle.ModelName" 
+                                         class="vehicle-preview-image" />
+                                </div>
+                                <div class="vehicle-info-section">
+                                    <h3>@Model.Vehicle.ModelName</h3>
+                                    <p class="vehicle-trim">@Model.Vehicle.TrimName</p>
+                                    @if (Model.Vehicle.ModelYear.HasValue)
+                                    {
+                                        <p class="vehicle-year">@Model.Vehicle.ModelYear Model</p>
+                                    }
+                                </div>
+
+                                <div class="vehicle-specs-summary">
+                                    <div class="spec-item">
+                                        <i class="bi bi-battery-charging"></i>
+                                        <span>@Model.Vehicle.BatteryCapacity kWh</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <i class="bi bi-speedometer2"></i>
+                                        <span>@Model.Vehicle.RangeKM km</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <i class="bi bi-lightning-charge"></i>
+                                        <span>@Model.Vehicle.ChargingTime</span>
+                                    </div>
+                                </div>
+
+                                <div class="price-section">
+                                    <label>Price:</label>
+                                    <span class="vehicle-price">$@Model.Vehicle.BasePrice.ToString("N0")</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Form -->
+                    <div class="col-lg-7">
+                        <div class="detail-card">
+                            <div class="card-header">
+                                <h2><i class="bi bi-clipboard-check"></i> Order Information</h2>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group mb-3">
+                                    <label for="shippingAddress" class="form-label">
+                                        <i class="bi bi-pin-map"></i>
+                                        Shipping Address (Optional)
+                                    </label>
+                                    <textarea asp-for="ShippingAddress" 
+                                              class="form-control" 
+                                              id="shippingAddress"
+                                              rows="3"
+                                              placeholder="Enter your shipping address (e.g., 123 Main St, City, State, ZIP)"></textarea>
+                                    <div class="form-text">
+                                        Leave blank if you'll pick up the vehicle at our dealership
+                                    </div>
+                                </div>
+
+                                <div class="form-group mb-4">
+                                    <label for="notes" class="form-label">
+                                        <i class="bi bi-chat-left-text"></i>
+                                        Additional Notes (Optional)
+                                    </label>
+                                    <textarea asp-for="Notes" 
+                                              class="form-control" 
+                                              id="notes"
+                                              rows="4"
+                                              placeholder="Any special requests or comments about your order..."></textarea>
+                                </div>
+
+                                <div class="order-summary-box">
+                                    <h4><i class="bi bi-receipt"></i> Order Summary</h4>
+                                    <div class="summary-line">
+                                        <span>Vehicle Price:</span>
+                                        <span class="price-value">$@Model.Vehicle.BasePrice.ToString("N0")</span>
+                                    </div>
+                                    <div class="summary-line total-line">
+                                        <span>Total Amount:</span>
+                                        <span class="total-value">$@Model.Vehicle.BasePrice.ToString("N0")</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-success btn-lg w-100">
+                                        <i class="bi bi-credit-card"></i>
+                                        Proceed to Payment
+                                    </button>
+                                </div>
+
+                                <div class="info-box mt-3">
+                                    <i class="bi bi-info-circle"></i>
+                                    <p>
+                                        After creating your order, you will be redirected to the secure payment page. 
+                                        Your order will be confirmed once the payment is successfully completed.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-resize textareas
+        document.querySelectorAll('textarea').forEach(textarea => {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+        });
+    </script>
+}
+
+<style>
+    .vehicle-preview {
+        width: 100%;
+        height: 250px;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .vehicle-preview-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .vehicle-info-section h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .vehicle-trim {
+        font-size: 1.1rem;
+        color: #7f8c8d;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .vehicle-year {
+        font-size: 0.95rem;
+        color: #95a5a6;
+        margin: 0 0 1rem 0;
+    }
+
+    .vehicle-specs-summary {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin: 1rem 0;
+    }
+
+    .spec-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        flex: 1;
+    }
+
+    .spec-item i {
+        font-size: 1.5rem;
+        color: #0066cc;
+    }
+
+    .spec-item span {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .price-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 8px;
+        color: white;
+        margin-top: 1rem;
+    }
+
+    .price-section label {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .vehicle-price {
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+
+    .order-summary-box {
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+
+    .order-summary-box h4 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0 0 1rem 0;
+    }
+
+    .summary-line {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .summary-line:last-child {
+        border-bottom: none;
+    }
+
+    .total-line {
+        padding-top: 1rem;
+        margin-top: 0.5rem;
+        border-top: 2px solid #dee2e6;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .price-value,
+    .total-value {
+        color: #0066cc;
+        font-weight: 600;
+    }
+
+    .total-value {
+        font-size: 1.3rem;
+    }
+
+    .info-box {
+        padding: 1rem;
+        background: #e3f2fd;
+        border-left: 4px solid #2196f3;
+        border-radius: 4px;
+    }
+
+    .info-box i {
+        color: #2196f3;
+        margin-right: 0.5rem;
+    }
+
+    .info-box p {
+        margin: 0;
+        color: #546e7a;
+        font-size: 0.9rem;
+    }
+</style>

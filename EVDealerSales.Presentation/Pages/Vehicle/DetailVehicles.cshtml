@@ -98,35 +98,49 @@
         </div>
 
         <div class="detail-cta-section">
-            @if (isAuthenticated && userRole == "Customer")
-            {
-                <a asp-page="/TestDrive/Register" asp-route-vehicleId="@Model.Vehicle.Id" class="detail-appointment-btn">
-                    <i class="fas fa-calendar-check"></i>
-                    <span>Make an Appointment</span>
-                </a>
-            }
-            else if (!isAuthenticated)
-            {
-                <a asp-page="/Auth/Login" asp-route-returnUrl="@($"/TestDrive/Register?vehicleId={Model.Vehicle.Id}")" class="detail-appointment-btn">
-                    <i class="fas fa-calendar-check"></i>
-                    <span>Login to Book Test Drive</span>
-                </a>
-            }
-            else
-            {
-                <button class="detail-appointment-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
-                    <i class="fas fa-calendar-check"></i>
-                    <span>Only Customers Can Book Test Drives</span>
-                </button>
-            }
-            <p class="detail-cta-note">
-                @if (!isAuthenticated)
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                @if (isAuthenticated && userRole == "Customer")
                 {
-                    <span>Please <a asp-page="/Auth/Login" asp-route-returnUrl="@($"/TestDrive/Register?vehicleId={Model.Vehicle.Id}")" style="color: #0070f3; text-decoration: underline;">login</a> or <a asp-page="/Auth/Register" asp-route-returnUrl="@($"/TestDrive/Register?vehicleId={Model.Vehicle.Id}")" style="color: #0070f3; text-decoration: underline;">register</a> to schedule a test drive</span>
+                    <a asp-page="/Order/CreateOrder" asp-route-vehicleId="@Model.Vehicle.Id" class="detail-appointment-btn" style="background: linear-gradient(135deg, #27ae60 0%, #229954 100%); flex: 1;">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Buy Now</span>
+                    </a>
+                    <a asp-page="/TestDrive/Register" asp-route-vehicleId="@Model.Vehicle.Id" class="detail-appointment-btn" style="flex: 1;">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Test Drive</span>
+                    </a>
+                }
+                else if (!isAuthenticated)
+                {
+                    <a asp-page="/Auth/Login" asp-route-returnUrl="@($"/Vehicle/DetailVehicles/{Model.Vehicle.Id}")" class="detail-appointment-btn" style="background: linear-gradient(135deg, #27ae60 0%, #229954 100%); flex: 1;">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Login to Buy</span>
+                    </a>
+                    <a asp-page="/Auth/Login" asp-route-returnUrl="@($"/TestDrive/Register?vehicleId={Model.Vehicle.Id}")" class="detail-appointment-btn" style="flex: 1;">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Login to Test Drive</span>
+                    </a>
                 }
                 else
                 {
-                    <span>Schedule a test drive and experience the future of driving</span>
+                    <button class="detail-appointment-btn" disabled style="opacity: 0.5; cursor: not-allowed; flex: 1;">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Only Customers Can Purchase</span>
+                    </button>
+                }
+            </div>
+            <p class="detail-cta-note">
+                @if (!isAuthenticated)
+                {
+                    <span>Please <a asp-page="/Auth/Login" asp-route-returnUrl="@($"/Vehicle/DetailVehicles/{Model.Vehicle.Id}")" style="color: #0070f3; text-decoration: underline;">login</a> or <a asp-page="/Auth/Register" asp-route-returnUrl="@($"/Vehicle/DetailVehicles/{Model.Vehicle.Id}")" style="color: #0070f3; text-decoration: underline;">register</a> to purchase or test drive this vehicle</span>
+                }
+                else if (userRole == "Customer")
+                {
+                    <span>Purchase this vehicle or schedule a test drive to experience it first</span>
+                }
+                else
+                {
+                    <span>Only customer accounts can purchase vehicles or book test drives</span>
                 }
             </p>
         </div>
