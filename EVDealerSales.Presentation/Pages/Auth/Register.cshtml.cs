@@ -11,10 +11,12 @@ namespace EVDealerSales.Presentation.Pages.Auth
     public class RegisterModel : PageModel
     {
         private readonly IAuthService _authService;
+        private readonly IConfiguration _configuration;
 
-        public RegisterModel(IAuthService authService)
+        public RegisterModel(IAuthService authService, IConfiguration configuration)
         {
             _authService = authService;
+            _configuration = configuration;
         }
 
         [BindProperty]
@@ -36,15 +38,25 @@ namespace EVDealerSales.Presentation.Pages.Auth
         [Phone(ErrorMessage = "Invalid phone number format")]
         public string PhoneNumber { get; set; } = string.Empty;
 
+        [BindProperty(SupportsGet = true)]
+        public string? ReturnUrl { get; set; }
+
         public string? ErrorMessage { get; set; }
         public string? SuccessMessage { get; set; }
 
         public void OnGet()
         {
-            // Nếu user đã login, redirect về trang chủ
+            // If user is already logged in, redirect to return URL or home
             if (User.Identity?.IsAuthenticated == true)
             {
-                Response.Redirect("/Home/LandingPage");
+                if (!string.IsNullOrEmpty(ReturnUrl))
+                {
+                    Response.Redirect(ReturnUrl);
+                }
+                else
+                {
+                    Response.Redirect("/Home/LandingPage");
+                }
             }
         }
 
@@ -69,24 +81,44 @@ namespace EVDealerSales.Presentation.Pages.Auth
 
                 if (result == null)
                 {
-                    ErrorMessage = "Đăng ký thất bại. Vui lòng thử lại.";
+                    ErrorMessage = "Registration failed. Please try again.";
                     return Page();
                 }
 
-                SuccessMessage = "Đăng ký thành công! Đang chuyển hướng đến trang đăng nhập...";
+                // Auto-login after registration
+                var loginRequest = new LoginRequestDto
+                {
+                    Email = Email,
+                    Password = Password
+                };
 
-                // Redirect đến trang login sau khi đăng ký thành công
-                return RedirectToPage("/Auth/Login");
+                var loginResult = await _authService.LoginAsync(loginRequest, _configuration);
+
+                if (loginResult != null)
+                {
+                    // Save token to session
+                    HttpContext.Session.SetString("AuthToken", loginResult.Token);
+
+                    // Redirect to return URL or home
+                    if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
+                    {
+                        TempData["SuccessMessage"] = "Registration successful! Welcome to EVDealerSales.";
+                        return Redirect(ReturnUrl);
+                    }
+                }
+
+                TempData["SuccessMessage"] = "Registration successful! You are now logged in.";
+                return RedirectToPage("/Home/LandingPage");
             }
             catch (Exception ex)
             {
-                // Xử lý các exception từ ErrorHelper
+                // Handle exceptions from ErrorHelper
                 if (ex.Data.Contains("StatusCode"))
                 {
                     var statusCode = (int)ex.Data["StatusCode"]!;
-                    if (statusCode == 409) // Conflict - Email đã tồn tại
+                    if (statusCode == 409) // Conflict - Email already exists
                     {
-                        ErrorMessage = "Email này đã được đăng ký. Vui lòng sử dụng email khác.";
+                        ErrorMessage = "This email is already registered. Please use a different email.";
                     }
                     else
                     {
@@ -95,7 +127,7 @@ namespace EVDealerSales.Presentation.Pages.Auth
                 }
                 else
                 {
-                    ErrorMessage = "Có lỗi xảy ra. Vui lòng thử lại sau.";
+                    ErrorMessage = "An error occurred. Please try again later.";
                 }
                 return Page();
             }
