@@ -1,4 +1,5 @@
 using EVDealerSales.BusinessObject.Enums;
+using EVDealerSales.BusinessObject.DTOs.DeliveryDTOs;
 
 namespace EVDealerSales.BusinessObject.DTOs.OrderDTOs
 {
@@ -24,31 +25,24 @@ namespace EVDealerSales.BusinessObject.DTOs.OrderDTOs
         // Order items
         public List<OrderItemDto> Items { get; set; } = new();
 
-        // Shipping info
-        public string? ShippingAddress { get; set; }
-
-        // Invoice info
-        public Guid? InvoiceId { get; set; }
-        public string? InvoiceNumber { get; set; }
-        public InvoiceStatus? InvoiceStatus { get; set; }
-
-        // Payment info
+        // Payment info (flattened for backward compatibility)
         public PaymentStatus? PaymentStatus { get; set; }
         public DateTime? PaymentDate { get; set; }
         public string? PaymentIntentId { get; set; }
 
-        // Delivery info
+        // Delivery info (flattened for backward compatibility)
         public Guid? DeliveryId { get; set; }
         public DeliveryStatus? DeliveryStatus { get; set; }
         public DateTime? DeliveryDate { get; set; }
 
-        public string? Notes { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-
+        // Nested objects
         public InvoiceResponseDto? Invoice { get; set; }
         public PaymentResponseDto? Payment { get; set; }
         public DeliveryResponseDto? Delivery { get; set; }
+
+        public string? Notes { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
 
     public class OrderItemDto

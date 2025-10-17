@@ -89,9 +89,11 @@
                                     </label>
                                     <select class="form-control-testdrive" name="status" asp-for="Status">
                                         <option value="">All Status</option>
-                                        <option value="0">Scheduled</option>
-                                        <option value="1">In Transit</option>
-                                        <option value="2">Delivered</option>
+                                        <option value="@((int)DeliveryStatus.Pending)">Pending</option>
+                                        <option value="@((int)DeliveryStatus.Scheduled)">Scheduled</option>
+                                        <option value="@((int)DeliveryStatus.InTransit)">In Transit</option>
+                                        <option value="@((int)DeliveryStatus.Delivered)">Delivered</option>
+                                        <option value="@((int)DeliveryStatus.Cancelled)">Cancelled</option>
                                     </select>
                                 </div>
                             </div>
@@ -249,55 +251,79 @@
                                         <td>
                                             @switch (delivery.Status)
                                             {
+                                                case DeliveryStatus.Pending:
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="bi bi-clock"></i> Pending
+                                                    </span>
+                                                    break;
                                                 case DeliveryStatus.Scheduled:
-                                                    <span class="badge badge-warning">
+                                                    <span class="badge bg-info">
                                                         <i class="bi bi-calendar-check"></i> Scheduled
                                                     </span>
                                                     break;
                                                 case DeliveryStatus.InTransit:
-                                                    <span class="badge badge-info">
+                                                    <span class="badge bg-primary">
                                                         <i class="bi bi-truck"></i> In Transit
                                                     </span>
                                                     break;
                                                 case DeliveryStatus.Delivered:
-                                                    <span class="badge badge-success">
+                                                    <span class="badge bg-success">
                                                         <i class="bi bi-check-circle"></i> Delivered
+                                                    </span>
+                                                    break;
+                                                case DeliveryStatus.Cancelled:
+                                                    <span class="badge bg-danger">
+                                                        <i class="bi bi-x-circle"></i> Cancelled
                                                     </span>
                                                     break;
                                             }
                                         </td>
                                         <td>
-                                            <div class="d-flex gap-1">
+                                            <div class="d-flex gap-1 flex-wrap">
+                                                @* Pending Status - Show Confirm Button *@
+                                                @if (delivery.Status == DeliveryStatus.Pending)
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-success"
+                                                            onclick="showConfirmModal('@delivery.Id', '@delivery.OrderNumber')"
+                                                            title="Confirm and Schedule Delivery">
+                                                        <i class="bi bi-check-circle"></i> Confirm
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-danger"
+                                                            onclick="cancelDelivery('@delivery.Id')"
+                                                            title="Cancel Delivery Request">
+                                                        <i class="bi bi-x-circle"></i>
+                                                    </button>
+                                                }
+
+                                                @* Scheduled Status - Show Ship Button *@
                                                 @if (delivery.Status == DeliveryStatus.Scheduled)
                                                 {
-                                                    <form method="post" asp-page-handler="UpdateStatus"
-                                                          asp-route-id="@delivery.Id"
-                                                          asp-route-status="@((int)DeliveryStatus.InTransit)"
-                                                          style="display: inline;">
-                                                        <button type="submit" class="btn btn-sm btn-info"
-                                                                title="Mark as In Transit">
-                                                            <i class="bi bi-truck"></i> Ship
-                                                        </button>
-                                                    </form>
+                                                    <button type="button" class="btn btn-sm btn-primary"
+                                                            onclick="updateStatus('@delivery.Id', '@((int)DeliveryStatus.InTransit)', 'InTransit')"
+                                                            title="Mark as In Transit">
+                                                        <i class="bi bi-truck"></i> Ship
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger btn-sm"
+                                                            onclick="cancelDelivery('@delivery.Id')"
+                                                            title="Cancel Delivery">
+                                                        <i class="bi bi-x-circle"></i>
+                                                    </button>
                                                 }
 
+                                                @* InTransit Status - Show Deliver Button *@
                                                 @if (delivery.Status == DeliveryStatus.InTransit)
                                                 {
-                                                    <form method="post" asp-page-handler="UpdateStatus"
-                                                          asp-route-id="@delivery.Id"
-                                                          asp-route-status="@((int)DeliveryStatus.Delivered)"
-                                                          style="display: inline;">
-                                                        <button type="submit" class="btn btn-sm btn-success"
-                                                                title="Mark as Delivered"
-                                                                onclick="return confirm('Mark this delivery as completed?');">
-                                                            <i class="bi bi-check-circle"></i> Deliver
-                                                        </button>
-                                                    </form>
+                                                    <button type="button" class="btn btn-sm btn-success"
+                                                            onclick="updateStatus('@delivery.Id', '@((int)DeliveryStatus.Delivered)', 'Delivered')"
+                                                            title="Mark as Delivered">
+                                                        <i class="bi bi-check-circle"></i> Deliver
+                                                    </button>
                                                 }
 
+                                                @* View Order Button - Always show *@
                                                 <a asp-page="/Order/OrderDetail" asp-route-id="@delivery.OrderId"
                                                    class="btn btn-sm btn-outline-primary" title="View Order Details">
-                                                    <i class="bi bi-eye"></i> View Order
+                                                    <i class="bi bi-eye"></i>
                                                 </a>
                                             </div>
                                         </td>
@@ -368,8 +394,195 @@
     </div>
 </div>
 
+@* Confirm Delivery Modal *@
+<div class="modal fade" id="confirmDeliveryModal" tabindex="-1" aria-labelledby="confirmDeliveryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeliveryModalLabel">
+                    <i class="bi bi-check-circle"></i> Confirm Delivery
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="confirmDeliveryForm">
+                <input type="hidden" id="confirmDeliveryId" />
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        You are confirming delivery for Order <strong id="confirmOrderNumber"></strong>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="plannedDate" class="form-label">
+                            <i class="bi bi-calendar-check"></i> Planned Delivery Date <span class="text-danger">*</span>
+                        </label>
+                        <input type="datetime-local" 
+                               id="plannedDate" 
+                               class="form-control" 
+                               required />
+                        <div class="form-text">
+                            Select the planned date and time for delivery
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="staffNotes" class="form-label">
+                            <i class="bi bi-chat-left-text"></i> Staff Notes (Optional)
+                        </label>
+                        <textarea id="staffNotes" 
+                                  class="form-control" 
+                                  rows="3"
+                                  placeholder="Add any notes for the delivery (e.g., delivery instructions, contact time)"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-success" id="confirmDeliveryBtn">
+                        <i class="bi bi-check-circle"></i> Confirm Delivery
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
+        let confirmModal;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            confirmModal = new bootstrap.Modal(document.getElementById('confirmDeliveryModal'));
+
+            // Setup confirm form handler
+            document.getElementById('confirmDeliveryForm')?.addEventListener('submit', handleConfirmDelivery);
+        });
+
+        function showConfirmModal(deliveryId, orderNumber) {
+            document.getElementById('confirmDeliveryId').value = deliveryId;
+            document.getElementById('confirmOrderNumber').textContent = orderNumber;
+            
+            // Set default planned date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(9, 0, 0, 0);
+            document.getElementById('plannedDate').value = tomorrow.toISOString().slice(0, 16);
+            
+            confirmModal.show();
+        }
+
+        async function handleConfirmDelivery(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('confirmDeliveryBtn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Confirming...';
+            
+            const deliveryId = document.getElementById('confirmDeliveryId').value;
+            const plannedDate = document.getElementById('plannedDate').value;
+            const staffNotes = document.getElementById('staffNotes').value;
+            
+            try {
+                const response = await fetch('/Staff/ManageDeliveries?handler=Confirm', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    },
+                    body: JSON.stringify({
+                        deliveryId: deliveryId,
+                        plannedDate: plannedDate,
+                        staffNotes: staffNotes
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    confirmModal.hide();
+                    alert('Delivery confirmed and scheduled successfully!');
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to confirm delivery'));
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while confirming delivery');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        async function updateStatus(deliveryId, status, statusName) {
+            if (!confirm(`Are you sure you want to mark this delivery as ${statusName}?`)) {
+                return;
+            }
+            
+            try {
+                const actualDate = status == '@((int)DeliveryStatus.Delivered)' ? new Date().toISOString() : null;
+                
+                const response = await fetch('/Staff/ManageDeliveries?handler=UpdateStatus', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    },
+                    body: JSON.stringify({
+                        deliveryId: deliveryId,
+                        status: parseInt(status),
+                        actualDate: actualDate
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Delivery status updated successfully!');
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to update status'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while updating delivery status');
+            }
+        }
+
+        async function cancelDelivery(deliveryId) {
+            if (!confirm('Are you sure you want to cancel this delivery? This action cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/Staff/ManageDeliveries?handler=Cancel', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    },
+                    body: JSON.stringify({
+                        deliveryId: deliveryId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Delivery cancelled successfully');
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to cancel delivery'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while cancelling delivery');
+            }
+        }
+
         // Auto-hide alerts after 5 seconds
         setTimeout(function () {
             const alerts = document.querySelectorAll('.alert');

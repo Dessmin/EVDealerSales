@@ -101,10 +101,20 @@
             <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
                 @if (isAuthenticated && userRole == "Customer")
                 {
-                    <a asp-page="/Order/CreateOrder" asp-route-vehicleId="@Model.Vehicle.Id" class="detail-appointment-btn" style="background: linear-gradient(135deg, #27ae60 0%, #229954 100%); flex: 1;">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span>Buy Now</span>
-                    </a>
+                    @if (Model.Vehicle.Stock > 0)
+                    {
+                        <a asp-page="/Order/CreateOrder" asp-route-vehicleId="@Model.Vehicle.Id" class="detail-appointment-btn" style="background: linear-gradient(135deg, #27ae60 0%, #229954 100%); flex: 1;">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Buy Now</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <button class="detail-appointment-btn" disabled style="background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%); opacity: 0.6; cursor: not-allowed; flex: 1;">
+                            <i class="fas fa-times-circle"></i>
+                            <span>Out of Stock</span>
+                        </button>
+                    }
                     <a asp-page="/TestDrive/Register" asp-route-vehicleId="@Model.Vehicle.Id" class="detail-appointment-btn" style="flex: 1;">
                         <i class="fas fa-calendar-check"></i>
                         <span>Test Drive</span>
@@ -112,10 +122,20 @@
                 }
                 else if (!isAuthenticated)
                 {
-                    <a asp-page="/Auth/Login" asp-route-returnUrl="@($"/Vehicle/DetailVehicles/{Model.Vehicle.Id}")" class="detail-appointment-btn" style="background: linear-gradient(135deg, #27ae60 0%, #229954 100%); flex: 1;">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span>Login to Buy</span>
-                    </a>
+                    @if (Model.Vehicle.Stock > 0)
+                    {
+                        <a asp-page="/Auth/Login" asp-route-returnUrl="@($"/Vehicle/DetailVehicles/{Model.Vehicle.Id}")" class="detail-appointment-btn" style="background: linear-gradient(135deg, #27ae60 0%, #229954 100%); flex: 1;">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Login to Buy</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <button class="detail-appointment-btn" disabled style="background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%); opacity: 0.6; cursor: not-allowed; flex: 1;">
+                            <i class="fas fa-times-circle"></i>
+                            <span>Out of Stock</span>
+                        </button>
+                    }
                     <a asp-page="/Auth/Login" asp-route-returnUrl="@($"/TestDrive/Register?vehicleId={Model.Vehicle.Id}")" class="detail-appointment-btn" style="flex: 1;">
                         <i class="fas fa-calendar-check"></i>
                         <span>Login to Test Drive</span>
@@ -130,13 +150,19 @@
                 }
             </div>
             <p class="detail-cta-note">
-                @if (!isAuthenticated)
+                @if (Model.Vehicle.Stock == 0)
+                {
+                    <span style="color: #e74c3c; font-weight: 500;">
+                        <i class="fas fa-exclamation-triangle"></i> This vehicle is currently out of stock. Test drives may still be available.
+                    </span>
+                }
+                else if (!isAuthenticated)
                 {
                     <span>Please <a asp-page="/Auth/Login" asp-route-returnUrl="@($"/Vehicle/DetailVehicles/{Model.Vehicle.Id}")" style="color: #0070f3; text-decoration: underline;">login</a> or <a asp-page="/Auth/Register" asp-route-returnUrl="@($"/Vehicle/DetailVehicles/{Model.Vehicle.Id}")" style="color: #0070f3; text-decoration: underline;">register</a> to purchase or test drive this vehicle</span>
                 }
                 else if (userRole == "Customer")
                 {
-                    <span>Purchase this vehicle or schedule a test drive to experience it first</span>
+                    <span>Purchase this vehicle or schedule a test drive to experience it first. <strong>@Model.Vehicle.Stock</strong> unit@(Model.Vehicle.Stock != 1 ? "s" : "") in stock.</span>
                 }
                 else
                 {

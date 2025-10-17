@@ -44,10 +44,10 @@ namespace EVDealerSales.Presentation.Pages.Vehicle
         public int? MaxRange { get; set; }
 
         [BindProperty(SupportsGet = true)]
-        public decimal? MinBattery { get; set; }
+        public int? MinBattery { get; set; }
 
         [BindProperty(SupportsGet = true)]
-        public decimal? MaxBattery { get; set; }
+        public int? MaxBattery { get; set; }
 
         [BindProperty(SupportsGet = true)]
         public int? MinSpeed { get; set; }

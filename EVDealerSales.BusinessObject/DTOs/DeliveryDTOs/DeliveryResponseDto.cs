@@ -16,6 +16,8 @@ namespace EVDealerSales.BusinessObject.DTOs.DeliveryDTOs
         public DeliveryStatus Status { get; set; }
         public string? VehicleInfo { get; set; }
         public string? ShippingAddress { get; set; }
+        public string? Notes { get; set; }
+        public string? StaffNotes { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
     }

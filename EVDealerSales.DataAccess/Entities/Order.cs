@@ -16,9 +16,6 @@ namespace EVDealerSales.DataAccess.Entities
         public OrderStatus Status { get; set; }
         public decimal TotalAmount { get; set; }
 
-        // Shipping Information
-        public string? ShippingAddress { get; set; }
-
         public string? Notes { get; set; }
 
         // Navigation

@@ -49,6 +49,7 @@ namespace EVDealerSales.Presentation.Pages.Vehicle
                     RangeKM = vehicle.RangeKM,
                     ChargingTime = vehicle.ChargingTime,
                     TopSpeed = vehicle.TopSpeed,
+                    Stock = vehicle.Stock,
                     IsActive = vehicle.IsActive
                 };
 

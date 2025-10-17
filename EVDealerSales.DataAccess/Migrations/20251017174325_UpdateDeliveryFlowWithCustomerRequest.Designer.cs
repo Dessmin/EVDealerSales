@@ -4,6 +4,7 @@ using EVDealerSales.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EVDealerSales.DataAccess.Migrations
 {
     [DbContext(typeof(EVDealerSalesDbContext))]
-    partial class EVDealerSalesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251017174325_UpdateDeliveryFlowWithCustomerRequest")]
+    partial class UpdateDeliveryFlowWithCustomerRequest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -54,9 +57,6 @@ namespace EVDealerSales.DataAccess.Migrations
 
                     b.Property<DateTime?>("PlannedDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("ShippingAddress")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StaffNotes")
                         .HasColumnType("nvarchar(max)");
@@ -216,6 +216,9 @@ namespace EVDealerSales.DataAccess.Migrations
 
                     b.Property<string>("OrderNumber")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShippingAddress")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("StaffId")

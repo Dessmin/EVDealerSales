@@ -28,7 +28,90 @@ namespace EVDealerSales.Business.Services
             _currentTime = currentTime;
         }
 
-        public async Task<DeliveryResponseDto> CreateDeliveryAsync(CreateDeliveryRequestDto request)
+        public async Task<DeliveryResponseDto> RequestDeliveryAsync(CreateDeliveryRequestDto request)
+        {
+            try
+            {
+                var currentUserId = _claimsService.GetCurrentUserId;
+                if (currentUserId == Guid.Empty)
+                {
+                    throw new UnauthorizedAccessException("User not authenticated");
+                }
+
+                var currentUser = await _unitOfWork.Users.GetByIdAsync(currentUserId);
+                if (currentUser == null || currentUser.Role != RoleType.Customer)
+                {
+                    throw new UnauthorizedAccessException("Only customers can request deliveries");
+                }
+
+                _logger.LogInformation("Customer {CustomerId} requesting delivery for order {OrderId}",
+                    currentUserId, request.OrderId);
+
+                // Validate order exists and belongs to the customer
+                var order = await _unitOfWork.Orders.GetQueryable()
+                    .Include(o => o.Customer)
+                    .Include(o => o.Items).ThenInclude(oi => oi.Vehicle)
+                    .Include(o => o.Invoices).ThenInclude(i => i.Payments)
+                    .FirstOrDefaultAsync(o => o.Id == request.OrderId && !o.IsDeleted);
+
+                if (order == null)
+                {
+                    throw new KeyNotFoundException($"Order with ID {request.OrderId} not found");
+                }
+
+                if (order.CustomerId != currentUserId)
+                {
+                    throw new UnauthorizedAccessException("You can only request delivery for your own orders");
+                }
+
+                // Check if order is paid
+                var hasPaidPayment = order.Invoices
+                    .SelectMany(i => i.Payments)
+                    .Any(p => p.Status == PaymentStatus.Paid);
+
+                if (!hasPaidPayment)
+                {
+                    throw new InvalidOperationException("Cannot request delivery for unpaid order");
+                }
+
+                // Check if delivery already exists
+                var existingDelivery = await _unitOfWork.Deliveries.GetQueryable()
+                    .FirstOrDefaultAsync(d => d.OrderId == request.OrderId && !d.IsDeleted);
+
+                if (existingDelivery != null)
+                {
+                    throw new InvalidOperationException("Delivery request already exists for this order");
+                }
+
+                // Create delivery with Pending status
+                var delivery = new Delivery
+                {
+                    Id = Guid.NewGuid(),
+                    OrderId = request.OrderId,
+                    Status = DeliveryStatus.Pending,
+                    ShippingAddress = request.ShippingAddress,
+                    Notes = request.Notes,
+                    CreatedAt = _currentTime.GetCurrentTime(),
+                    CreatedBy = currentUserId,
+                    IsDeleted = false
+                };
+
+                await _unitOfWork.Deliveries.AddAsync(delivery);
+                await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogInformation("Delivery request {DeliveryId} created for order {OrderId} with Pending status",
+                    delivery.Id, request.OrderId);
+
+                return await MapToResponseDto(delivery);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error requesting delivery for order {OrderId}", request.OrderId);
+                throw;
+            }
+        }
+
+        public async Task<DeliveryResponseDto> ConfirmDeliveryAsync(Guid deliveryId, ConfirmDeliveryRequestDto request)
         {
             try
             {
@@ -41,65 +124,45 @@ namespace EVDealerSales.Business.Services
                 var currentUser = await _unitOfWork.Users.GetByIdAsync(currentUserId);
                 if (currentUser == null || (currentUser.Role != RoleType.DealerStaff && currentUser.Role != RoleType.DealerManager))
                 {
-                    throw new UnauthorizedAccessException("Only staff can create deliveries");
+                    throw new UnauthorizedAccessException("Only staff can confirm deliveries");
                 }
 
-                _logger.LogInformation("Staff {StaffId} creating delivery for order {OrderId}",
-                    currentUserId, request.OrderId);
+                _logger.LogInformation("Staff {StaffId} confirming delivery {DeliveryId}",
+                    currentUserId, deliveryId);
 
-                // Validate order exists
-                var order = await _unitOfWork.Orders.GetQueryable()
-                    .Include(o => o.Customer)
-                    .Include(o => o.Items).ThenInclude(oi => oi.Vehicle)
-                    .Include(o => o.Invoices).ThenInclude(i => i.Payments)
-                    .FirstOrDefaultAsync(o => o.Id == request.OrderId && !o.IsDeleted);
+                var delivery = await _unitOfWork.Deliveries.GetQueryable()
+                    .Include(d => d.Order).ThenInclude(o => o.Customer)
+                    .Include(d => d.Order).ThenInclude(o => o.Items).ThenInclude(oi => oi.Vehicle)
+                    .FirstOrDefaultAsync(d => d.Id == deliveryId && !d.IsDeleted);
 
-                if (order == null)
+                if (delivery == null)
                 {
-                    throw new KeyNotFoundException($"Order with ID {request.OrderId} not found");
+                    throw new KeyNotFoundException($"Delivery with ID {deliveryId} not found");
                 }
 
-                // Check if order is paid
-                var hasPaidPayment = order.Invoices
-                    .SelectMany(i => i.Payments)
-                    .Any(p => p.Status == PaymentStatus.Paid);
-
-                if (!hasPaidPayment)
+                if (delivery.Status != DeliveryStatus.Pending)
                 {
-                    throw new InvalidOperationException("Cannot create delivery for unpaid order");
+                    throw new InvalidOperationException($"Cannot confirm delivery with status {delivery.Status}");
                 }
 
-                // Check if delivery already exists
-                var existingDelivery = await _unitOfWork.Deliveries.GetQueryable()
-                    .FirstOrDefaultAsync(d => d.OrderId == request.OrderId && !d.IsDeleted);
+                // Update delivery to Scheduled status
+                delivery.Status = DeliveryStatus.Scheduled;
+                delivery.PlannedDate = request.PlannedDate;
+                delivery.StaffNotes = request.StaffNotes;
+                delivery.UpdatedAt = _currentTime.GetCurrentTime();
+                delivery.UpdatedBy = currentUserId;
 
-                if (existingDelivery != null)
-                {
-                    throw new InvalidOperationException("Delivery already exists for this order");
-                }
-
-                // Create delivery
-                var delivery = new Delivery
-                {
-                    Id = Guid.NewGuid(),
-                    OrderId = request.OrderId,
-                    PlannedDate = request.PlannedDate,
-                    Status = request.Status,
-                    CreatedAt = _currentTime.GetCurrentTime(),
-                    IsDeleted = false
-                };
-
-                await _unitOfWork.Deliveries.AddAsync(delivery);
+                await _unitOfWork.Deliveries.Update(delivery);
                 await _unitOfWork.SaveChangesAsync();
 
-                _logger.LogInformation("Delivery {DeliveryId} created for order {OrderId}",
-                    delivery.Id, request.OrderId);
+                _logger.LogInformation("Delivery {DeliveryId} confirmed and scheduled for {PlannedDate}",
+                    deliveryId, request.PlannedDate);
 
                 return await MapToResponseDto(delivery);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating delivery for order {OrderId}", request.OrderId);
+                _logger.LogError(ex, "Error confirming delivery {DeliveryId}", deliveryId);
                 throw;
             }
         }
@@ -189,8 +252,8 @@ namespace EVDealerSales.Business.Services
                         var searchTerm = filter.SearchTerm.ToLower();
                         query = query.Where(d =>
                             d.Order.OrderNumber.ToLower().Contains(searchTerm) ||
-                            d.Order.Customer.FullName.ToLower().Contains(searchTerm) ||
-                            d.Order.Customer.Email.ToLower().Contains(searchTerm));
+                            (d.Order.Customer != null && d.Order.Customer.FullName.ToLower().Contains(searchTerm)) ||
+                            (d.Order.Customer != null && d.Order.Customer.Email.ToLower().Contains(searchTerm)));
                     }
 
                     if (filter.Status.HasValue)
@@ -260,8 +323,30 @@ namespace EVDealerSales.Business.Services
                     throw new KeyNotFoundException($"Delivery with ID {id} not found");
                 }
 
-                _logger.LogInformation("Staff {StaffId} updating delivery {DeliveryId} status to {Status}",
-                    currentUserId, id, request.Status);
+                _logger.LogInformation("Staff {StaffId} updating delivery {DeliveryId} status from {OldStatus} to {NewStatus}",
+                    currentUserId, id, delivery.Status, request.Status);
+
+                // Validate status transition
+                if (delivery.Status == DeliveryStatus.Cancelled)
+                {
+                    throw new InvalidOperationException("Cannot update cancelled delivery");
+                }
+
+                if (delivery.Status == DeliveryStatus.Delivered)
+                {
+                    throw new InvalidOperationException("Cannot update delivered delivery");
+                }
+
+                // Validate status flow: Pending -> Scheduled -> InTransit -> Delivered
+                if (request.Status == DeliveryStatus.InTransit && delivery.Status != DeliveryStatus.Scheduled)
+                {
+                    throw new InvalidOperationException("Delivery must be Scheduled before setting to InTransit");
+                }
+
+                if (request.Status == DeliveryStatus.Delivered && delivery.Status != DeliveryStatus.InTransit)
+                {
+                    throw new InvalidOperationException("Delivery must be InTransit before setting to Delivered");
+                }
 
                 // Update status
                 delivery.Status = request.Status;
@@ -306,6 +391,79 @@ namespace EVDealerSales.Business.Services
             }
         }
 
+        public async Task<DeliveryResponseDto?> CancelDeliveryAsync(Guid id)
+        {
+            try
+            {
+                var currentUserId = _claimsService.GetCurrentUserId;
+                if (currentUserId == Guid.Empty)
+                {
+                    throw new UnauthorizedAccessException("User not authenticated");
+                }
+
+                var currentUser = await _unitOfWork.Users.GetByIdAsync(currentUserId);
+                if (currentUser == null)
+                {
+                    throw new UnauthorizedAccessException("User not found");
+                }
+
+                var delivery = await _unitOfWork.Deliveries.GetQueryable()
+                    .Include(d => d.Order).ThenInclude(o => o.Customer)
+                    .Include(d => d.Order).ThenInclude(o => o.Items).ThenInclude(oi => oi.Vehicle)
+                    .FirstOrDefaultAsync(d => d.Id == id && !d.IsDeleted);
+
+                if (delivery == null)
+                {
+                    throw new KeyNotFoundException($"Delivery with ID {id} not found");
+                }
+
+                // Customer can only cancel their own pending deliveries
+                if (currentUser.Role == RoleType.Customer)
+                {
+                    if (delivery.Order.CustomerId != currentUserId)
+                    {
+                        throw new UnauthorizedAccessException("You can only cancel your own deliveries");
+                    }
+
+                    if (delivery.Status != DeliveryStatus.Pending)
+                    {
+                        throw new InvalidOperationException("Customer can only cancel pending delivery requests");
+                    }
+                }
+                // Staff can cancel Pending or Scheduled deliveries
+                else if (currentUser.Role == RoleType.DealerStaff || currentUser.Role == RoleType.DealerManager)
+                {
+                    if (delivery.Status != DeliveryStatus.Pending && delivery.Status != DeliveryStatus.Scheduled)
+                    {
+                        throw new InvalidOperationException("Cannot cancel delivery in progress or completed");
+                    }
+                }
+                else
+                {
+                    throw new UnauthorizedAccessException("Unauthorized to cancel delivery");
+                }
+
+                _logger.LogInformation("User {UserId} cancelling delivery {DeliveryId}",
+                    currentUserId, id);
+
+                delivery.Status = DeliveryStatus.Cancelled;
+                delivery.UpdatedAt = _currentTime.GetCurrentTime();
+                delivery.UpdatedBy = currentUserId;
+
+                await _unitOfWork.Deliveries.Update(delivery);
+                await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogInformation("Delivery {DeliveryId} cancelled", id);
+
+                return await MapToResponseDto(delivery);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error cancelling delivery {DeliveryId}", id);
+                throw;
+            }
+        }
+
         private async Task<DeliveryResponseDto> MapToResponseDto(Delivery delivery)
         {
             // Ensure navigation properties are loaded
@@ -335,7 +493,9 @@ namespace EVDealerSales.Business.Services
                 ActualDate = delivery.ActualDate,
                 Status = delivery.Status,
                 VehicleInfo = vehicleInfo,
-                ShippingAddress = delivery.Order.ShippingAddress,
+                ShippingAddress = delivery.ShippingAddress,
+                Notes = delivery.Notes,
+                StaffNotes = delivery.StaffNotes,
                 CreatedAt = delivery.CreatedAt,
                 UpdatedAt = delivery.UpdatedAt
             };

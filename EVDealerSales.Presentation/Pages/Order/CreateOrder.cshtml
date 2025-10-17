@@ -64,7 +64,26 @@
                                         <i class="bi bi-lightning-charge"></i>
                                         <span>@Model.Vehicle.ChargingTime</span>
                                     </div>
+                                    <div class="spec-item" style="@(Model.Vehicle.Stock <= 0 ? "color: #dc3545;" : Model.Vehicle.Stock <= 5 ? "color: #ffc107;" : "color: #28a745;")">
+                                        <i class="bi bi-box-seam"></i>
+                                        <span>@Model.Vehicle.Stock units available</span>
+                                    </div>
                                 </div>
+
+                                @if (Model.Vehicle.Stock <= 0)
+                                {
+                                    <div class="alert alert-danger mt-3" role="alert">
+                                        <i class="bi bi-exclamation-triangle-fill"></i>
+                                        <strong>Out of Stock!</strong> This vehicle is currently unavailable for purchase.
+                                    </div>
+                                }
+                                else if (Model.Vehicle.Stock <= 5)
+                                {
+                                    <div class="alert alert-warning mt-3" role="alert">
+                                        <i class="bi bi-exclamation-circle-fill"></i>
+                                        <strong>Limited Stock!</strong> Only @Model.Vehicle.Stock units remaining. Order now!
+                                    </div>
+                                }
 
                                 <div class="price-section">
                                     <label>Price:</label>
@@ -81,19 +100,9 @@
                                 <h2><i class="bi bi-clipboard-check"></i> Order Information</h2>
                             </div>
                             <div class="card-body">
-                                <div class="form-group mb-3">
-                                    <label for="shippingAddress" class="form-label">
-                                        <i class="bi bi-pin-map"></i>
-                                        Shipping Address (Optional)
-                                    </label>
-                                    <textarea asp-for="ShippingAddress" 
-                                              class="form-control" 
-                                              id="shippingAddress"
-                                              rows="3"
-                                              placeholder="Enter your shipping address (e.g., 123 Main St, City, State, ZIP)"></textarea>
-                                    <div class="form-text">
-                                        Leave blank if you'll pick up the vehicle at our dealership
-                                    </div>
+                                <div class="alert alert-info">
+                                    <i class="bi bi-info-circle"></i>
+                                    <strong>Note:</strong> You can request delivery and specify shipping address after completing the payment.
                                 </div>
 
                                 <div class="form-group mb-4">
@@ -121,10 +130,20 @@
                                 </div>
 
                                 <div class="form-actions">
-                                    <button type="submit" class="btn btn-success btn-lg w-100">
-                                        <i class="bi bi-credit-card"></i>
-                                        Proceed to Payment
-                                    </button>
+                                    @if (Model.Vehicle.Stock > 0)
+                                    {
+                                        <button type="submit" class="btn btn-success btn-lg w-100">
+                                            <i class="bi bi-credit-card"></i>
+                                            Proceed to Payment
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-secondary btn-lg w-100" disabled>
+                                            <i class="bi bi-x-circle"></i>
+                                            Out of Stock - Cannot Proceed
+                                        </button>
+                                    }
                                 </div>
 
                                 <div class="info-box mt-3">

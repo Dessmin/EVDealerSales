@@ -3,10 +3,108 @@
 @model EVDealerSales.Presentation.Pages.Order.OrderDetailModel
 @{
     ViewData["Title"] = "Order Details";
+    
+    string GetDeliveryStatusBadgeClass(DeliveryStatus status)
+    {
+        return status switch
+        {
+            DeliveryStatus.Pending => "badge bg-warning",
+            DeliveryStatus.Scheduled => "badge bg-info",
+            DeliveryStatus.InTransit => "badge bg-primary",
+            DeliveryStatus.Delivered => "badge bg-success",
+            DeliveryStatus.Cancelled => "badge bg-danger",
+            _ => "badge bg-secondary"
+        };
+    }
 }
 
 @section Styles {
     <link rel="stylesheet" href="~/css/order.css" />
+    <style>
+        .delivery-timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-bottom: 30px;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -22px;
+            top: 30px;
+            width: 2px;
+            height: calc(100% - 30px);
+            background: #dee2e6;
+        }
+        
+        .timeline-item:last-child::before {
+            display: none;
+        }
+        
+        .timeline-item.completed::before {
+            background: #28a745;
+        }
+        
+        .timeline-item.cancelled::before {
+            background: #dc3545;
+        }
+        
+        .timeline-marker {
+            position: absolute;
+            left: -30px;
+            top: 0;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .timeline-item .timeline-marker i {
+            font-size: 18px;
+            color: #dee2e6;
+        }
+        
+        .timeline-item.completed .timeline-marker i {
+            color: #28a745;
+        }
+        
+        .timeline-item.cancelled .timeline-marker i {
+            color: #dc3545;
+        }
+        
+        .timeline-content h6 {
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .timeline-content p {
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .order-summary-box {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .order-summary-box h6 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .order-summary-box > div {
+            margin-bottom: 5px;
+        }
+    </style>
 }
 
 <div class="order-detail-container">
@@ -54,13 +152,6 @@
                                 <label>Total Amount:</label>
                                 <span class="value-text total-amount">$@Model.Order.TotalAmount.ToString("N0")</span>
                             </div>
-                            @if (!string.IsNullOrEmpty(Model.Order.ShippingAddress))
-                            {
-                                <div class="info-item full-width">
-                                    <label>Shipping Address:</label>
-                                    <span class="value-text">@Model.Order.ShippingAddress</span>
-                                </div>
-                            }
                             @if (!string.IsNullOrEmpty(Model.Order.Notes))
                             {
                                 <div class="info-item full-width">
@@ -189,34 +280,105 @@
                 {
                     <div class="detail-card">
                         <div class="card-header">
-                            <h2><i class="bi bi-truck"></i> Delivery</h2>
-                            <span class="@(Model.Order.Delivery.Status == DeliveryStatus.Delivered ? "badge badge-success" : 
-                                           Model.Order.Delivery.Status == DeliveryStatus.InTransit ? "badge badge-info" : 
-                                           "badge badge-warning")">
+                            <h2><i class="bi bi-truck"></i> Delivery Tracking</h2>
+                            <span class="@GetDeliveryStatusBadgeClass(Model.Order.Delivery.Status)">
                                 @Model.Order.Delivery.Status.ToString()
                             </span>
                         </div>
                         <div class="card-body">
+                            <!-- Delivery Timeline -->
+                            <div class="delivery-timeline mb-4">
+                                <div class="timeline-item @(Model.Order.Delivery.Status >= DeliveryStatus.Pending ? "completed" : "")">
+                                    <div class="timeline-marker">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h6>Request Submitted</h6>
+                                        <p class="text-muted">@Model.Order.Delivery.CreatedAt.ToString("MMM dd, yyyy hh:mm tt")</p>
+                                        @if (Model.Order.Delivery.Status == DeliveryStatus.Pending)
+                                        {
+                                            <span class="badge bg-warning">Waiting for staff confirmation</span>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="timeline-item @(Model.Order.Delivery.Status >= DeliveryStatus.Scheduled ? "completed" : Model.Order.Delivery.Status == DeliveryStatus.Cancelled ? "cancelled" : "")">
+                                    <div class="timeline-marker">
+                                        <i class="bi @(Model.Order.Delivery.Status >= DeliveryStatus.Scheduled ? "bi-check-circle-fill" : Model.Order.Delivery.Status == DeliveryStatus.Cancelled ? "bi-x-circle-fill" : "bi-circle")"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h6>Confirmed & Scheduled</h6>
+                                        @if (Model.Order.Delivery.PlannedDate.HasValue)
+                                        {
+                                            <p class="text-muted">Planned: @Model.Order.Delivery.PlannedDate.Value.ToString("MMM dd, yyyy")</p>
+                                        }
+                                        else if (Model.Order.Delivery.Status == DeliveryStatus.Pending)
+                                        {
+                                            <p class="text-muted">Pending confirmation</p>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="timeline-item @(Model.Order.Delivery.Status >= DeliveryStatus.InTransit ? "completed" : Model.Order.Delivery.Status == DeliveryStatus.Cancelled ? "cancelled" : "")">
+                                    <div class="timeline-marker">
+                                        <i class="bi @(Model.Order.Delivery.Status >= DeliveryStatus.InTransit ? "bi-check-circle-fill" : Model.Order.Delivery.Status == DeliveryStatus.Cancelled ? "bi-x-circle-fill" : "bi-circle")"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h6>In Transit</h6>
+                                        @if (Model.Order.Delivery.Status == DeliveryStatus.InTransit)
+                                        {
+                                            <p class="text-primary"><i class="bi bi-truck"></i> Your order is on the way!</p>
+                                        }
+                                        else if (Model.Order.Delivery.Status < DeliveryStatus.InTransit && Model.Order.Delivery.Status != DeliveryStatus.Cancelled)
+                                        {
+                                            <p class="text-muted">Not yet started</p>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="timeline-item @(Model.Order.Delivery.Status == DeliveryStatus.Delivered ? "completed" : Model.Order.Delivery.Status == DeliveryStatus.Cancelled ? "cancelled" : "")">
+                                    <div class="timeline-marker">
+                                        <i class="bi @(Model.Order.Delivery.Status == DeliveryStatus.Delivered ? "bi-check-circle-fill" : Model.Order.Delivery.Status == DeliveryStatus.Cancelled ? "bi-x-circle-fill" : "bi-circle")"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h6>@(Model.Order.Delivery.Status == DeliveryStatus.Cancelled ? "Cancelled" : "Delivered")</h6>
+                                        @if (Model.Order.Delivery.ActualDate.HasValue)
+                                        {
+                                            <p class="text-success"><i class="bi bi-check-circle"></i> Delivered on @Model.Order.Delivery.ActualDate.Value.ToString("MMM dd, yyyy")</p>
+                                        }
+                                        else if (Model.Order.Delivery.Status == DeliveryStatus.Cancelled)
+                                        {
+                                            <p class="text-danger"><i class="bi bi-x-circle"></i> Delivery cancelled</p>
+                                        }
+                                        else
+                                        {
+                                            <p class="text-muted">Awaiting delivery</p>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Delivery Details -->
                             <div class="info-grid">
-                                @if (Model.Order.Delivery.EstimatedDeliveryDate.HasValue)
+                                @if (!string.IsNullOrEmpty(Model.Order.Delivery.ShippingAddress))
                                 {
-                                    <div class="info-item">
-                                        <label>Estimated Delivery:</label>
-                                        <span class="value-text">@Model.Order.Delivery.EstimatedDeliveryDate.Value.ToString("MMM dd, yyyy")</span>
+                                    <div class="info-item full-width">
+                                        <label><i class="bi bi-pin-map-fill"></i> Delivery Address:</label>
+                                        <span class="value-text">@Model.Order.Delivery.ShippingAddress</span>
                                     </div>
                                 }
-                                @if (Model.Order.Delivery.ActualDeliveryDate.HasValue)
+                                @if (!string.IsNullOrEmpty(Model.Order.Delivery.Notes))
                                 {
-                                    <div class="info-item">
-                                        <label>Delivered On:</label>
-                                        <span class="value-text">@Model.Order.Delivery.ActualDeliveryDate.Value.ToString("MMM dd, yyyy")</span>
+                                    <div class="info-item full-width">
+                                        <label><i class="bi bi-chat-left-text"></i> Your Notes:</label>
+                                        <span class="value-text">@Model.Order.Delivery.Notes</span>
                                     </div>
                                 }
-                                @if (!string.IsNullOrEmpty(Model.Order.Delivery.TrackingNumber))
+                                @if (!string.IsNullOrEmpty(Model.Order.Delivery.StaffNotes))
                                 {
-                                    <div class="info-item">
-                                        <label>Tracking Number:</label>
-                                        <span class="value-text">@Model.Order.Delivery.TrackingNumber</span>
+                                    <div class="info-item full-width">
+                                        <label><i class="bi bi-person-badge"></i> Staff Notes:</label>
+                                        <span class="value-text">@Model.Order.Delivery.StaffNotes</span>
                                     </div>
                                 }
                             </div>
@@ -235,14 +397,184 @@
                             <i class="bi bi-x-circle"></i> Cancel Order
                         </button>
                     }
+
+                    @* Request Delivery Button - Show if paid and no delivery yet *@
+                    @if (Model.Order.PaymentStatus == PaymentStatus.Paid && Model.Order.Delivery == null)
+                    {
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#requestDeliveryModal">
+                            <i class="bi bi-truck"></i> Request Delivery
+                        </button>
+                    }
+
+                    @* Cancel Delivery Button - Show if delivery status is Pending *@
+                    @if (Model.Order.Delivery != null && Model.Order.Delivery.Status == DeliveryStatus.Pending)
+                    {
+                        <button type="button" class="btn btn-warning" onclick="cancelDelivery('@Model.Order.Delivery.Id')">
+                            <i class="bi bi-x-circle"></i> Cancel Delivery Request
+                        </button>
+                    }
                 </div>
             </div>
         }
     </div>
 </div>
 
+@* Request Delivery Modal *@
+<div class="modal fade" id="requestDeliveryModal" tabindex="-1" aria-labelledby="requestDeliveryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="requestDeliveryModalLabel">
+                    <i class="bi bi-truck"></i> Request Delivery
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="requestDeliveryForm">
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        Please provide your delivery address. Our staff will review and confirm your delivery request.
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="shippingAddress" class="form-label">
+                            <i class="bi bi-pin-map-fill"></i> Shipping Address <span class="text-danger">*</span>
+                        </label>
+                        <textarea 
+                            id="shippingAddress" 
+                            name="shippingAddress" 
+                            class="form-control" 
+                            rows="3" 
+                            required
+                            placeholder="Enter your complete delivery address (Street, City, State, ZIP)"></textarea>
+                        <div class="form-text">
+                            Please provide a complete and accurate address for delivery
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="deliveryNotes" class="form-label">
+                            <i class="bi bi-chat-left-text"></i> Additional Notes (Optional)
+                        </label>
+                        <textarea 
+                            id="deliveryNotes" 
+                            name="notes" 
+                            class="form-control" 
+                            rows="3"
+                            placeholder="Any special instructions for delivery (e.g., gate code, preferred delivery time)"></textarea>
+                    </div>
+
+                    <div class="order-summary-box">
+                        <h6><i class="bi bi-box-seam"></i> Order Summary</h6>
+                        <div class="d-flex justify-content-between">
+                            <span>Order Number:</span>
+                            <strong>@Model.Order.OrderNumber</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Vehicle:</span>
+                            <strong>@string.Join(", ", Model.Order.Items.Select(i => $"{i.VehicleModelName} {i.VehicleTrimName}"))</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Total Amount:</span>
+                            <strong class="text-success">$@Model.Order.TotalAmount.ToString("N0")</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitDeliveryRequest">
+                        <i class="bi bi-send"></i> Submit Request
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
+        // Request Delivery Form Submit
+        document.getElementById('requestDeliveryForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitDeliveryRequest');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting...';
+            
+            const formData = {
+                orderId: '@Model.Order.Id',
+                shippingAddress: document.getElementById('shippingAddress').value,
+                notes: document.getElementById('deliveryNotes').value
+            };
+            
+            try {
+                const response = await fetch('/Order/OrderDetail?handler=RequestDelivery', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('requestDeliveryModal'));
+                    modal.hide();
+                    
+                    // Show success message
+                    alert('Delivery request submitted successfully! Our staff will review and confirm your request.');
+                    
+                    // Reload page to show delivery info
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to submit delivery request'));
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while submitting your request. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+
+        // Cancel Delivery Function
+        async function cancelDelivery(deliveryId) {
+            if (!confirm('Are you sure you want to cancel your delivery request?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/Order/OrderDetail?handler=CancelDelivery', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    },
+                    body: JSON.stringify({ deliveryId: deliveryId })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Delivery request cancelled successfully');
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to cancel delivery request'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            }
+        }
+
         function cancelOrder(orderId, orderNumber) {
             if (confirm(`Are you sure you want to cancel Order #${orderNumber}?`)) {
                 const reason = prompt('Please provide a reason for cancellation (optional):');

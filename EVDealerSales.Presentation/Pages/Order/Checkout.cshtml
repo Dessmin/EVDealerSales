@@ -73,13 +73,10 @@
                             </div>
                         }
 
-                        @if (!string.IsNullOrEmpty(Model.Order.ShippingAddress))
-                        {
-                            <div class="shipping-info">
-                                <h4><i class="bi bi-pin-map"></i> Shipping Address</h4>
-                                <p>@Model.Order.ShippingAddress</p>
-                            </div>
-                        }
+                        <div class="alert alert-info mt-3">
+                            <i class="bi bi-info-circle"></i>
+                            You can request delivery and specify shipping address after completing the payment.
+                        </div>
 
                         <div class="total-amount">
                             <label>Total Amount:</label>

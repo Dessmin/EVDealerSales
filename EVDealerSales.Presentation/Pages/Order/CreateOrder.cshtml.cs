@@ -22,13 +22,10 @@ namespace EVDealerSales.Presentation.Pages.Order
         }
 
         public VehicleResponseDto Vehicle { get; set; } = null!;
-        
-        [BindProperty]
-        public string? ShippingAddress { get; set; }
-        
+
         [BindProperty]
         public string? Notes { get; set; }
-        
+
         public string? ErrorMessage { get; set; }
 
         public async Task<IActionResult> OnGetAsync(Guid vehicleId)
@@ -36,7 +33,7 @@ namespace EVDealerSales.Presentation.Pages.Order
             try
             {
                 Vehicle = await _vehicleService.GetVehicleByIdAsync(vehicleId);
-                
+
                 if (Vehicle == null)
                 {
                     ErrorMessage = "Vehicle not found";
@@ -46,6 +43,12 @@ namespace EVDealerSales.Presentation.Pages.Order
                 if (!Vehicle.IsActive)
                 {
                     ErrorMessage = "This vehicle is currently unavailable";
+                    return RedirectToPage("/Vehicle/DetailVehicles", new { id = vehicleId });
+                }
+
+                if (Vehicle.Stock <= 0)
+                {
+                    TempData["ErrorMessage"] = "This vehicle is out of stock and cannot be purchased at this time";
                     return RedirectToPage("/Vehicle/DetailVehicles", new { id = vehicleId });
                 }
 
@@ -63,24 +66,29 @@ namespace EVDealerSales.Presentation.Pages.Order
             try
             {
                 Vehicle = await _vehicleService.GetVehicleByIdAsync(vehicleId);
-                
+
                 if (Vehicle == null || !Vehicle.IsActive)
                 {
                     ErrorMessage = "Vehicle is not available for purchase";
                     return Page();
                 }
 
+                if (Vehicle.Stock <= 0)
+                {
+                    ErrorMessage = "This vehicle is out of stock and cannot be purchased at this time";
+                    return Page();
+                }
+
                 var createOrderDto = new CreateOrderRequestDto
                 {
                     VehicleId = vehicleId,
-                    ShippingAddress = ShippingAddress,
                     Notes = Notes
                 };
 
                 var order = await _orderService.CreateOrderAsync(createOrderDto);
-                
+
                 // Create Stripe Checkout Session and redirect
-                var checkoutUrl = await _paymentService.CreateCheckoutSessionAsync(order.Id);
+                var checkoutUrl = await _paymentService.CreateCheckoutSessionAsync(order);
                 return Redirect(checkoutUrl);
             }
             catch (Exception ex)
