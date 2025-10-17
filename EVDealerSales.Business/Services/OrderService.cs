@@ -1,7 +1,7 @@
 using EVDealerSales.Business.Interfaces;
 using EVDealerSales.Business.Utils;
-using EVDealerSales.BusinessObject.DTOs.OrderDTOs;
 using EVDealerSales.BusinessObject.DTOs.DeliveryDTOs;
+using EVDealerSales.BusinessObject.DTOs.OrderDTOs;
 using EVDealerSales.BusinessObject.Enums;
 using EVDealerSales.DataAccess.Entities;
 using EVDealerSales.DataAccess.Interfaces;
@@ -113,6 +113,23 @@ namespace EVDealerSales.Business.Services
                     IsDeleted = false
                 };
 
+                // Decrement stock for each vehicle in the order
+                if (vehicle != null && !vehicle.IsDeleted)
+                {
+                    if (vehicle.Stock > 0)
+                    {
+                        vehicle.Stock -= 1;
+                        vehicle.UpdatedAt = _currentTime.GetCurrentTime();
+                        await _unitOfWork.Vehicles.Update(vehicle);
+                        _logger.LogInformation("Decremented stock for vehicle {VehicleId} from {OldStock} to {NewStock}",
+                            vehicle.Id, vehicle.Stock + 1, vehicle.Stock);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Vehicle {VehicleId} has no stock left but payment was already confirmed", vehicle.Id);
+                    }
+                }
+
                 await _unitOfWork.Invoices.AddAsync(invoice);
                 await _unitOfWork.SaveChangesAsync();
 
@@ -221,6 +238,8 @@ namespace EVDealerSales.Business.Services
         {
             try
             {
+                _logger.LogInformation("Cancelling order {OrderId}", orderId);
+
                 var currentUserId = _claimsService.GetCurrentUserId;
                 if (currentUserId == Guid.Empty)
                 {
@@ -229,6 +248,7 @@ namespace EVDealerSales.Business.Services
 
                 var order = await _unitOfWork.Orders.GetQueryable()
                     .Include(o => o.Invoices).ThenInclude(i => i.Payments)
+                    .Include(o => o.Items).ThenInclude(oi => oi.Vehicle)
                     .FirstOrDefaultAsync(o => o.Id == orderId && !o.IsDeleted);
 
                 if (order == null)
@@ -261,7 +281,7 @@ namespace EVDealerSales.Business.Services
                     .SelectMany(i => i.Payments)
                     .Any(p => p.Status == PaymentStatus.Paid);
 
-                if (hasPaidPayment && !isStaff)
+                if (hasPaidPayment)
                 {
                     throw new InvalidOperationException("Cannot cancel a paid order. Please contact staff for assistance.");
                 }
@@ -273,31 +293,24 @@ namespace EVDealerSales.Business.Services
                 order.UpdatedAt = _currentTime.GetCurrentTime();
                 order.UpdatedBy = currentUserId;
 
-                // Restore stock if order was already confirmed (paid)
-                if (hasPaidPayment)
-                {
-                    // Load order items if not already loaded
-                    if (order.Items == null || !order.Items.Any())
-                    {
-                        var items = await _unitOfWork.OrderItems.GetQueryable()
-                            .Include(oi => oi.Vehicle)
-                            .Where(oi => oi.OrderId == order.Id && !oi.IsDeleted)
-                            .ToListAsync();
-                        order.Items = items;
-                    }
+                _logger.LogInformation("OrderItemCount", order.Items.Count);
 
-                    // Restore stock for each vehicle in the order
-                    foreach (var orderItem in order.Items)
+
+                // Restore stock for each vehicle in the order
+                foreach (var orderItem in order.Items)
+                {
+                    var vehicle = orderItem.Vehicle ?? await _unitOfWork.Vehicles.GetByIdAsync(orderItem.VehicleId);
+                    if (vehicle != null && !vehicle.IsDeleted)
                     {
-                        var vehicle = orderItem.Vehicle ?? await _unitOfWork.Vehicles.GetByIdAsync(orderItem.VehicleId);
-                        if (vehicle != null && !vehicle.IsDeleted)
-                        {
-                            vehicle.Stock += 1;
-                            vehicle.UpdatedAt = _currentTime.GetCurrentTime();
-                            await _unitOfWork.Vehicles.Update(vehicle);
-                            _logger.LogInformation("Restored stock for vehicle {VehicleId} from {OldStock} to {NewStock}",
-                                vehicle.Id, vehicle.Stock - 1, vehicle.Stock);
-                        }
+                        vehicle.Stock += 1;
+                        vehicle.UpdatedAt = _currentTime.GetCurrentTime();
+                        await _unitOfWork.Vehicles.Update(vehicle);
+                        _logger.LogInformation("Restored stock for vehicle {VehicleId} from {OldStock} to {NewStock}",
+                            vehicle.Id, vehicle.Stock - 1, vehicle.Stock);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Vehicle with ID {orderItem.VehicleId} not found for stock restoration");
                     }
                 }
 
