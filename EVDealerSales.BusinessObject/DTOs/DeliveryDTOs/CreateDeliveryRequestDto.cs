@@ -2,10 +2,11 @@
 
 namespace EVDealerSales.BusinessObject.DTOs.DeliveryDTOs
 {
+    // DTO for customer to request delivery
     public class CreateDeliveryRequestDto
     {
         public Guid OrderId { get; set; }
-        public DateTime? PlannedDate { get; set; }
-        public DeliveryStatus Status { get; set; } = DeliveryStatus.Scheduled;
+        public string? ShippingAddress { get; set; }
+        public string? Notes { get; set; }
     }
 }

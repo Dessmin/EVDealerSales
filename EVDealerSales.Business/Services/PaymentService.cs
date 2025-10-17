@@ -268,7 +268,6 @@ namespace EVDealerSales.Business.Services
                     UnitPrice = oi.UnitPrice,
                     Year = oi.Vehicle?.ModelYear ?? 0,
                 }).ToList(),
-                ShippingAddress = order.ShippingAddress,
                 PaymentStatus = payment?.Status,
                 PaymentDate = payment?.PaymentDate,
                 PaymentIntentId = payment?.PaymentIntentId,

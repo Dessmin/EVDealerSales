@@ -13,12 +13,12 @@ namespace EVDealerSales.Presentation.Pages.Order
     public class ManageOrdersModel : PageModel
     {
         private readonly IOrderService _orderService;
-        private readonly IDeliveryService _deliveryService;  // ⭐ THÊM DELIVERY SERVICE
+        private readonly IDeliveryService _deliveryService;
         private readonly ILogger<ManageOrdersModel> _logger;
 
         public ManageOrdersModel(
             IOrderService orderService,
-            IDeliveryService deliveryService,  // ⭐ INJECT DELIVERY SERVICE
+            IDeliveryService deliveryService,
             ILogger<ManageOrdersModel> logger)
         {
             _orderService = orderService;
@@ -83,50 +83,35 @@ namespace EVDealerSales.Presentation.Pages.Order
             }
         }
 
-        // ⭐ CẬP NHẬT METHOD NÀY
         public async Task<IActionResult> OnPostShipAsync(Guid id)
         {
             try
             {
-                _logger.LogInformation("Creating delivery for order {OrderId}", id);
+                _logger.LogInformation("Staff attempting to handle delivery for order {OrderId}", id);
 
-                // Kiểm tra xem delivery đã tồn tại chưa
+                // Kiểm tra xem delivery request từ customer đã tồn tại chưa
                 var existingDelivery = await _deliveryService.GetDeliveryByOrderIdAsync(id);
 
-                if (existingDelivery != null)
+                if (existingDelivery == null)
                 {
-                    TempData["ErrorMessage"] = "Delivery already exists for this order!";
+                    TempData["ErrorMessage"] = "No delivery request found for this order. Customer must request delivery first.";
                     return RedirectToPage(new { PageNumber, PageSize, SearchTerm, Status, PaymentStatus, FromDate, ToDate });
                 }
 
-                // Tạo delivery mới
-                var createDeliveryRequest = new CreateDeliveryRequestDto
+                if (existingDelivery.Status != DeliveryStatus.Pending)
                 {
-                    OrderId = id,
-                    PlannedDate = DateTime.Now.AddDays(7),  // Dự kiến giao sau 7 ngày
-                    Status = DeliveryStatus.Scheduled
-                };
+                    TempData["InfoMessage"] = $"This delivery is already {existingDelivery.Status}. Please go to delivery management to update it.";
+                    return RedirectToPage(new { PageNumber, PageSize, SearchTerm, Status, PaymentStatus, FromDate, ToDate });
+                }
 
-                await _deliveryService.CreateDeliveryAsync(createDeliveryRequest);
-
-                TempData["SuccessMessage"] = "Delivery has been created successfully! Order is scheduled for delivery.";
-
-                _logger.LogInformation("Delivery created successfully for order {OrderId}", id);
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.LogWarning(ex, "Cannot create delivery for order {OrderId}", id);
-                TempData["ErrorMessage"] = ex.Message;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                _logger.LogWarning(ex, "Unauthorized attempt to create delivery for order {OrderId}", id);
-                TempData["ErrorMessage"] = "You don't have permission to create deliveries.";
+                // Redirect to delivery management page để confirm
+                TempData["InfoMessage"] = "Please confirm the delivery request in Delivery Management.";
+                return RedirectToPage("/Staff/ManageDeliveries");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating delivery for order {OrderId}", id);
-                TempData["ErrorMessage"] = "Failed to create delivery. Please try again.";
+                _logger.LogError(ex, "Error handling delivery for order {OrderId}", id);
+                TempData["ErrorMessage"] = "Failed to handle delivery. Please try again.";
             }
 
             return RedirectToPage(new { PageNumber, PageSize, SearchTerm, Status, PaymentStatus, FromDate, ToDate });

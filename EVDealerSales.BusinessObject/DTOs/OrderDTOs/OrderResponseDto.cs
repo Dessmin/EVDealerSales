@@ -25,9 +25,6 @@ namespace EVDealerSales.BusinessObject.DTOs.OrderDTOs
         // Order items
         public List<OrderItemDto> Items { get; set; } = new();
 
-        // Shipping info
-        public string? ShippingAddress { get; set; }
-
         // Payment info (flattened for backward compatibility)
         public PaymentStatus? PaymentStatus { get; set; }
         public DateTime? PaymentDate { get; set; }

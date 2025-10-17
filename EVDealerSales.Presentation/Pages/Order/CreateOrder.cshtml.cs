@@ -24,9 +24,6 @@ namespace EVDealerSales.Presentation.Pages.Order
         public VehicleResponseDto Vehicle { get; set; } = null!;
 
         [BindProperty]
-        public string? ShippingAddress { get; set; }
-
-        [BindProperty]
         public string? Notes { get; set; }
 
         public string? ErrorMessage { get; set; }
@@ -85,7 +82,6 @@ namespace EVDealerSales.Presentation.Pages.Order
                 var createOrderDto = new CreateOrderRequestDto
                 {
                     VehicleId = vehicleId,
-                    ShippingAddress = ShippingAddress,
                     Notes = Notes
                 };
 

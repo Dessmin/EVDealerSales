@@ -5,7 +5,12 @@ namespace EVDealerSales.Business.Interfaces
 {
     public interface IDeliveryService
     {
-        Task<DeliveryResponseDto> CreateDeliveryAsync(CreateDeliveryRequestDto request);
+        // Customer request delivery
+        Task<DeliveryResponseDto> RequestDeliveryAsync(CreateDeliveryRequestDto request);
+        
+        // Staff confirm and schedule delivery
+        Task<DeliveryResponseDto> ConfirmDeliveryAsync(Guid deliveryId, ConfirmDeliveryRequestDto request);
+        
         Task<DeliveryResponseDto?> GetDeliveryByIdAsync(Guid id);
         Task<DeliveryResponseDto?> GetDeliveryByOrderIdAsync(Guid orderId);
         Task<Pagination<DeliveryResponseDto>> GetAllDeliveriesAsync(
@@ -13,5 +18,6 @@ namespace EVDealerSales.Business.Interfaces
             int pageSize = 10,
             DeliveryFilterDto? filter = null);
         Task<DeliveryResponseDto?> UpdateDeliveryStatusAsync(Guid id, UpdateDeliveryStatusRequestDto request);
+        Task<DeliveryResponseDto?> CancelDeliveryAsync(Guid id);
     }
 }

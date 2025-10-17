@@ -78,7 +78,6 @@ namespace EVDealerSales.Business.Services
                     OrderNumber = orderNumber,
                     Status = OrderStatus.Pending,
                     TotalAmount = vehicle.BasePrice,
-                    ShippingAddress = request.ShippingAddress,
                     Notes = request.Notes,
                     CreatedAt = _currentTime.GetCurrentTime(),
                     IsDeleted = false
@@ -702,7 +701,9 @@ namespace EVDealerSales.Business.Services
                     ActualDate = delivery.ActualDate,
                     Status = delivery.Status,
                     VehicleInfo = vehicleInfo,
-                    ShippingAddress = order.ShippingAddress,
+                    ShippingAddress = delivery.ShippingAddress,
+                    Notes = delivery.Notes,
+                    StaffNotes = delivery.StaffNotes,
                     CreatedAt = delivery.CreatedAt,
                     UpdatedAt = delivery.UpdatedAt
                 };
@@ -721,7 +722,7 @@ namespace EVDealerSales.Business.Services
                 StaffEmail = staff?.Email,
                 Status = order.Status,
                 TotalAmount = order.TotalAmount,
-                Items = order.Items.Select(oi => new OrderItemDto
+                Items = order.Items?.Select(oi => new OrderItemDto
                 {
                     Id = oi.Id,
                     VehicleId = oi.VehicleId,
@@ -730,8 +731,7 @@ namespace EVDealerSales.Business.Services
                     VehicleImageUrl = oi.Vehicle?.ImageUrl,
                     UnitPrice = oi.UnitPrice,
                     Year = oi.Vehicle?.ModelYear ?? 0,
-                }).ToList(),
-                ShippingAddress = order.ShippingAddress,
+                }).ToList() ?? new List<OrderItemDto>(),
                 // Flattened properties for backward compatibility
                 PaymentStatus = payment?.Status,
                 PaymentDate = payment?.PaymentDate,
