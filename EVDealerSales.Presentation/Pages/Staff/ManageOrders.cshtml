@@ -7,6 +7,7 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/testdrive.css" />
+    <link rel="stylesheet" href="~/css/orders-delivery.css" />
 }
 
 <div class="testdrive-container">
@@ -194,8 +195,9 @@
                                     <th>Total Amount</th>
                                     <th>Order Status</th>
                                     <th>Payment Status</th>
+                                    <th>Delivery Status</th>
                                     <th>Date</th>
-                                    <th style="width: 200px;">Actions</th>
+                                    <th style="width: 250px;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -295,6 +297,34 @@
                                             }
                                         </td>
                                         <td>
+                                            @* ⭐ THÊM CỘT DELIVERY STATUS *@
+                                            @if (order.DeliveryStatus.HasValue)
+                                            {
+                                                @switch (order.DeliveryStatus.Value)
+                                                {
+                                                    case DeliveryStatus.Scheduled:
+                                                        <span class="badge badge-warning">
+                                                            <i class="bi bi-calendar-check"></i> Scheduled
+                                                        </span>
+                                                        break;
+                                                    case DeliveryStatus.InTransit:
+                                                        <span class="badge badge-info">
+                                                            <i class="bi bi-truck"></i> In Transit
+                                                        </span>
+                                                        break;
+                                                    case DeliveryStatus.Delivered:
+                                                        <span class="badge badge-success">
+                                                            <i class="bi bi-check-circle"></i> Delivered
+                                                        </span>
+                                                        break;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="badge" style="background-color: #6c757d;">No Delivery</span>
+                                            }
+                                        </td>
+                                        <td>
                                             <div>
                                                 <div style="font-weight: 500;">
                                                     @order.CreatedAt.ToString("MMM dd, yyyy")
@@ -311,16 +341,33 @@
                                                     <i class="bi bi-eye"></i>
                                                 </a>
 
-                                                @if (order.PaymentStatus == PaymentStatus.Paid && order.Status != OrderStatus.Delivered && order.Status != OrderStatus.Cancelled)
+                                                @* ⭐ LOGIC MỚI: Kiểm tra cả DeliveryStatus *@
+                                                @if (order.PaymentStatus == PaymentStatus.Paid &&
+                                                                                        order.Status != OrderStatus.Delivered &&
+                                                                                        order.Status != OrderStatus.Cancelled)
                                                 {
-                                                    <form method="post" asp-page-handler="Ship" asp-route-id="@order.Id"
-                                                          style="display: inline;">
-                                                        <button type="submit" class="btn btn-sm btn-success"
-                                                                title="Ship Order"
-                                                                onclick="return confirm('Mark this order for shipping?');">
-                                                            <i class="bi bi-truck"></i> Ship
-                                                        </button>
-                                                    </form>
+                                                    @if (!order.DeliveryStatus.HasValue)
+                                                    {
+                                                        @* Chưa có Delivery → Hiển thị nút Ship *@
+                                                        <form method="post" asp-page-handler="Ship" asp-route-id="@order.Id"
+                                                              style="display: inline;">
+                                                            <button type="submit" class="btn btn-sm btn-success"
+                                                                    title="Create Delivery"
+                                                                    onclick="return confirm('Create delivery for this order?');">
+                                                                <i class="bi bi-truck"></i> Ship
+                                                            </button>
+                                                        </form>
+                                                    }
+                                                    else
+                                                    {
+                                                        @* Đã có Delivery → Hiển thị nút View Delivery *@
+                                                        <a asp-page="/Staff/ManageDeliveries"
+                                                           asp-route-searchTerm="@order.OrderNumber"
+                                                           class="btn btn-sm btn-info"
+                                                           title="View Delivery">
+                                                            <i class="bi bi-box-seam"></i> View Delivery
+                                                        </a>
+                                                    }
                                                 }
                                             </div>
                                         </td>

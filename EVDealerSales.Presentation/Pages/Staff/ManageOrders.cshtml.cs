@@ -1,6 +1,7 @@
-using EVDealerSales.Business.Interfaces;
+﻿using EVDealerSales.Business.Interfaces;
 using EVDealerSales.Business.Utils;
 using EVDealerSales.BusinessObject.DTOs.OrderDTOs;
+using EVDealerSales.BusinessObject.DTOs.DeliveryDTOs;
 using EVDealerSales.BusinessObject.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +13,16 @@ namespace EVDealerSales.Presentation.Pages.Order
     public class ManageOrdersModel : PageModel
     {
         private readonly IOrderService _orderService;
+        private readonly IDeliveryService _deliveryService;  // ⭐ THÊM DELIVERY SERVICE
         private readonly ILogger<ManageOrdersModel> _logger;
 
-        public ManageOrdersModel(IOrderService orderService, ILogger<ManageOrdersModel> logger)
+        public ManageOrdersModel(
+            IOrderService orderService,
+            IDeliveryService deliveryService,  // ⭐ INJECT DELIVERY SERVICE
+            ILogger<ManageOrdersModel> logger)
         {
             _orderService = orderService;
+            _deliveryService = deliveryService;
             _logger = logger;
         }
 
@@ -77,18 +83,50 @@ namespace EVDealerSales.Presentation.Pages.Order
             }
         }
 
+        // ⭐ CẬP NHẬT METHOD NÀY
         public async Task<IActionResult> OnPostShipAsync(Guid id)
         {
             try
             {
-                // TODO: Implement shipping logic later
-                _logger.LogInformation("Shipping order {OrderId}", id);
-                TempData["SuccessMessage"] = "Order marked for shipping! (Feature coming soon)";
+                _logger.LogInformation("Creating delivery for order {OrderId}", id);
+
+                // Kiểm tra xem delivery đã tồn tại chưa
+                var existingDelivery = await _deliveryService.GetDeliveryByOrderIdAsync(id);
+
+                if (existingDelivery != null)
+                {
+                    TempData["ErrorMessage"] = "Delivery already exists for this order!";
+                    return RedirectToPage(new { PageNumber, PageSize, SearchTerm, Status, PaymentStatus, FromDate, ToDate });
+                }
+
+                // Tạo delivery mới
+                var createDeliveryRequest = new CreateDeliveryRequestDto
+                {
+                    OrderId = id,
+                    PlannedDate = DateTime.Now.AddDays(7),  // Dự kiến giao sau 7 ngày
+                    Status = DeliveryStatus.Scheduled
+                };
+
+                await _deliveryService.CreateDeliveryAsync(createDeliveryRequest);
+
+                TempData["SuccessMessage"] = "Delivery has been created successfully! Order is scheduled for delivery.";
+
+                _logger.LogInformation("Delivery created successfully for order {OrderId}", id);
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Cannot create delivery for order {OrderId}", id);
+                TempData["ErrorMessage"] = ex.Message;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogWarning(ex, "Unauthorized attempt to create delivery for order {OrderId}", id);
+                TempData["ErrorMessage"] = "You don't have permission to create deliveries.";
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error shipping order {OrderId}", id);
-                TempData["ErrorMessage"] = ex.Message;
+                _logger.LogError(ex, "Error creating delivery for order {OrderId}", id);
+                TempData["ErrorMessage"] = "Failed to create delivery. Please try again.";
             }
 
             return RedirectToPage(new { PageNumber, PageSize, SearchTerm, Status, PaymentStatus, FromDate, ToDate });
