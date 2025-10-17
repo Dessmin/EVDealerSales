@@ -7,8 +7,5 @@ namespace EVDealerSales.Business.Interfaces
         // Stripe Payment Integration
         Task<string> CreateCheckoutSessionAsync(Guid orderId);
         Task<OrderResponseDto> ConfirmPaymentAsync(string paymentIntentId);
-        
-        // Payment information
-        Task<PaymentIntentResponseDto?> GetPaymentIntentAsync(Guid orderId);
     }
 }

@@ -198,25 +198,25 @@
                         </div>
                         <div class="card-body">
                             <div class="info-grid">
-                                @if (Model.Order.Delivery.EstimatedDeliveryDate.HasValue)
+                                @if (Model.Order.Delivery.PlannedDate.HasValue)
                                 {
                                     <div class="info-item">
-                                        <label>Estimated Delivery:</label>
-                                        <span class="value-text">@Model.Order.Delivery.EstimatedDeliveryDate.Value.ToString("MMM dd, yyyy")</span>
+                                        <label>Planned Delivery:</label>
+                                        <span class="value-text">@Model.Order.Delivery.PlannedDate.Value.ToString("MMM dd, yyyy")</span>
                                     </div>
                                 }
-                                @if (Model.Order.Delivery.ActualDeliveryDate.HasValue)
+                                @if (Model.Order.Delivery.ActualDate.HasValue)
                                 {
                                     <div class="info-item">
                                         <label>Delivered On:</label>
-                                        <span class="value-text">@Model.Order.Delivery.ActualDeliveryDate.Value.ToString("MMM dd, yyyy")</span>
+                                        <span class="value-text">@Model.Order.Delivery.ActualDate.Value.ToString("MMM dd, yyyy")</span>
                                     </div>
                                 }
-                                @if (!string.IsNullOrEmpty(Model.Order.Delivery.TrackingNumber))
+                                @if (!string.IsNullOrEmpty(Model.Order.Delivery.ShippingAddress))
                                 {
-                                    <div class="info-item">
-                                        <label>Tracking Number:</label>
-                                        <span class="value-text">@Model.Order.Delivery.TrackingNumber</span>
+                                    <div class="info-item full-width">
+                                        <label>Delivery Address:</label>
+                                        <span class="value-text">@Model.Order.Delivery.ShippingAddress</span>
                                     </div>
                                 }
                             </div>

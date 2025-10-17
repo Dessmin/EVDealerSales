@@ -28,18 +28,4 @@ namespace EVDealerSales.BusinessObject.DTOs.OrderDTOs
         public string? TransactionId { get; set; }
         public DateTime CreatedAt { get; set; }
     }
-
-    public class DeliveryResponseDto
-    {
-        public Guid Id { get; set; }
-        public Guid OrderId { get; set; }
-        public DeliveryStatus Status { get; set; }
-        public DateTime? EstimatedDeliveryDate { get; set; }
-        public DateTime? ActualDeliveryDate { get; set; }
-        public string? TrackingNumber { get; set; }
-        public string? DeliveryAddress { get; set; }
-        public string? Notes { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-    }
 }

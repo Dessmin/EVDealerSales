@@ -72,10 +72,11 @@ namespace EVDealerSales.Presentation.Helper
                             ModelYear = 2025,
                             BasePrice = 89990M,
                             ImageUrl = "https://images.unsplash.com/photo-1580273916550-e323be2ae537?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-                            BatteryCapacity = 100M,
+                            BatteryCapacity = 100,
                             RangeKM = 637,
                             ChargingTime = 45, // minutes for 10-80%
                             TopSpeed = 322,
+                            Stock = 5,
                             IsActive = true
                         },
                         new Vehicle
@@ -85,10 +86,11 @@ namespace EVDealerSales.Presentation.Helper
                             ModelYear = 2025,
                             BasePrice = 88900M,
                             ImageUrl = "https://plus.unsplash.com/premium_photo-1664303847960-586318f59035?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-                            BatteryCapacity = 111.5M,
+                            BatteryCapacity = 112,
                             RangeKM = 561,
                             ChargingTime = 35,
                             TopSpeed = 250,
+                            Stock = 8,
                             IsActive = true
                         },
                         new Vehicle
@@ -98,10 +100,11 @@ namespace EVDealerSales.Presentation.Helper
                             ModelYear = 2025,
                             BasePrice = 85900M,
                             ImageUrl = "https://plus.unsplash.com/premium_photo-1683134240084-ba074973f75e?q=80&w=1595&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-                            BatteryCapacity = 107.8M,
+                            BatteryCapacity = 108,
                             RangeKM = 587,
                             ChargingTime = 31,
                             TopSpeed = 210,
+                            Stock = 3,
                             IsActive = true
                         },
                         new Vehicle
@@ -111,10 +114,11 @@ namespace EVDealerSales.Presentation.Helper
                             ModelYear = 2025,
                             BasePrice = 52600M,
                             ImageUrl = "https://images.unsplash.com/photo-1502877338535-766e1452684a?q=80&w=1172&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-                            BatteryCapacity = 77.4M,
+                            BatteryCapacity = 77,
                             RangeKM = 509,
                             ChargingTime = 18,
                             TopSpeed = 230,
+                            Stock = 12,
                             IsActive = true
                         },
                         new Vehicle
@@ -124,10 +128,11 @@ namespace EVDealerSales.Presentation.Helper
                             ModelYear = 2025,
                             BasePrice = 57800M,
                             ImageUrl = "https://dailymuabanxe.net/wp-content/uploads/2022/06/Ford-Mustang_Mach-E-7.jpg",
-                            BatteryCapacity = 98.8M,
+                            BatteryCapacity = 99,
                             RangeKM = 491,
                             ChargingTime = 38,
                             TopSpeed = 180,
+                            Stock = 7,
                             IsActive = true
                         },               
                         new Vehicle
@@ -137,10 +142,11 @@ namespace EVDealerSales.Presentation.Helper
                             ModelYear = 2025,
                             BasePrice = 75000M,
                             ImageUrl = "https://naoevo.vn/uploads/images/tintuc/2024/T8/audi-a6-e-tron/audi-a6-e-tron-6.jpg",
-                            BatteryCapacity = 100M,
+                            BatteryCapacity = 100,
                             RangeKM = 487,
                             ChargingTime = 25,
                             TopSpeed = 210,
+                            Stock = 4,
                             IsActive = true
                         },
                         new Vehicle
@@ -150,10 +156,11 @@ namespace EVDealerSales.Presentation.Helper
                             ModelYear = 2025,
                             BasePrice = 62000M,
                             ImageUrl = "https://image.cnbcfm.com/api/v1/image/108090905-1737582348519-Lyriq-V.JPG?v=1737582364&w=1920&h=1080",
-                            BatteryCapacity = 100M,
+                            BatteryCapacity = 100,
                             RangeKM = 483,
                             ChargingTime = 30,
                             TopSpeed = 200,
+                            Stock = 6,
                             IsActive = true
                         },
                         new Vehicle
@@ -163,10 +170,11 @@ namespace EVDealerSales.Presentation.Helper
                             ModelYear = 2025,
                             BasePrice = 86000M,
                             ImageUrl = "https://i1-vnexpress.vnecdn.net/2024/10/18/Porsche-Taycan-Vnexpress-net-11-JPG.jpg?w=2400&h=0&q=100&dpr=1&fit=crop&s=LoskMEDqKHzXgrHyeWd5Ag&t=image",
-                            BatteryCapacity = 93.4M,
+                            BatteryCapacity = 93,
                             RangeKM = 407,
                             ChargingTime = 22,
                             TopSpeed = 250,
+                            Stock = 2,
                             IsActive = true
                         },
                         new Vehicle
@@ -176,10 +184,11 @@ namespace EVDealerSales.Presentation.Helper
                             ModelYear = 2025,
                             BasePrice = 32000M,
                             ImageUrl = "https://hips.hearstapps.com/hmg-prod/images/2020-chevrolet-bolt-ev-premier-101-1588025513.jpg",
-                            BatteryCapacity = 65M,
+                            BatteryCapacity = 65,
                             RangeKM = 416,
                             ChargingTime = 30,
                             TopSpeed = 146,
+                            Stock = 15,
                             IsActive = true
                         }
                     };

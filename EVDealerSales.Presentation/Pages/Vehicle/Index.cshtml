@@ -138,7 +138,7 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                <div style="display: flex; gap: 1rem; font-size: 0.75rem;">
+                                                <div style="display: flex; gap: 1rem; font-size: 0.75rem; flex-wrap: wrap;">
                                                     <div>
                                                         <i class="fas fa-battery-full" style="color: #0070f3;"></i>
                                                         @vehicle.BatteryCapacity kWh
@@ -150,6 +150,10 @@
                                                     <div>
                                                         <i class="fas fa-tachometer-alt" style="color: #ff6b35;"></i>
                                                         @vehicle.TopSpeed km/h
+                                                    </div>
+                                                    <div style="@(vehicle.Stock <= 0 ? "color: #ef4444;" : vehicle.Stock <= 5 ? "color: #ffa500;" : "color: #00d4aa;")">
+                                                        <i class="fas fa-warehouse"></i>
+                                                        @vehicle.Stock units
                                                     </div>
                                                 </div>
                                             </td>

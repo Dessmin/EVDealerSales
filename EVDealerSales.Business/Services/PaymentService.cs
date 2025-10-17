@@ -1,5 +1,6 @@
 using EVDealerSales.Business.Interfaces;
 using EVDealerSales.BusinessObject.DTOs.OrderDTOs;
+using EVDealerSales.BusinessObject.DTOs.StripeDTOs;
 using EVDealerSales.BusinessObject.Enums;
 using EVDealerSales.DataAccess.Entities;
 using EVDealerSales.DataAccess.Interfaces;
@@ -52,66 +53,47 @@ namespace EVDealerSales.Business.Services
                     throw new KeyNotFoundException($"Payment intent {paymentIntentId} not found");
                 }
 
-                // Find payment in database (may not exist yet)
-                var payment = await _unitOfWork.Payments.GetQueryable()
-                    .Include(p => p.Invoice)
-                        .ThenInclude(i => i!.Order)
-                            .ThenInclude(o => o.Customer)
-                    .Include(p => p.Invoice)
-                        .ThenInclude(i => i!.Order)
-                            .ThenInclude(o => o.Items)
-                                .ThenInclude(oi => oi.Vehicle)
-                    .FirstOrDefaultAsync(p => p.PaymentIntentId == paymentIntentId && !p.IsDeleted);
+                _logger.LogInformation("Payment record not found for payment intent {PaymentIntentId}, creating new payment record", paymentIntentId);
 
-                Invoice? invoice = null;
+                // Try to get invoice from recent unpaid invoices
+                // In a better implementation, we'd get this from Stripe checkout session metadata
+                var recentInvoices = await _unitOfWork.Invoices.GetQueryable()
+                    .Include(i => i.Order).ThenInclude(o => o.Customer)
+                    .Include(i => i.Order).ThenInclude(o => o.Items).ThenInclude(oi => oi.Vehicle)
+                    .Include(i => i.Payments)
+                    .Where(i => i.Status != InvoiceStatus.Paid && !i.IsDeleted)
+                    .OrderByDescending(i => i.CreatedAt)
+                    .Take(10)
+                    .ToListAsync();
 
-                // If payment doesn't exist, create it using invoice from order/payment intent metadata
-                if (payment == null)
+                // Find invoice that doesn't have a payment with this payment intent
+                var invoice = recentInvoices.FirstOrDefault(i => !i.Payments.Any(p => p.PaymentIntentId == paymentIntentId));
+
+                if (invoice == null)
                 {
-                    _logger.LogInformation("Payment record not found for payment intent {PaymentIntentId}, creating new payment record", paymentIntentId);
-                    
-                    // Try to get invoice from recent unpaid invoices
-                    // In a better implementation, we'd get this from Stripe checkout session metadata
-                    var recentInvoices = await _unitOfWork.Invoices.GetQueryable()
-                        .Include(i => i.Order).ThenInclude(o => o.Customer)
-                        .Include(i => i.Order).ThenInclude(o => o.Items).ThenInclude(oi => oi.Vehicle)
-                        .Include(i => i.Payments)
-                        .Where(i => i.Status != InvoiceStatus.Paid && !i.IsDeleted)
-                        .OrderByDescending(i => i.CreatedAt)
-                        .Take(10)
-                        .ToListAsync();
-
-                    // Find invoice that doesn't have a payment with this payment intent
-                    invoice = recentInvoices.FirstOrDefault(i => !i.Payments.Any(p => p.PaymentIntentId == paymentIntentId));
-
-                    if (invoice == null)
-                    {
-                        throw new InvalidOperationException($"No unpaid invoice found for payment intent {paymentIntentId}");
-                    }
-
-                    // Create payment record
-                    payment = new Payment
-                    {
-                        Id = Guid.NewGuid(),
-                        InvoiceId = invoice.Id,
-                        Amount = invoice.TotalAmount,
-                        PaymentDate = _currentTime.GetCurrentTime(),
-                        Status = PaymentStatus.Pending,
-                        PaymentIntentId = paymentIntentId,
-                        TransactionId = paymentIntentId,
-                        PaymentMethod = "card",
-                        CreatedAt = _currentTime.GetCurrentTime(),
-                        IsDeleted = false,
-                        Invoice = invoice
-                    };
-
-                    await _unitOfWork.Payments.AddAsync(payment);
-                    _logger.LogInformation("Created payment record {PaymentId} for invoice {InvoiceId}", payment.Id, invoice.Id);
+                    throw new InvalidOperationException($"No unpaid invoice found for payment intent {paymentIntentId}");
                 }
-                else
+
+                // Create payment record
+                var payment = new Payment
                 {
-                    invoice = payment.Invoice;
-                }
+                    Id = Guid.NewGuid(),
+                    InvoiceId = invoice.Id,
+                    Amount = invoice.TotalAmount,
+                    PaymentDate = _currentTime.GetCurrentTime(),
+                    Status = PaymentStatus.Pending,
+                    PaymentIntentId = paymentIntentId,
+                    TransactionId = paymentIntentId,
+                    PaymentMethod = "card",
+                    CreatedAt = _currentTime.GetCurrentTime(),
+                    IsDeleted = false,
+                    Invoice = invoice
+                };
+
+                await _unitOfWork.Payments.AddAsync(payment);
+                _logger.LogInformation("Created payment record {PaymentId} for invoice {InvoiceId}", payment.Id, invoice.Id);
+
+                invoice = payment.Invoice;
 
                 if (paymentIntent.Status == "succeeded")
                 {
@@ -128,6 +110,27 @@ namespace EVDealerSales.Business.Services
                     {
                         invoice.Order.Status = OrderStatus.Confirmed;
                         invoice.Order.UpdatedAt = _currentTime.GetCurrentTime();
+
+                        // Decrement stock for each vehicle in the order
+                        foreach (var orderItem in invoice.Order.Items)
+                        {
+                            var vehicle = orderItem.Vehicle ?? await _unitOfWork.Vehicles.GetByIdAsync(orderItem.VehicleId);
+                            if (vehicle != null && !vehicle.IsDeleted)
+                            {
+                                if (vehicle.Stock > 0)
+                                {
+                                    vehicle.Stock -= 1;
+                                    vehicle.UpdatedAt = _currentTime.GetCurrentTime();
+                                    await _unitOfWork.Vehicles.Update(vehicle);
+                                    _logger.LogInformation("Decremented stock for vehicle {VehicleId} from {OldStock} to {NewStock}",
+                                        vehicle.Id, vehicle.Stock + 1, vehicle.Stock);
+                                }
+                                else
+                                {
+                                    _logger.LogWarning("Vehicle {VehicleId} has no stock left but payment was already confirmed", vehicle.Id);
+                                }
+                            }
+                        }
                     }
 
                     await _unitOfWork.SaveChangesAsync();
@@ -167,62 +170,6 @@ namespace EVDealerSales.Business.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error confirming payment for payment intent {PaymentIntentId}", paymentIntentId);
-                throw;
-            }
-        }
-
-
-
-        public async Task<PaymentIntentResponseDto?> GetPaymentIntentAsync(Guid orderId)
-        {
-            try
-            {
-                var currentUserId = _claimsService.GetCurrentUserId;
-                if (currentUserId == Guid.Empty)
-                {
-                    throw new UnauthorizedAccessException("User not authenticated");
-                }
-
-                var order = await _unitOfWork.Orders.GetQueryable()
-                    .Include(o => o.Invoices).ThenInclude(i => i.Payments)
-                    .FirstOrDefaultAsync(o => o.Id == orderId && !o.IsDeleted);
-
-                if (order == null)
-                {
-                    return null;
-                }
-
-                if (order.CustomerId != currentUserId)
-                {
-                    throw new UnauthorizedAccessException("You don't have permission to view this order's payment");
-                }
-
-                var invoice = order.Invoices.FirstOrDefault();
-                var payment = invoice?.Payments.FirstOrDefault(p => !string.IsNullOrEmpty(p.PaymentIntentId));
-
-                if (payment == null || string.IsNullOrEmpty(payment.PaymentIntentId))
-                {
-                    return null;
-                }
-
-                var paymentIntent = await RetrievePaymentIntentFromStripe(payment.PaymentIntentId);
-
-                if (paymentIntent == null)
-                {
-                    return null;
-                }
-
-                return new PaymentIntentResponseDto
-                {
-                    ClientSecret = paymentIntent.ClientSecret ?? string.Empty,
-                    PaymentIntentId = paymentIntent.Id,
-                    Amount = order.TotalAmount,
-                    Currency = "usd"
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting payment intent for order {OrderId}", orderId);
                 throw;
             }
         }
@@ -322,9 +269,6 @@ namespace EVDealerSales.Business.Services
                     Year = oi.Vehicle?.ModelYear ?? 0,
                 }).ToList(),
                 ShippingAddress = order.ShippingAddress,
-                InvoiceId = invoice?.Id,
-                InvoiceNumber = invoice?.InvoiceNumber,
-                InvoiceStatus = invoice?.Status,
                 PaymentStatus = payment?.Status,
                 PaymentDate = payment?.PaymentDate,
                 PaymentIntentId = payment?.PaymentIntentId,
@@ -465,22 +409,6 @@ namespace EVDealerSales.Business.Services
                 _logger.LogError(ex, "Error creating checkout session for order {OrderId}", orderId);
                 throw;
             }
-        }
-
-        private class StripePaymentIntent
-        {
-            public string Id { get; set; } = string.Empty;
-            public string? ClientSecret { get; set; }
-            public string Status { get; set; } = string.Empty;
-            public long Amount { get; set; }
-            public string Currency { get; set; } = string.Empty;
-        }
-
-        private class StripeCheckoutSession
-        {
-            public string Id { get; set; } = string.Empty;
-            public string Url { get; set; } = string.Empty;
-            public string Status { get; set; } = string.Empty;
         }
     }
 }

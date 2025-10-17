@@ -1,6 +1,7 @@
 using EVDealerSales.Business.Interfaces;
 using EVDealerSales.Business.Utils;
 using EVDealerSales.BusinessObject.DTOs.OrderDTOs;
+using EVDealerSales.BusinessObject.DTOs.DeliveryDTOs;
 using EVDealerSales.BusinessObject.Enums;
 using EVDealerSales.DataAccess.Entities;
 using EVDealerSales.DataAccess.Interfaces;
@@ -28,7 +29,7 @@ namespace EVDealerSales.Business.Services
             _currentTime = currentTime;
         }
 
-        public async Task<OrderResponseDto> CreateOrderAsync(CreateOrderRequestDto request)
+        public async Task<Guid> CreateOrderAsync(CreateOrderRequestDto request)
         {
             try
             {
@@ -58,6 +59,12 @@ namespace EVDealerSales.Business.Services
                 if (!vehicle.IsActive)
                 {
                     throw new InvalidOperationException("This vehicle is not available for purchase");
+                }
+
+                // Check stock availability
+                if (vehicle.Stock <= 0)
+                {
+                    throw new InvalidOperationException("This vehicle is out of stock");
                 }
 
                 // Generate order number
@@ -113,14 +120,7 @@ namespace EVDealerSales.Business.Services
                 _logger.LogInformation("Order {OrderId} created successfully with invoice {InvoiceId}",
                     order.Id, invoice.Id);
 
-                // Reload order with all relationships
-                var createdOrder = await _unitOfWork.Orders.GetQueryable()
-                    .Include(o => o.Customer)
-                    .Include(o => o.Items).ThenInclude(oi => oi.Vehicle)
-                    .Include(o => o.Invoices).ThenInclude(i => i.Payments)
-                    .FirstOrDefaultAsync(o => o.Id == order.Id);
-
-                return await MapToResponseDto(createdOrder!);
+                return order.Id;
             }
             catch (Exception ex)
             {
@@ -273,6 +273,34 @@ namespace EVDealerSales.Business.Services
                     : $"{order.Notes}\nCancelled: {reason}";
                 order.UpdatedAt = _currentTime.GetCurrentTime();
                 order.UpdatedBy = currentUserId;
+
+                // Restore stock if order was already confirmed (paid)
+                if (hasPaidPayment)
+                {
+                    // Load order items if not already loaded
+                    if (order.Items == null || !order.Items.Any())
+                    {
+                        var items = await _unitOfWork.OrderItems.GetQueryable()
+                            .Include(oi => oi.Vehicle)
+                            .Where(oi => oi.OrderId == order.Id && !oi.IsDeleted)
+                            .ToListAsync();
+                        order.Items = items;
+                    }
+
+                    // Restore stock for each vehicle in the order
+                    foreach (var orderItem in order.Items)
+                    {
+                        var vehicle = orderItem.Vehicle ?? await _unitOfWork.Vehicles.GetByIdAsync(orderItem.VehicleId);
+                        if (vehicle != null && !vehicle.IsDeleted)
+                        {
+                            vehicle.Stock += 1;
+                            vehicle.UpdatedAt = _currentTime.GetCurrentTime();
+                            await _unitOfWork.Vehicles.Update(vehicle);
+                            _logger.LogInformation("Restored stock for vehicle {VehicleId} from {OldStock} to {NewStock}",
+                                vehicle.Id, vehicle.Stock - 1, vehicle.Stock);
+                        }
+                    }
+                }
 
                 await _unitOfWork.Orders.Update(order);
                 await _unitOfWork.SaveChangesAsync();
@@ -603,16 +631,6 @@ namespace EVDealerSales.Business.Services
                 order.Invoices = invoices;
             }
 
-            // Load items if not loaded
-            if (order.Items == null || !order.Items.Any())
-            {
-                var items = await _unitOfWork.OrderItems.GetQueryable()
-                    .Include(oi => oi.Vehicle)
-                    .Where(oi => oi.OrderId == order.Id && !oi.IsDeleted)
-                    .ToListAsync();
-                order.Items = items;
-            }
-
             // Load delivery if exists
             if (order.Delivery == null)
             {
@@ -624,6 +642,71 @@ namespace EVDealerSales.Business.Services
             var invoice = order.Invoices.FirstOrDefault();
             var payment = invoice?.Payments.FirstOrDefault();
             var delivery = order.Delivery;
+
+            // Map invoice to DTO
+            InvoiceResponseDto? invoiceDto = null;
+            if (invoice != null)
+            {
+                invoiceDto = new InvoiceResponseDto
+                {
+                    Id = invoice.Id,
+                    OrderId = invoice.OrderId,
+                    InvoiceNumber = invoice.InvoiceNumber,
+                    IssueDate = invoice.CreatedAt,
+                    DueDate = null, // Set if you have a due date field
+                    TotalAmount = invoice.TotalAmount,
+                    Status = invoice.Status,
+                    Notes = invoice.Notes,
+                    CreatedAt = invoice.CreatedAt,
+                    UpdatedAt = invoice.UpdatedAt
+                };
+            }
+
+            // Map payment to DTO
+            PaymentResponseDto? paymentDto = null;
+            if (payment != null)
+            {
+                paymentDto = new PaymentResponseDto
+                {
+                    Id = payment.Id,
+                    InvoiceId = payment.InvoiceId,
+                    Amount = payment.Amount,
+                    Status = payment.Status,
+                    PaymentDate = payment.PaymentDate,
+                    PaymentMethod = payment.PaymentMethod,
+                    PaymentIntentId = payment.PaymentIntentId,
+                    TransactionId = payment.PaymentIntentId, // Using PaymentIntentId as TransactionId
+                    CreatedAt = payment.CreatedAt
+                };
+            }
+
+            // Map delivery to DTO
+            DeliveryResponseDto? deliveryDto = null;
+            if (delivery != null)
+            {
+                // Get vehicle info
+                var vehicleInfo = order.Items != null && order.Items.Any()
+                    ? string.Join(", ", order.Items.Select(oi => $"{oi.Vehicle?.ModelName} {oi.Vehicle?.TrimName}"))
+                    : "N/A";
+
+                deliveryDto = new DeliveryResponseDto
+                {
+                    Id = delivery.Id,
+                    OrderId = delivery.OrderId,
+                    OrderNumber = order.OrderNumber,
+                    CustomerId = order.CustomerId,
+                    CustomerName = order.Customer.FullName,
+                    CustomerEmail = order.Customer.Email,
+                    CustomerPhone = order.Customer.PhoneNumber,
+                    PlannedDate = delivery.PlannedDate,
+                    ActualDate = delivery.ActualDate,
+                    Status = delivery.Status,
+                    VehicleInfo = vehicleInfo,
+                    ShippingAddress = order.ShippingAddress,
+                    CreatedAt = delivery.CreatedAt,
+                    UpdatedAt = delivery.UpdatedAt
+                };
+            }
 
             return new OrderResponseDto
             {
@@ -649,15 +732,17 @@ namespace EVDealerSales.Business.Services
                     Year = oi.Vehicle?.ModelYear ?? 0,
                 }).ToList(),
                 ShippingAddress = order.ShippingAddress,
-                InvoiceId = invoice?.Id,
-                InvoiceNumber = invoice?.InvoiceNumber,
-                InvoiceStatus = invoice?.Status,
+                // Flattened properties for backward compatibility
                 PaymentStatus = payment?.Status,
                 PaymentDate = payment?.PaymentDate,
                 PaymentIntentId = payment?.PaymentIntentId,
                 DeliveryId = delivery?.Id,
                 DeliveryStatus = delivery?.Status,
                 DeliveryDate = delivery?.ActualDate,
+                // Nested objects
+                Invoice = invoiceDto,
+                Payment = paymentDto,
+                Delivery = deliveryDto,
                 Notes = order.Notes,
                 CreatedAt = order.CreatedAt,
                 UpdatedAt = order.UpdatedAt

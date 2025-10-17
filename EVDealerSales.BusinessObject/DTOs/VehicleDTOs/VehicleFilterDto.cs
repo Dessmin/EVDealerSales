@@ -6,8 +6,8 @@ namespace EVDealerSales.BusinessObject.DTOs.VehicleDTOs
         public string? SearchTerm { get; set; }
 
         // Filter by Battery Capacity
-        public decimal? MinBatteryCapacity { get; set; }
-        public decimal? MaxBatteryCapacity { get; set; }
+        public int? MinBatteryCapacity { get; set; }
+        public int? MaxBatteryCapacity { get; set; }
 
         // Filter by Top Speed
         public int? MinTopSpeed { get; set; }
