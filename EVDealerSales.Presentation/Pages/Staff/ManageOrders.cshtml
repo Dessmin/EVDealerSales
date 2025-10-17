@@ -1,0 +1,415 @@
+﻿@page
+@using EVDealerSales.BusinessObject.Enums
+@model EVDealerSales.Presentation.Pages.Order.ManageOrdersModel
+@{
+    ViewData["Title"] = "Manage Orders";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/testdrive.css" />
+}
+
+<div class="testdrive-container">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="testdrive-header">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h1>
+                        <i class="bi bi-bag-check-fill"></i>
+                        Orders Management
+                    </h1>
+                    <p class="header-subtitle">
+                        Manage and track all customer orders
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alerts -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill"></i>
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <!-- Search and Filter Card -->
+        <div class="testdrive-card">
+            <div class="testdrive-card-header">
+                <h3>
+                    <i class="bi bi-funnel-fill"></i>
+                    Search & Filters
+                </h3>
+                <button class="btn btn-sm btn-outline-secondary" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+                    <i class="bi bi-chevron-down"></i>
+                </button>
+            </div>
+            <div class="collapse show" id="filterCollapse">
+                <div class="testdrive-card-body">
+                    <form method="get" class="form-testdrive">
+                        <input type="hidden" name="pageNumber" value="1" />
+                        <input type="hidden" name="pageSize" asp-for="PageSize" />
+
+                        <!-- Search Term -->
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <div class="form-group-testdrive">
+                                    <label class="form-label-testdrive">
+                                        <i class="bi bi-search"></i>
+                                        Search by Order Number, Customer Name or Email
+                                    </label>
+                                    <input type="text" class="form-control-testdrive" name="searchTerm"
+                                           asp-for="SearchTerm"
+                                           placeholder="Search orders...">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status & Payment Status -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group-testdrive">
+                                    <label class="form-label-testdrive">
+                                        <i class="bi bi-info-circle"></i>
+                                        Order Status
+                                    </label>
+                                    <select class="form-control-testdrive" name="status" asp-for="Status">
+                                        <option value="">All Status</option>
+                                        <option value="0">Pending</option>
+                                        <option value="1">Confirmed</option>
+                                        <option value="2">Delivered</option>
+                                        <option value="3">Cancelled</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group-testdrive">
+                                    <label class="form-label-testdrive">
+                                        <i class="bi bi-credit-card"></i>
+                                        Payment Status
+                                    </label>
+                                    <select class="form-control-testdrive" name="paymentStatus" asp-for="PaymentStatus">
+                                        <option value="">All Payment Status</option>
+                                        <option value="0">Pending</option>
+                                        <option value="1">Paid</option>
+                                        <option value="2">Failed</option>
+                                        <option value="3">Refunded</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Date Range -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group-testdrive">
+                                    <label class="form-label-testdrive">
+                                        <i class="bi bi-calendar"></i>
+                                        From Date
+                                    </label>
+                                    <input type="date" class="form-control-testdrive" name="fromDate" asp-for="FromDate">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group-testdrive">
+                                    <label class="form-label-testdrive">
+                                        <i class="bi bi-calendar"></i>
+                                        To Date
+                                    </label>
+                                    <input type="date" class="form-control-testdrive" name="toDate" asp-for="ToDate">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div style="display: flex; gap: 0.75rem;">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search"></i> Apply Filters
+                            </button>
+                            <a asp-page="ManageOrders" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> Clear Filters
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders List Card -->
+        <div class="testdrive-card">
+            <div class="testdrive-card-header">
+                <h3>
+                    <i class="bi bi-list-ul"></i>
+                    Orders
+                </h3>
+                @if (Model.Orders != null && Model.Orders.Any())
+                {
+                    <span style="color: #888; font-size: 0.875rem;">
+                        @Model.Orders.TotalCount orders
+                    </span>
+                }
+            </div>
+            <div class="testdrive-card-body" style="padding: 0;">
+                @if (Model.Orders == null || !Model.Orders.Any())
+                {
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="bi bi-inbox"></i>
+                        </div>
+                        <h3 class="empty-title">No Orders Found</h3>
+                        <p class="empty-description">
+                            @if (!string.IsNullOrEmpty(Model.SearchTerm) || Model.Status.HasValue || Model.PaymentStatus.HasValue)
+                            {
+                                <span>Try adjusting your search criteria or filters</span>
+                            }
+                            else
+                            {
+                                <span>No orders have been placed yet</span>
+                            }
+                        </p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Order Number</th>
+                                    <th>Customer</th>
+                                    <th>Items</th>
+                                    <th>Total Amount</th>
+                                    <th>Order Status</th>
+                                    <th>Payment Status</th>
+                                    <th>Date</th>
+                                    <th style="width: 200px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in Model.Orders)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div>
+                                                <strong>@order.OrderNumber</strong>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <div style="font-weight: 500;">
+                                                    @order.CustomerName
+                                                </div>
+                                                <div style="color: #888; font-size: 0.875rem;">
+                                                    @order.CustomerEmail
+                                                </div>
+                                                @if (!string.IsNullOrEmpty(order.CustomerPhone))
+                                                {
+                                                    <div style="color: #666; font-size: 0.75rem;">
+                                                        <i class="bi bi-telephone"></i> @order.CustomerPhone
+                                                    </div>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @foreach (var item in order.Items)
+                                            {
+                                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                                    @if (!string.IsNullOrEmpty(item.VehicleImageUrl))
+                                                    {
+                                                        <img src="@item.VehicleImageUrl" alt="@item.VehicleModelName"
+                                                             style="width: 40px; height: 40px; border-radius: 4px; object-fit: cover;">
+                                                    }
+                                                    <div style="font-size: 0.875rem;">
+                                                        <div>@item.VehicleModelName</div>
+                                                        <div style="color: #888;">@item.VehicleTrimName</div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </td>
+                                        <td>
+                                            <strong style="color: #28a745;">$@order.TotalAmount.ToString("N0")</strong>
+                                        </td>
+                                        <td>
+                                            @switch (order.Status)
+                                            {
+                                                case OrderStatus.Pending:
+                                                    <span class="badge badge-warning">
+                                                        <i class="bi bi-clock"></i> Pending
+                                                    </span>
+                                                    break;
+                                                case OrderStatus.Confirmed:
+                                                    <span class="badge badge-success">
+                                                        <i class="bi bi-check-circle"></i> Confirmed
+                                                    </span>
+                                                    break;
+                                                case OrderStatus.Delivered:
+                                                    <span class="badge badge-info">
+                                                        <i class="bi bi-box-seam"></i> Delivered
+                                                    </span>
+                                                    break;
+                                                case OrderStatus.Cancelled:
+                                                    <span class="badge badge-danger">
+                                                        <i class="bi bi-x-circle"></i> Cancelled
+                                                    </span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (order.PaymentStatus.HasValue)
+                                            {
+                                                @switch (order.PaymentStatus.Value)
+                                                {
+                                                    case PaymentStatus.Pending:
+                                                        <span class="badge" style="background-color: #ffc107;">
+                                                            <i class="bi bi-hourglass-split"></i> Pending
+                                                        </span>
+                                                        break;
+                                                    case PaymentStatus.Paid:
+                                                        <span class="badge" style="background-color: #28a745;">
+                                                            <i class="bi bi-check-circle-fill"></i> Paid
+                                                        </span>
+                                                        break;
+                                                    case PaymentStatus.Failed:
+                                                        <span class="badge" style="background-color: #dc3545;">
+                                                            <i class="bi bi-exclamation-triangle-fill"></i> Failed
+                                                        </span>
+                                                        break;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="badge" style="background-color: #6c757d;">N/A</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <div style="font-weight: 500;">
+                                                    @order.CreatedAt.ToString("MMM dd, yyyy")
+                                                </div>
+                                                <div style="color: #888; font-size: 0.875rem;">
+                                                    @order.CreatedAt.ToString("hh:mm tt")
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <a asp-page="/Order/OrderDetail" asp-route-id="@order.Id"
+                                                   class="btn btn-sm btn-outline-primary" title="View Details">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+
+                                                @if (order.PaymentStatus == PaymentStatus.Paid && order.Status != OrderStatus.Delivered && order.Status != OrderStatus.Cancelled)
+                                                {
+                                                    <form method="post" asp-page-handler="Ship" asp-route-id="@order.Id"
+                                                          style="display: inline;">
+                                                        <button type="submit" class="btn btn-sm btn-success"
+                                                                title="Ship Order"
+                                                                onclick="return confirm('Mark this order for shipping?');">
+                                                            <i class="bi bi-truck"></i> Ship
+                                                        </button>
+                                                    </form>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    @if (Model.Orders.TotalPages > 1)
+                    {
+                        <div style="padding: 1.5rem;">
+                            <div class="pagination-testdrive">
+                                @if (Model.Orders.HasPrevious)
+                                {
+                                    <a class="page-link-testdrive"
+                                       asp-page="ManageOrders"
+                                       asp-route-pageNumber="@(Model.PageNumber - 1)"
+                                       asp-route-pageSize="@Model.PageSize"
+                                       asp-route-searchTerm="@Model.SearchTerm"
+                                       asp-route-status="@Model.Status"
+                                       asp-route-paymentStatus="@Model.PaymentStatus"
+                                       asp-route-fromDate="@Model.FromDate"
+                                       asp-route-toDate="@Model.ToDate">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </a>
+                                }
+
+                                @for (int i = Math.Max(1, Model.PageNumber - 2); i <= Math.Min(Model.Orders.TotalPages, Model.PageNumber + 2); i++)
+                                {
+                                    <a class="page-link-testdrive @(Model.PageNumber == i ? "active" : "")"
+                                       asp-page="ManageOrders"
+                                       asp-route-pageNumber="@i"
+                                       asp-route-pageSize="@Model.PageSize"
+                                       asp-route-searchTerm="@Model.SearchTerm"
+                                       asp-route-status="@Model.Status"
+                                       asp-route-paymentStatus="@Model.PaymentStatus"
+                                       asp-route-fromDate="@Model.FromDate"
+                                       asp-route-toDate="@Model.ToDate">
+                                        @i
+                                    </a>
+                                }
+
+                                @if (Model.Orders.HasNext)
+                                {
+                                    <a class="page-link-testdrive"
+                                       asp-page="ManageOrders"
+                                       asp-route-pageNumber="@(Model.PageNumber + 1)"
+                                       asp-route-pageSize="@Model.PageSize"
+                                       asp-route-searchTerm="@Model.SearchTerm"
+                                       asp-route-status="@Model.Status"
+                                       asp-route-paymentStatus="@Model.PaymentStatus"
+                                       asp-route-fromDate="@Model.FromDate"
+                                       asp-route-toDate="@Model.ToDate">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                }
+                            </div>
+
+                            <div style="text-align: center; color: #888; font-size: 0.875rem; margin-top: 1rem;">
+                                Showing @((Model.PageNumber - 1) * Model.PageSize + 1) to
+                                @Math.Min(Model.PageNumber * Model.PageSize, Model.Orders.TotalCount) of
+                                @Model.Orders.TotalCount orders
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function () {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            });
+        }, 5000);
+
+        // Toggle filter collapse icon
+        document.querySelector('[data-bs-toggle="collapse"]')?.addEventListener('click', function() {
+            const icon = this.querySelector('i');
+            icon.classList.toggle('bi-chevron-down');
+            icon.classList.toggle('bi-chevron-up');
+        });
+    </script>
+}
