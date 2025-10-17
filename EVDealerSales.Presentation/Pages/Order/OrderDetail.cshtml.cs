@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace EVDealerSales.Presentation.Pages.Order
 {
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,DealerStaff")]
     public class OrderDetailModel : PageModel
     {
         private readonly IOrderService _orderService;

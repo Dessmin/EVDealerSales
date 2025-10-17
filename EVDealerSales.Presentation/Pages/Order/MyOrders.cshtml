@@ -17,13 +17,11 @@
                 <i class="bi bi-bag-check-fill"></i>
                 My Orders
             </h1>
-            <p class="order-subtitle">Track and manage your vehicle orders</p>
         </div>
 
         @if (!string.IsNullOrEmpty(Model.SuccessMessage))
         {
             <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="bi bi-check-circle-fill"></i>
                 @Model.SuccessMessage
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
@@ -32,7 +30,6 @@
         @if (!string.IsNullOrEmpty(Model.ErrorMessage))
         {
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="bi bi-exclamation-triangle-fill"></i>
                 @Model.ErrorMessage
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
@@ -45,7 +42,6 @@
                     <i class="bi bi-cart-x"></i>
                 </div>
                 <h3 class="empty-title">No orders yet</h3>
-                <p class="empty-description">Start shopping for your dream electric vehicle</p>
                 <a asp-page="/Vehicle/BrowseVehicles" class="btn btn-primary">
                     <i class="bi bi-search"></i>
                     Browse Vehicles
@@ -60,34 +56,23 @@
                     <div class="order-card">
                         <div class="order-card-header">
                             <div class="order-info">
-                                <h3 class="order-number">Order #@order.OrderNumber</h3>
-                                <span class="order-date">
-                                    <i class="bi bi-calendar3"></i>
-                                    @order.CreatedAt.ToString("MMM dd, yyyy")
-                                </span>
+                                <h3 class="order-number">#@order.OrderNumber</h3>
+                                <span class="order-date">@order.CreatedAt.ToString("MMM dd, yyyy")</span>
                             </div>
                             <div class="order-status">
                                 @switch (order.Status)
                                 {
                                     case OrderStatus.Pending:
-                                        <span class="badge badge-warning">
-                                            <i class="bi bi-clock-history"></i> Pending
-                                        </span>
+                                        <span class="badge badge-warning">Pending</span>
                                         break;
                                     case OrderStatus.Confirmed:
-                                        <span class="badge badge-success">
-                                            <i class="bi bi-check-circle"></i> Confirmed
-                                        </span>
+                                        <span class="badge badge-success">Confirmed</span>
                                         break;
                                     case OrderStatus.Delivered:
-                                        <span class="badge badge-info">
-                                            <i class="bi bi-box-seam"></i> Delivered
-                                        </span>
+                                        <span class="badge badge-info">Delivered</span>
                                         break;
                                     case OrderStatus.Cancelled:
-                                        <span class="badge badge-danger">
-                                            <i class="bi bi-x-circle"></i> Cancelled
-                                        </span>
+                                        <span class="badge badge-danger">Cancelled</span>
                                         break;
                                 }
                             </div>
@@ -98,58 +83,49 @@
                             {
                                 <div class="order-item">
                                     <div class="item-image">
-                                        <img src="@(string.IsNullOrEmpty(item.VehicleImageUrl) ? "/placeholder.svg" : item.VehicleImageUrl)" 
+                                        <img src="@(string.IsNullOrEmpty(item.VehicleImageUrl) ? "/placeholder.svg" : item.VehicleImageUrl)"
                                              alt="@item.VehicleModelName" />
                                     </div>
                                     <div class="item-details">
                                         <h4 class="item-name">@item.VehicleModelName @item.VehicleTrimName</h4>
-                                        <p class="item-year">@item.Year Model</p>
-                                        <p class="item-price">$@item.UnitPrice.ToString("N0")</p>
+                                        <p class="item-year">@item.Year</p>
+                                    </div>
+                                    <div class="item-price">
+                                        <strong>$@item.UnitPrice.ToString("N0")</strong>
                                     </div>
                                 </div>
                             }
 
                             <div class="order-summary">
                                 <div class="summary-row">
-                                    <span>Total Amount:</span>
+                                    <span>Total:</span>
                                     <strong>$@order.TotalAmount.ToString("N0")</strong>
                                 </div>
-                                
+
                                 @if (order.PaymentStatus.HasValue)
                                 {
                                     <div class="summary-row">
-                                        <span>Payment Status:</span>
+                                        <span>Payment:</span>
                                         <span class="@(order.PaymentStatus == PaymentStatus.Paid ? "text-success" : order.PaymentStatus == PaymentStatus.Failed ? "text-danger" : "text-warning")">
                                             @order.PaymentStatus.ToString()
                                         </span>
-                                    </div>
-                                }
-
-                                @if (!string.IsNullOrEmpty(order.ShippingAddress))
-                                {
-                                    <div class="summary-row">
-                                        <span>Shipping Address:</span>
-                                        <span class="text-muted">@order.ShippingAddress</span>
                                     </div>
                                 }
                             </div>
                         </div>
 
                         <div class="order-card-footer">
-                            <a asp-page="/Order/OrderDetail" asp-route-id="@order.Id" class="btn btn-outline-primary">
-                                <i class="bi bi-eye"></i>
+                            <a asp-page="/Order/OrderDetail" asp-route-id="@order.Id" class="btn btn-sm btn-outline-primary">
                                 View Details
                             </a>
-                            
+
                             @if (order.Status == OrderStatus.Pending && order.PaymentStatus != PaymentStatus.Paid)
                             {
-                                <a asp-page="/Order/Checkout" asp-route-orderId="@order.Id" class="btn btn-success">
-                                    <i class="bi bi-credit-card"></i>
+                                <a asp-page="/Order/Checkout" asp-route-orderId="@order.Id" class="btn btn-sm btn-success">
                                     Pay Now
                                 </a>
-                                <button type="button" class="btn btn-danger" onclick="cancelOrder('@order.Id', '@order.OrderNumber')">
-                                    <i class="bi bi-x-circle"></i>
-                                    Cancel Order
+                                <button type="button" class="btn btn-sm btn-danger" onclick="cancelOrder('@order.Id', '@order.OrderNumber')">
+                                    Cancel
                                 </button>
                             }
                         </div>
@@ -161,7 +137,7 @@
             {
                 <div class="pagination-container">
                     <div class="pagination-info">
-                        Showing @((Model.Orders.CurrentPage - 1) * Model.Orders.PageSize + 1) - @Math.Min(Model.Orders.CurrentPage * Model.Orders.PageSize, Model.Orders.TotalCount) of @Model.Orders.TotalCount orders
+                        @((Model.Orders.CurrentPage - 1) * Model.Orders.PageSize + 1)-@Math.Min(Model.Orders.CurrentPage * Model.Orders.PageSize, Model.Orders.TotalCount) of @Model.Orders.TotalCount
                     </div>
                     <div class="pagination-controls">
                         @if (Model.Orders.HasPrevious)
@@ -186,9 +162,12 @@
 @section Scripts {
     <script>
         function cancelOrder(orderId, orderNumber) {
-            if (confirm(`Are you sure you want to cancel Order #${orderNumber}?`)) {
-                const reason = prompt('Please provide a reason for cancellation (optional):');
-                
+            if (confirm(`Cancel Order #${orderNumber}?`)) {
+                const reason = prompt('Reason (optional):');
+
+                if (reason === null) {
+                    return;
+                }
                 fetch(`/Order/OrderDetail?id=${orderId}&handler=Cancel`, {
                     method: 'POST',
                     headers: {
@@ -208,7 +187,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('An error occurred while cancelling the order');
+                    alert('An error occurred');
                 });
             }
         }

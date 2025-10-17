@@ -60,6 +60,7 @@ namespace EVDealerSales.Presentation.Architecture
             services.AddScoped<ITestDriveService, TestDriveService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IPaymentService, PaymentService>();
+            services.AddScoped<IDeliveryService, DeliveryService>();
             services.AddHttpContextAccessor();
 
             return services;
