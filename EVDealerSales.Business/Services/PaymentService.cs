@@ -110,27 +110,6 @@ namespace EVDealerSales.Business.Services
                     {
                         invoice.Order.Status = OrderStatus.Confirmed;
                         invoice.Order.UpdatedAt = _currentTime.GetCurrentTime();
-
-                        // Decrement stock for each vehicle in the order
-                        foreach (var orderItem in invoice.Order.Items)
-                        {
-                            var vehicle = orderItem.Vehicle ?? await _unitOfWork.Vehicles.GetByIdAsync(orderItem.VehicleId);
-                            if (vehicle != null && !vehicle.IsDeleted)
-                            {
-                                if (vehicle.Stock > 0)
-                                {
-                                    vehicle.Stock -= 1;
-                                    vehicle.UpdatedAt = _currentTime.GetCurrentTime();
-                                    await _unitOfWork.Vehicles.Update(vehicle);
-                                    _logger.LogInformation("Decremented stock for vehicle {VehicleId} from {OldStock} to {NewStock}",
-                                        vehicle.Id, vehicle.Stock + 1, vehicle.Stock);
-                                }
-                                else
-                                {
-                                    _logger.LogWarning("Vehicle {VehicleId} has no stock left but payment was already confirmed", vehicle.Id);
-                                }
-                            }
-                        }
                     }
 
                     await _unitOfWork.SaveChangesAsync();
