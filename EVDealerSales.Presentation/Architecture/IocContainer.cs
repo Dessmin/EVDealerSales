@@ -6,6 +6,7 @@ using EVDealerSales.DataAccess.Interfaces;
 using EVDealerSales.DataAccess.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
@@ -61,6 +62,7 @@ namespace EVDealerSales.Presentation.Architecture
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<IDeliveryService, DeliveryService>();
+            services.AddScoped<IFeedbackService, FeedbackService>();
             services.AddHttpContextAccessor();
 
             return services;

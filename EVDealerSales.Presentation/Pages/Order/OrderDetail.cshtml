@@ -1,9 +1,13 @@
-@page
+﻿@page
 @using EVDealerSales.BusinessObject.Enums
 @model EVDealerSales.Presentation.Pages.Order.OrderDetailModel
 @{
     ViewData["Title"] = "Order Details";
-    
+
+    // Determine if current user is staff
+    var currentUser = User;
+    var isStaff = currentUser.IsInRole("DealerStaff") || currentUser.IsInRole("DealerManager");
+
     string GetDeliveryStatusBadgeClass(DeliveryStatus status)
     {
         return status switch
@@ -25,34 +29,34 @@
             position: relative;
             padding-left: 30px;
         }
-        
+
         .timeline-item {
             position: relative;
             padding-bottom: 30px;
         }
-        
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -22px;
-            top: 30px;
-            width: 2px;
-            height: calc(100% - 30px);
-            background: #dee2e6;
-        }
-        
-        .timeline-item:last-child::before {
-            display: none;
-        }
-        
-        .timeline-item.completed::before {
-            background: #28a745;
-        }
-        
-        .timeline-item.cancelled::before {
-            background: #dc3545;
-        }
-        
+
+            .timeline-item::before {
+                content: '';
+                position: absolute;
+                left: -22px;
+                top: 30px;
+                width: 2px;
+                height: calc(100% - 30px);
+                background: #dee2e6;
+            }
+
+            .timeline-item:last-child::before {
+                display: none;
+            }
+
+            .timeline-item.completed::before {
+                background: #28a745;
+            }
+
+            .timeline-item.cancelled::before {
+                background: #dc3545;
+            }
+
         .timeline-marker {
             position: absolute;
             left: -30px;
@@ -65,44 +69,194 @@
             align-items: center;
             justify-content: center;
         }
-        
+
         .timeline-item .timeline-marker i {
             font-size: 18px;
             color: #dee2e6;
         }
-        
+
         .timeline-item.completed .timeline-marker i {
             color: #28a745;
         }
-        
+
         .timeline-item.cancelled .timeline-marker i {
             color: #dc3545;
         }
-        
+
         .timeline-content h6 {
             margin-bottom: 5px;
             font-weight: 600;
         }
-        
+
         .timeline-content p {
             margin-bottom: 5px;
             font-size: 0.9rem;
         }
-        
+
         .order-summary-box {
             background: #f8f9fa;
             border-radius: 8px;
             padding: 15px;
             margin-top: 15px;
         }
-        
-        .order-summary-box h6 {
-            margin-bottom: 10px;
+
+            .order-summary-box h6 {
+                margin-bottom: 10px;
+                font-weight: 600;
+            }
+
+            .order-summary-box > div {
+                margin-bottom: 5px;
+            }
+
+        #feedbackModal .modal-header {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-bottom: 2px solid #2196f3;
+        }
+
+        #feedbackModal .modal-title {
+            color: #1565c0;
             font-weight: 600;
         }
-        
-        .order-summary-box > div {
-            margin-bottom: 5px;
+
+        #feedbackModal .modal-body {
+            padding: 2rem;
+        }
+
+        #feedbackModal .alert-info {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            color: #0d47a1;
+            border-radius: 6px;
+            padding: 1rem;
+            display: flex;
+            align-items: start;
+            gap: 0.75rem;
+        }
+
+            #feedbackModal .alert-info i {
+                color: #2196f3;
+                font-size: 1.25rem;
+                margin-top: 2px;
+            }
+
+        #feedbackModal .form-label {
+            font-weight: 600;
+            color: #1565c0;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+            #feedbackModal .form-label i {
+                color: #42a5f5;
+            }
+
+        #feedbackModal .form-control {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+            #feedbackModal .form-control:focus {
+                border-color: #2196f3;
+                box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.15);
+                outline: none;
+            }
+
+        #feedbackModal .form-text {
+            color: #757575;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        #feedbackModal .order-summary-box {
+            background: linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%);
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-top: 1.5rem;
+        }
+
+            #feedbackModal .order-summary-box h6 {
+                color: #424242;
+                font-size: 1rem;
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+                #feedbackModal .order-summary-box h6 i {
+                    color: #757575;
+                }
+
+            #feedbackModal .order-summary-box .d-flex {
+                padding: 0.5rem 0;
+                border-bottom: 1px solid #e0e0e0;
+            }
+
+                #feedbackModal .order-summary-box .d-flex:last-child {
+                    border-bottom: none;
+                }
+
+            #feedbackModal .order-summary-box span {
+                color: #757575;
+                font-size: 0.9rem;
+            }
+
+            #feedbackModal .order-summary-box strong {
+                color: #212121;
+                font-weight: 600;
+            }
+
+        #feedbackModal .modal-footer {
+            background-color: #fafafa;
+            border-top: 2px solid #e0e0e0;
+            padding: 1.25rem;
+        }
+
+            #feedbackModal .modal-footer .btn {
+                padding: 0.625rem 1.5rem;
+                font-weight: 500;
+                border-radius: 6px;
+                transition: all 0.3s ease;
+            }
+
+            #feedbackModal .modal-footer .btn-primary {
+                background-color: #2196f3;
+                border-color: #2196f3;
+            }
+
+                #feedbackModal .modal-footer .btn-primary:hover {
+                    background-color: #1976d2;
+                    border-color: #1976d2;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+                }
+
+            #feedbackModal .modal-footer .btn-secondary {
+                background-color: #757575;
+                border-color: #757575;
+            }
+
+                #feedbackModal .modal-footer .btn-secondary:hover {
+                    background-color: #616161;
+                    border-color: #616161;
+                }
+
+        /* ===== Request Delivery Modal Styles (không thay đổi) ===== */
+        #requestDeliveryModal .modal-header {
+            background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%);
+            border-bottom: 2px solid #8bc34a;
+        }
+
+        #requestDeliveryModal .modal-title {
+            color: #558b2f;
+            font-weight: 600;
         }
     </style>
 }
@@ -110,9 +264,18 @@
 <div class="order-detail-container">
     <div class="container">
         <div class="order-detail-header">
-            <a asp-page="/Order/MyOrders" class="btn-back">
-                <i class="bi bi-arrow-left"></i> Back to My Orders
-            </a>
+            @if (isStaff)
+            {
+                <a asp-page="/Staff/ManageOrders" class="btn-back">
+                    <i class="bi bi-arrow-left"></i> Back to Manage Orders
+                </a>
+            }
+            else
+            {
+                <a asp-page="/Order/MyOrders" class="btn-back">
+                    <i class="bi bi-arrow-left"></i> Back to My Orders
+                </a>
+            }
         </div>
 
         @if (!string.IsNullOrEmpty(Model.ErrorMessage))
@@ -131,28 +294,28 @@
                 <div class="detail-card">
                     <div class="card-header">
                         <h2><i class="bi bi-receipt"></i> Order Information</h2>
-                        <span class="@(Model.Order.Status == OrderStatus.Confirmed ? "badge badge-success" : 
-                                       Model.Order.Status == OrderStatus.Delivered ? "badge badge-info" :
-                                       Model.Order.Status == OrderStatus.Cancelled ? "badge badge-danger" : 
-                                       "badge badge-warning")">
-                            @Model.Order.Status.ToString()
-                        </span>
-                    </div>
-                    <div class="card-body">
-                        <div class="info-grid">
-                            <div class="info-item">
-                                <label>Order Number:</label>
-                                <span class="value-text">#@Model.Order.OrderNumber</span>
-                            </div>
-                            <div class="info-item">
-                                <label>Order Date:</label>
-                                <span class="value-text">@Model.Order.CreatedAt.ToString("MMM dd, yyyy hh:mm tt")</span>
-                            </div>
-                            <div class="info-item">
-                                <label>Total Amount:</label>
-                                <span class="value-text total-amount">$@Model.Order.TotalAmount.ToString("N0")</span>
-                            </div>
-                            @if (!string.IsNullOrEmpty(Model.Order.Notes))
+                        <span class="@(Model.Order.Status == OrderStatus.Confirmed ? "badge badge-success" :
+                                                                     Model.Order.Status == OrderStatus.Delivered ? "badge badge-info" :
+                                                                     Model.Order.Status == OrderStatus.Cancelled ? "badge badge-danger" :
+                                                                     "badge badge-warning")">
+                        @Model.Order.Status.ToString()
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Order Number:</label>
+                            <span class="value-text">#@Model.Order.OrderNumber</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Order Date:</label>
+                            <span class="value-text">@Model.Order.CreatedAt.ToString("MMM dd, yyyy hh:mm tt")</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Total Amount:</label>
+                            <span class="value-text total-amount">$@Model.Order.TotalAmount.ToString("N0")</span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.Order.Notes))
                             {
                                 <div class="info-item full-width">
                                     <label>Notes:</label>
@@ -173,7 +336,7 @@
                         {
                             <div class="vehicle-item">
                                 <div class="vehicle-image">
-                                    <img src="@(string.IsNullOrEmpty(item.VehicleImageUrl) ? "/placeholder.svg" : item.VehicleImageUrl)" 
+                                    <img src="@(string.IsNullOrEmpty(item.VehicleImageUrl) ? "/placeholder.svg" : item.VehicleImageUrl)"
                                          alt="@item.VehicleModelName" />
                                 </div>
                                 <div class="vehicle-info">
@@ -186,85 +349,8 @@
                     </div>
                 </div>
 
-                <!-- Invoice Information -->
-                @if (Model.Order.Invoice != null)
-                {
-                    <div class="detail-card">
-                        <div class="card-header">
-                            <h2><i class="bi bi-file-text"></i> Invoice</h2>
-                            <span class="@(Model.Order.Invoice.Status == InvoiceStatus.Paid ? "badge badge-success" : 
-                                           Model.Order.Invoice.Status == InvoiceStatus.Canceled ? "badge badge-danger" : 
-                                           "badge badge-warning")">
-                                @Model.Order.Invoice.Status.ToString()
-                            </span>
-                        </div>
-                        <div class="card-body">
-                            <div class="info-grid">
-                                <div class="info-item">
-                                    <label>Invoice Number:</label>
-                                    <span class="value-text">#@Model.Order.Invoice.InvoiceNumber</span>
-                                </div>
-                                <div class="info-item">
-                                    <label>Issue Date:</label>
-                                    <span class="value-text">@Model.Order.Invoice.IssueDate.ToString("MMM dd, yyyy")</span>
-                                </div>
-                                @if (Model.Order.Invoice.DueDate.HasValue)
-                                {
-                                    <div class="info-item">
-                                        <label>Due Date:</label>
-                                        <span class="value-text">@Model.Order.Invoice.DueDate.Value.ToString("MMM dd, yyyy")</span>
-                                    </div>
-                                }
-                                <div class="info-item">
-                                    <label>Total Amount:</label>
-                                    <span class="value-text total-amount">$@Model.Order.Invoice.TotalAmount.ToString("N0")</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                }
-
-                <!-- Payment Information -->
-                @if (Model.Order.Payment != null)
-                {
-                    <div class="detail-card">
-                        <div class="card-header">
-                            <h2><i class="bi bi-credit-card"></i> Payment</h2>
-                            <span class="@(Model.Order.Payment.Status == PaymentStatus.Paid ? "badge badge-success" : 
-                                           Model.Order.Payment.Status == PaymentStatus.Failed ? "badge badge-danger" : 
-                                           "badge badge-warning")">
-                                @Model.Order.Payment.Status.ToString()
-                            </span>
-                        </div>
-                        <div class="card-body">
-                            <div class="info-grid">
-                                <div class="info-item">
-                                    <label>Amount:</label>
-                                    <span class="value-text">$@Model.Order.Payment.Amount.ToString("N0")</span>
-                                </div>
-                                <div class="info-item">
-                                    <label>Payment Method:</label>
-                                    <span class="value-text">@(Model.Order.Payment.PaymentMethod ?? "N/A")</span>
-                                </div>
-                                @if (Model.Order.Payment.PaymentDate.HasValue)
-                                {
-                                    <div class="info-item">
-                                        <label>Payment Date:</label>
-                                        <span class="value-text">@Model.Order.Payment.PaymentDate.Value.ToString("MMM dd, yyyy hh:mm tt")</span>
-                                    </div>
-                                }
-                                @if (!string.IsNullOrEmpty(Model.Order.Payment.TransactionId))
-                                {
-                                    <div class="info-item">
-                                        <label>Transaction ID:</label>
-                                        <span class="value-text">@Model.Order.Payment.TransactionId</span>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                }
-                else if (Model.Order.Status == OrderStatus.Confirmed && Model.Order.PaymentStatus != PaymentStatus.Paid)
+                @* Payment Pending Alert - Only show if order not paid and not cancelled *@
+                @if (Model.Order.Status == OrderStatus.Confirmed && Model.Order.PaymentStatus != PaymentStatus.Paid && !isStaff)
                 {
                     <div class="alert alert-warning">
                         <i class="bi bi-exclamation-triangle"></i>
@@ -388,7 +474,7 @@
 
                 <!-- Action Buttons -->
                 <div class="action-buttons">
-                    @if (Model.Order.Status == OrderStatus.Pending && Model.Order.PaymentStatus != PaymentStatus.Paid)
+                    @if (Model.Order.Status == OrderStatus.Pending && Model.Order.PaymentStatus != PaymentStatus.Paid && !isStaff)
                     {
                         <a asp-page="/Order/Checkout" asp-route-orderId="@Model.Order.Id" class="btn btn-success">
                             <i class="bi bi-credit-card"></i> Pay Now
@@ -398,19 +484,26 @@
                         </button>
                     }
 
-                    @* Request Delivery Button - Show if paid and no delivery yet *@
-                    @if (Model.Order.PaymentStatus == PaymentStatus.Paid && Model.Order.Delivery == null)
+                    @* Request Delivery Button - Show if paid and no delivery yet (only for customers) *@
+                    @if (Model.Order.PaymentStatus == PaymentStatus.Paid && Model.Order.Delivery == null && !isStaff)
                     {
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#requestDeliveryModal">
                             <i class="bi bi-truck"></i> Request Delivery
                         </button>
                     }
 
-                    @* Cancel Delivery Button - Show if delivery status is Pending *@
-                    @if (Model.Order.Delivery != null && Model.Order.Delivery.Status == DeliveryStatus.Pending)
+                    @* Cancel Delivery Button - Show if delivery status is Pending (only for customers) *@
+                    @if (Model.Order.Delivery != null && Model.Order.Delivery.Status == DeliveryStatus.Pending && !isStaff)
                     {
                         <button type="button" class="btn btn-warning" onclick="cancelDelivery('@Model.Order.Delivery.Id')">
                             <i class="bi bi-x-circle"></i> Cancel Delivery Request
+                        </button>
+                    }
+                    @* Feedback Button - Show if delivery is completed (only for customers) *@
+                    @if (Model.Order.Delivery != null && Model.Order.Delivery.Status == DeliveryStatus.Delivered && !isStaff)
+                    {
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#feedbackModal">
+                            <i class="bi bi-chat-left-text"></i> Give Feedback
                         </button>
                     }
                 </div>
@@ -440,13 +533,12 @@
                         <label for="shippingAddress" class="form-label">
                             <i class="bi bi-pin-map-fill"></i> Shipping Address <span class="text-danger">*</span>
                         </label>
-                        <textarea 
-                            id="shippingAddress" 
-                            name="shippingAddress" 
-                            class="form-control" 
-                            rows="3" 
-                            required
-                            placeholder="Enter your complete delivery address (Street, City, State, ZIP)"></textarea>
+                        <textarea id="shippingAddress"
+                                  name="shippingAddress"
+                                  class="form-control"
+                                  rows="3"
+                                  required
+                                  placeholder="Enter your complete delivery address (Street, City, State, ZIP)"></textarea>
                         <div class="form-text">
                             Please provide a complete and accurate address for delivery
                         </div>
@@ -456,12 +548,11 @@
                         <label for="deliveryNotes" class="form-label">
                             <i class="bi bi-chat-left-text"></i> Additional Notes (Optional)
                         </label>
-                        <textarea 
-                            id="deliveryNotes" 
-                            name="notes" 
-                            class="form-control" 
-                            rows="3"
-                            placeholder="Any special instructions for delivery (e.g., gate code, preferred delivery time)"></textarea>
+                        <textarea id="deliveryNotes"
+                                  name="notes"
+                                  class="form-control"
+                                  rows="3"
+                                  placeholder="Any special instructions for delivery (e.g., gate code, preferred delivery time)"></textarea>
                     </div>
 
                     <div class="order-summary-box">
@@ -492,24 +583,87 @@
         </div>
     </div>
 </div>
+@* Feedback Modal - Thêm sau Request Delivery Modal *@
+<div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="feedbackModalLabel">
+                    <i class="bi bi-chat-left-text"></i> Give Feedback
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="feedbackForm">
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        Your feedback helps us improve our service. Please share your experience with your order and delivery.
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="feedbackContent" class="form-label">
+                            <i class="bi bi-chat-left-dots"></i> Your Feedback <span class="text-danger">*</span>
+                        </label>
+                        <textarea id="feedbackContent"
+                                  name="content"
+                                  class="form-control"
+                                  rows="5"
+                                  required
+                                  placeholder="Tell us about your experience with the vehicle, delivery service, and overall satisfaction..."></textarea>
+                        <div class="form-text">
+                            Minimum 10 characters required
+                        </div>
+                    </div>
+
+                    <div class="order-summary-box">
+                        <h6><i class="bi bi-box-seam"></i> Order Information</h6>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Order Number:</span>
+                            <strong>@Model.Order.OrderNumber</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Vehicle:</span>
+                            <strong>@string.Join(", ", Model.Order.Items.Select(i => $"{i.VehicleModelName} {i.VehicleTrimName}"))</strong>
+                        </div>
+                        @if (Model.Order.Delivery?.ActualDate.HasValue == true)
+                        {
+                            <div class="d-flex justify-content-between">
+                                <span>Delivered On:</span>
+                                <strong>@Model.Order.Delivery.ActualDate.Value.ToString("MMM dd, yyyy")</strong>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitFeedback">
+                        <i class="bi bi-send"></i> Submit Feedback
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script>
         // Request Delivery Form Submit
         document.getElementById('requestDeliveryForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             const submitBtn = document.getElementById('submitDeliveryRequest');
             const originalText = submitBtn.innerHTML;
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting...';
-            
+
             const formData = {
                 orderId: '@Model.Order.Id',
                 shippingAddress: document.getElementById('shippingAddress').value,
                 notes: document.getElementById('deliveryNotes').value
             };
-            
+
             try {
                 const response = await fetch('/Order/OrderDetail?handler=RequestDelivery', {
                     method: 'POST',
@@ -519,17 +673,17 @@
                     },
                     body: JSON.stringify(formData)
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.success) {
                     // Close modal
                     const modal = bootstrap.Modal.getInstance(document.getElementById('requestDeliveryModal'));
                     modal.hide();
-                    
+
                     // Show success message
                     alert('Delivery request submitted successfully! Our staff will review and confirm your request.');
-                    
+
                     // Reload page to show delivery info
                     window.location.reload();
                 } else {
@@ -545,12 +699,72 @@
             }
         });
 
+        // Feedback Form Submit - THÊM ĐOẠN NÀY VÀO ĐÂY
+        document.getElementById('feedbackForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const content = document.getElementById('feedbackContent').value.trim();
+
+            // Validate minimum length
+            if (content.length < 10) {
+                alert('Feedback must be at least 10 characters long');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitFeedback');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting...';
+
+            const formData = {
+                orderId: '@Model.Order.Id',
+                content: content
+            };
+
+            try {
+                const response = await fetch('/Order/OrderDetail?handler=SubmitFeedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('feedbackModal'));
+                    modal.hide();
+
+                    // Show success message
+                    alert('Thank you for your feedback! We appreciate your input.');
+
+                    // Reset form
+                    document.getElementById('feedbackContent').value = '';
+
+                    // Reload page
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to submit feedback'));
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while submitting your feedback. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+
         // Cancel Delivery Function
         async function cancelDelivery(deliveryId) {
             if (!confirm('Are you sure you want to cancel your delivery request?')) {
                 return;
             }
-            
+
             try {
                 const response = await fetch('/Order/OrderDetail?handler=CancelDelivery', {
                     method: 'POST',
@@ -560,9 +774,9 @@
                     },
                     body: JSON.stringify({ deliveryId: deliveryId })
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.success) {
                     alert('Delivery request cancelled successfully');
                     window.location.reload();
@@ -578,7 +792,7 @@
         function cancelOrder(orderId, orderNumber) {
             if (confirm(`Are you sure you want to cancel Order #${orderNumber}?`)) {
                 const reason = prompt('Please provide a reason for cancellation (optional):');
-                
+
                 if(reason === null) {
                     return;
                 }

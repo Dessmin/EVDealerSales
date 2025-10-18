@@ -1,10 +1,10 @@
 using EVDealerSales.Business.Interfaces;
 using EVDealerSales.BusinessObject.DTOs.OrderDTOs;
 using EVDealerSales.BusinessObject.DTOs.DeliveryDTOs;
+using EVDealerSales.BusinessObject.DTOs.FeedbackDTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Text.Json;
 
 namespace EVDealerSales.Presentation.Pages.Order
 {
@@ -13,15 +13,18 @@ namespace EVDealerSales.Presentation.Pages.Order
     {
         private readonly IOrderService _orderService;
         private readonly IDeliveryService _deliveryService;
+        private readonly IFeedbackService _feedbackService;
         private readonly ILogger<OrderDetailModel> _logger;
 
         public OrderDetailModel(
             IOrderService orderService,
             IDeliveryService deliveryService,
+            IFeedbackService feedbackService,
             ILogger<OrderDetailModel> logger)
         {
             _orderService = orderService;
             _deliveryService = deliveryService;
+            _feedbackService = feedbackService;
             _logger = logger;
         }
 
@@ -34,7 +37,7 @@ namespace EVDealerSales.Presentation.Pages.Order
             try
             {
                 Order = await _orderService.GetOrderByIdAsync(id);
-                
+
                 if (Order == null)
                 {
                     ErrorMessage = "Order not found";
@@ -94,8 +97,9 @@ namespace EVDealerSales.Presentation.Pages.Order
 
                 _logger.LogInformation("Delivery request created successfully: {DeliveryId}", delivery.Id);
 
-                return new JsonResult(new { 
-                    success = true, 
+                return new JsonResult(new
+                {
+                    success = true,
                     message = "Delivery request submitted successfully",
                     deliveryId = delivery.Id
                 });
@@ -132,9 +136,10 @@ namespace EVDealerSales.Presentation.Pages.Order
 
                 _logger.LogInformation("Delivery cancelled successfully: {DeliveryId}", request.DeliveryId);
 
-                return new JsonResult(new { 
-                    success = true, 
-                    message = "Delivery request cancelled successfully" 
+                return new JsonResult(new
+                {
+                    success = true,
+                    message = "Delivery request cancelled successfully"
                 });
             }
             catch (UnauthorizedAccessException ex)
@@ -151,6 +156,51 @@ namespace EVDealerSales.Presentation.Pages.Order
             {
                 _logger.LogError(ex, "Error cancelling delivery");
                 return new JsonResult(new { success = false, message = "An error occurred while cancelling the delivery" }) { StatusCode = 500 };
+            }
+        }
+
+        public async Task<IActionResult> OnPostSubmitFeedbackAsync([FromBody] SubmitFeedbackRequest request)
+        {
+            try
+            {
+                _logger.LogInformation("Receiving feedback for order {OrderId}", request.OrderId);
+
+                if (string.IsNullOrWhiteSpace(request.Content) || request.Content.Length < 10)
+                {
+                    return new JsonResult(new { success = false, message = "Feedback content must be at least 10 characters" }) { StatusCode = 400 };
+                }
+
+                var createFeedbackDto = new CreateFeedbackRequestDto
+                {
+                    OrderId = request.OrderId,
+                    Content = request.Content
+                };
+
+                var feedback = await _feedbackService.CreateFeedbackAsync(createFeedbackDto);
+
+                _logger.LogInformation("Feedback created successfully: {FeedbackId}", feedback.Id);
+
+                return new JsonResult(new
+                {
+                    success = true,
+                    message = "Thank you for your feedback!",
+                    feedbackId = feedback.Id
+                });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogWarning(ex, "Unauthorized feedback submission attempt");
+                return new JsonResult(new { success = false, message = ex.Message }) { StatusCode = 403 };
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Invalid feedback submission");
+                return new JsonResult(new { success = false, message = ex.Message }) { StatusCode = 400 };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating feedback");
+                return new JsonResult(new { success = false, message = "An error occurred while submitting your feedback" }) { StatusCode = 500 };
             }
         }
     }
@@ -170,5 +220,11 @@ namespace EVDealerSales.Presentation.Pages.Order
     public class CancelDeliveryRequest
     {
         public Guid DeliveryId { get; set; }
+    }
+
+    public class SubmitFeedbackRequest
+    {
+        public Guid OrderId { get; set; }
+        public string Content { get; set; } = string.Empty;
     }
 }

@@ -12,7 +12,7 @@ namespace EVDealerSales.DataAccess.Interfaces
         IGenericRepository<Payment> Payments { get; }
         IGenericRepository<Delivery> Deliveries { get; }
         IGenericRepository<TestDrive> TestDrives { get; }
-
+        IGenericRepository<Feedback> Feedbacks { get; }
         Task<int> SaveChangesAsync();
     }
 }

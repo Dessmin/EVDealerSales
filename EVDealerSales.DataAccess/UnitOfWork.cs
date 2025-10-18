@@ -15,7 +15,8 @@ namespace EVDealerSales.DataAccess
             IGenericRepository<Invoice> invoiceRepository,
             IGenericRepository<Payment> paymentRepository,
             IGenericRepository<Delivery> deliveryRepository,
-            IGenericRepository<TestDrive> testDriveRepository
+            IGenericRepository<TestDrive> testDriveRepository,
+            IGenericRepository<Feedback> feedbackRepository
             )
         {
             _dbContext = dbContext;
@@ -27,6 +28,7 @@ namespace EVDealerSales.DataAccess
             Payments = paymentRepository;
             Deliveries = deliveryRepository;
             TestDrives = testDriveRepository;
+            Feedbacks = feedbackRepository;
         }
 
         public IGenericRepository<User> Users { get; }
@@ -37,6 +39,7 @@ namespace EVDealerSales.DataAccess
         public IGenericRepository<Payment> Payments { get; }
         public IGenericRepository<Delivery> Deliveries { get; }
         public IGenericRepository<TestDrive> TestDrives { get; }
+        public IGenericRepository<Feedback> Feedbacks { get; }
 
         public void Dispose()
         {
