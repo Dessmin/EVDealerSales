@@ -11,7 +11,22 @@
             background: #000;
             min-height: 100vh;
             padding: 2rem 0;
+            position: static !important;
+            z-index: auto !important;
         }
+
+        .modal-backdrop {
+            z-index: 1050 !important;
+        }
+
+        .modal {
+            z-index: 2000 !important;
+        }
+
+        .modal-dialog {
+            z-index: 2001 !important;
+        }
+
 
         .my-testdrives-clean .page-header {
             margin-bottom: 2rem;
@@ -603,14 +618,15 @@
     </div>
 </div>
 
+<!-- Modals Section - Outside of Container -->
 @if (Model.TestDrives != null && Model.TestDrives.Any())
 {
     @foreach (var testDrive in Model.TestDrives)
     {
         <div class="modal fade" id="cancelModal-@testDrive.Id" tabindex="-1" aria-labelledby="cancelModalLabel-@testDrive.Id" aria-hidden="true">
-            <div class="modal-dialog" onclick="event.stopPropagation();">
-                <div class="modal-content-clean" onclick="event.stopPropagation();">
-                    <form method="post" asp-page-handler="Cancel" asp-route-id="@testDrive.Id" onclick="event.stopPropagation();">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content-clean">
+                    <form method="post" asp-page-handler="Cancel" asp-route-id="@testDrive.Id">
                         @Html.AntiForgeryToken()
                         <div class="modal-header-clean">
                             <h3 style="color: #ef4444;">
@@ -663,21 +679,5 @@
                 bsAlert.close();
             });
         }, 5000);
-
-        // Prevent modal from closing when clicking inside
-        document.addEventListener('DOMContentLoaded', function() {
-            const modals = document.querySelectorAll('.modal');
-            modals.forEach(modal => {
-                modal.addEventListener('click', function(e) {
-                    if (e.target === this) {
-                        // Only close if clicking on the backdrop itself
-                        const modalInstance = bootstrap.Modal.getInstance(this);
-                        if (modalInstance) {
-                            modalInstance.hide();
-                        }
-                    }
-                });
-            });
-        });
     </script>
 }

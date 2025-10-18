@@ -657,3 +657,34 @@ p {
         transform: translateY(0);
     }
 }
+
+/* --- Modal interaction fixes --- */
+body.modal-open {
+    overflow: hidden;
+}
+
+    /* ensure main-content does not block clicks when modal is open */
+    body.modal-open .main-content,
+    body.modal-open main,
+    body.modal-open .my-testdrives-clean {
+        pointer-events: none !important;
+    }
+
+    /* allow modal itself to be clickable */
+    body.modal-open .modal,
+    body.modal-open .modal * {
+        pointer-events: auto !important;
+    }
+
+/* correct z-index layering */
+.modal-backdrop {
+    z-index: 1050 !important;
+}
+
+.modal {
+    z-index: 2000 !important;
+}
+
+.modal-dialog {
+    z-index: 2001 !important;
+}
