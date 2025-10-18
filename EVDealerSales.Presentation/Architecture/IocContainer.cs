@@ -63,6 +63,7 @@ namespace EVDealerSales.Presentation.Architecture
             services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<IDeliveryService, DeliveryService>();
             services.AddScoped<IFeedbackService, FeedbackService>();
+            services.AddScoped<IUserService, UserService>();
             services.AddHttpContextAccessor();
 
             return services;

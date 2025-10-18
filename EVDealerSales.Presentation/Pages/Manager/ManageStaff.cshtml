@@ -1,0 +1,555 @@
+﻿@page
+@model EVDealerSales.Presentation.Pages.Manager.ManageStaffModel
+@{
+    ViewData["Title"] = "Manage Staff";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/testdrive.css" />
+}
+
+<div class="testdrive-container">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="testdrive-header">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h1>
+                        <i class="fas fa-user-tie"></i>
+                        Staff Management
+                    </h1>
+                    <p class="header-subtitle">
+                        Manage dealer staff members and their accounts
+                    </p>
+                </div>
+                <div class="header-actions">
+                    <button type="button" class="btn-testdrive" data-bs-toggle="modal" data-bs-target="#createStaffModal">
+                        <i class="fas fa-user-plus"></i>
+                        Add New Staff
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alerts -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert-testdrive success">
+                <i class="fas fa-check-circle"></i>
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert-testdrive error">
+                <i class="fas fa-exclamation-circle"></i>
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <!-- Search and Filter Card -->
+        <div class="testdrive-card">
+            <div class="testdrive-card-header">
+                <h3>
+                    <i class="fas fa-filter"></i>
+                    Search & Filters
+                </h3>
+                <button class="btn btn-sm btn-outline-secondary" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+            <div class="collapse show" id="filterCollapse">
+                <div class="testdrive-card-body">
+                    <form method="get" class="form-testdrive">
+                        <input type="hidden" name="pageNumber" value="1" />
+                        <input type="hidden" name="pageSize" asp-for="PageSize" />
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <div class="form-group-testdrive">
+                                    <label class="form-label-testdrive">
+                                        <i class="fas fa-search"></i>
+                                        Search by Name, Email or Phone
+                                    </label>
+                                    <input type="text" class="form-control-testdrive" name="searchTerm"
+                                           asp-for="SearchTerm"
+                                           placeholder="Search staff...">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group-testdrive">
+                                    <label class="form-label-testdrive">
+                                        <i class="fas fa-calendar"></i>
+                                        From Date
+                                    </label>
+                                    <input type="date" class="form-control-testdrive" name="fromDate" asp-for="FromDate">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group-testdrive">
+                                    <label class="form-label-testdrive">
+                                        <i class="fas fa-calendar"></i>
+                                        To Date
+                                    </label>
+                                    <input type="date" class="form-control-testdrive" name="toDate" asp-for="ToDate">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 0.75rem;">
+                            <button type="submit" class="btn-testdrive">
+                                <i class="fas fa-search"></i> Apply Filters
+                            </button>
+                            <a asp-page="ManageStaff" class="btn-testdrive-secondary">
+                                <i class="fas fa-times"></i> Clear Filters
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Staff List Card -->
+        <div class="testdrive-card">
+            <div class="testdrive-card-header">
+                <h3>
+                    <i class="fas fa-users"></i>
+                    Staff Members
+                </h3>
+                @if (Model.Staff != null && Model.Staff.Any())
+                {
+                    <span style="color: #888; font-size: 0.875rem;">
+                        @Model.Staff.TotalCount staff members
+                    </span>
+                }
+            </div>
+            <div class="testdrive-card-body" style="padding: 0;">
+                @if (Model.Staff == null || !Model.Staff.Any())
+                {
+                    <div class="empty-state-testdrive">
+                        <div class="empty-icon-testdrive">
+                            <i class="fas fa-user-slash"></i>
+                        </div>
+                        <h3 class="empty-title-testdrive">No Staff Found</h3>
+                        <p class="empty-description-testdrive">
+                            @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                            {
+                                <span>Try adjusting your search criteria</span>
+                            }
+                            else
+                            {
+                                <span>No staff members have been added yet</span>
+                            }
+                        </p>
+                        <button type="button" class="btn-testdrive" data-bs-toggle="modal" data-bs-target="#createStaffModal">
+                            <i class="fas fa-user-plus"></i> Add First Staff
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Full Name</th>
+                                    <th>Email</th>
+                                    <th>Phone Number</th>
+                                    <th>Created Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var staff in Model.Staff)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                                <div class="user-avatar" style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
+                                                    @staff.FullName.Substring(0, 1).ToUpper()
+                                                </div>
+                                                <div>
+                                                    <div style="font-weight: 600; color: #fff;">@staff.FullName</div>
+                                                    <div style="font-size: 0.75rem; color: #888;">Staff Member</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <i class="fas fa-envelope" style="color: #888; margin-right: 0.5rem;"></i>
+                                            @staff.Email
+                                        </td>
+                                        <td>
+                                            <i class="fas fa-phone" style="color: #888; margin-right: 0.5rem;"></i>
+                                            @staff.PhoneNumber
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <div style="font-weight: 500;">
+                                                    @staff.CreatedAt.ToString("MMM dd, yyyy")
+                                                </div>
+                                                <div style="color: #888; font-size: 0.875rem;">
+                                                    @staff.CreatedAt.ToString("hh:mm tt")
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <button type="button" class="btn btn-sm btn-outline-primary"
+                                                        onclick="editStaff('@staff.Id', '@staff.FullName', '@staff.Email', '@staff.PhoneNumber')"
+                                                        title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        onclick="deleteStaff('@staff.Id', '@staff.FullName')"
+                                                        title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    @if (Model.Staff.TotalPages > 1)
+                    {
+                        <div style="padding: 1.5rem;">
+                            <div class="pagination-testdrive">
+                                @if (Model.Staff.HasPrevious)
+                                {
+                                    <a class="page-link-testdrive"
+                                       asp-page="ManageStaff"
+                                       asp-route-pageNumber="@(Model.PageNumber - 1)"
+                                       asp-route-pageSize="@Model.PageSize"
+                                       asp-route-searchTerm="@Model.SearchTerm"
+                                       asp-route-fromDate="@Model.FromDate"
+                                       asp-route-toDate="@Model.ToDate">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                }
+
+                                @for (int i = Math.Max(1, Model.PageNumber - 2); i <= Math.Min(Model.Staff.TotalPages, Model.PageNumber + 2); i++)
+                                {
+                                    <a class="page-link-testdrive @(Model.PageNumber == i ? "active" : "")"
+                                       asp-page="ManageStaff"
+                                       asp-route-pageNumber="@i"
+                                       asp-route-pageSize="@Model.PageSize"
+                                       asp-route-searchTerm="@Model.SearchTerm"
+                                       asp-route-fromDate="@Model.FromDate"
+                                       asp-route-toDate="@Model.ToDate">
+                                        @i
+                                    </a>
+                                }
+
+                                @if (Model.Staff.HasNext)
+                                {
+                                    <a class="page-link-testdrive"
+                                       asp-page="ManageStaff"
+                                       asp-route-pageNumber="@(Model.PageNumber + 1)"
+                                       asp-route-pageSize="@Model.PageSize"
+                                       asp-route-searchTerm="@Model.SearchTerm"
+                                       asp-route-fromDate="@Model.FromDate"
+                                       asp-route-toDate="@Model.ToDate">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                }
+                            </div>
+
+                            <div style="text-align: center; color: #888; font-size: 0.875rem; margin-top: 1rem;">
+                                Showing @((Model.PageNumber - 1) * Model.PageSize + 1) to
+                                @Math.Min(Model.PageNumber * Model.PageSize, Model.Staff.TotalCount) of
+                                @Model.Staff.TotalCount staff members
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Staff Modal -->
+<div class="modal fade" id="createStaffModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content-testdrive">
+            <div class="modal-header-testdrive">
+                <h3 style="color: #0070f3;">
+                    <i class="fas fa-user-plus"></i>
+                    Add New Staff
+                </h3>
+                <button type="button" class="modal-close-testdrive" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="createStaffForm">
+                <div class="modal-body-testdrive">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group-testdrive">
+                                <label class="form-label-testdrive">
+                                    <i class="fas fa-user"></i>
+                                    Full Name <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control-testdrive" id="createFullName" required
+                                       placeholder="Enter full name">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group-testdrive">
+                                <label class="form-label-testdrive">
+                                    <i class="fas fa-envelope"></i>
+                                    Email <span class="text-danger">*</span>
+                                </label>
+                                <input type="email" class="form-control-testdrive" id="createEmail" required
+                                       placeholder="Enter email address">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group-testdrive">
+                                <label class="form-label-testdrive">
+                                    <i class="fas fa-phone"></i>
+                                    Phone Number <span class="text-danger">*</span>
+                                </label>
+                                <input type="tel" class="form-control-testdrive" id="createPhone" required
+                                       placeholder="Enter phone number">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group-testdrive">
+                                <label class="form-label-testdrive">
+                                    <i class="fas fa-lock"></i>
+                                    Password <span class="text-danger">*</span>
+                                </label>
+                                <input type="password" class="form-control-testdrive" id="createPassword" required
+                                       placeholder="Enter password (min 6 characters)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer-testdrive">
+                    <button type="button" class="btn-testdrive-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn-testdrive">
+                        <i class="fas fa-save"></i> Create Staff
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Staff Modal -->
+<div class="modal fade" id="editStaffModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content-testdrive">
+            <div class="modal-header-testdrive">
+                <h3 style="color: #0070f3;">
+                    <i class="fas fa-user-edit"></i>
+                    Edit Staff
+                </h3>
+                <button type="button" class="modal-close-testdrive" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="editStaffForm">
+                <input type="hidden" id="editStaffId">
+                <div class="modal-body-testdrive">
+                    <div class="alert-testdrive" style="background: #e3f2fd; border-left: 4px solid #2196f3;">
+                        <i class="fas fa-info-circle" style="color: #2196f3;"></i>
+                        <span style="color: #0d47a1;">Email cannot be changed. Leave password blank to keep current password.</span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group-testdrive">
+                                <label class="form-label-testdrive">
+                                    <i class="fas fa-user"></i>
+                                    Full Name <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control-testdrive" id="editFullName" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group-testdrive">
+                                <label class="form-label-testdrive">
+                                    <i class="fas fa-envelope"></i>
+                                    Email
+                                </label>
+                                <input type="email" class="form-control-testdrive" id="editEmail" disabled>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group-testdrive">
+                                <label class="form-label-testdrive">
+                                    <i class="fas fa-phone"></i>
+                                    Phone Number <span class="text-danger">*</span>
+                                </label>
+                                <input type="tel" class="form-control-testdrive" id="editPhone" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group-testdrive">
+                                <label class="form-label-testdrive">
+                                    <i class="fas fa-lock"></i>
+                                    New Password (Optional)
+                                </label>
+                                <input type="password" class="form-control-testdrive" id="editPassword"
+                                       placeholder="Leave blank to keep current">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer-testdrive">
+                    <button type="button" class="btn-testdrive-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn-testdrive">
+                        <i class="fas fa-save"></i> Update Staff
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Create Staff
+        document.getElementById('createStaffForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                fullName: document.getElementById('createFullName').value,
+                email: document.getElementById('createEmail').value,
+                phoneNumber: document.getElementById('createPhone').value,
+                password: document.getElementById('createPassword').value
+            };
+
+            try {
+                const response = await fetch('/Manager/ManageStaff?handler=Create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('createStaffModal'));
+                    modal.hide();
+                    alert(data.message);
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while creating staff');
+            }
+        });
+
+        // Edit Staff
+        function editStaff(id, fullName, email, phone) {
+            document.getElementById('editStaffId').value = id;
+            document.getElementById('editFullName').value = fullName;
+            document.getElementById('editEmail').value = email;
+            document.getElementById('editPhone').value = phone;
+            document.getElementById('editPassword').value = '';
+
+            const modal = new bootstrap.Modal(document.getElementById('editStaffModal'));
+            modal.show();
+        }
+
+        document.getElementById('editStaffForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                staffId: document.getElementById('editStaffId').value,
+                fullName: document.getElementById('editFullName').value,
+                phoneNumber: document.getElementById('editPhone').value,
+                newPassword: document.getElementById('editPassword').value || null
+            };
+
+            try {
+                const response = await fetch('/Manager/ManageStaff?handler=Update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editStaffModal'));
+                    modal.hide();
+                    alert(data.message);
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while updating staff');
+            }
+        });
+
+        // Delete Staff
+        async function deleteStaff(id, name) {
+            if (!confirm(`Are you sure you want to delete staff member "${name}"?\n\nThis action cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/Manager/ManageStaff?handler=Delete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    },
+                    body: JSON.stringify({ staffId: id })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(data.message);
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while deleting staff');
+            }
+        }
+
+        // Auto-hide alerts
+        setTimeout(function () {
+            const alerts = document.querySelectorAll('.alert-testdrive');
+            alerts.forEach(alert => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            });
+        }, 5000);
+    </script>
+}
