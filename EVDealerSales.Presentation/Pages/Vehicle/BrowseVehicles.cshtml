@@ -94,8 +94,21 @@
 
                         <div class="vehicle-card-content">
                             <div class="vehicle-header-info">
-                                <h3 class="vehicle-model">@vehicle.ModelName</h3>
-                                <p class="vehicle-trim">@vehicle.TrimName</p>
+                                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                    <div>
+                                        <h3 class="vehicle-model">@vehicle.ModelName</h3>
+                                        <p class="vehicle-trim">@vehicle.TrimName</p>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="display: flex; align-items: center; gap: 4px; font-size: 0.875rem; font-weight: 600; color: @(vehicle.Stock <= 0 ? "#ef4444" : vehicle.Stock <= 5 ? "#ffa500" : "#00d4aa");">
+                                            <i class="bi bi-box-seam"></i>
+                                            <span>@vehicle.Stock</span>
+                                        </div>
+                                        <div style="font-size: 0.75rem; color: @(vehicle.Stock <= 0 ? "#ef4444" : vehicle.Stock <= 5 ? "#ffa500" : "#64748b");">
+                                            @(vehicle.Stock <= 0 ? "Out of Stock" : vehicle.Stock <= 5 ? "Low Stock" : "In Stock")
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="vehicle-meta">
@@ -133,13 +146,6 @@
                                     <div class="spec-content">
                                         <span class="spec-value">@vehicle.TopSpeed km/h</span>
                                         <span class="spec-label">Top Speed</span>
-                                    </div>
-                                </div>
-                                <div class="spec-item" style="@(vehicle.Stock <= 0 ? "border-left: 2px solid #ef4444;" : vehicle.Stock <= 5 ? "border-left: 2px solid #ffa500;" : "border-left: 2px solid #00d4aa;")">
-                                    <i class="bi bi-box-seam" style="@(vehicle.Stock <= 0 ? "color: #ef4444;" : vehicle.Stock <= 5 ? "color: #ffa500;" : "color: #00d4aa;")"></i>
-                                    <div class="spec-content">
-                                        <span class="spec-value" style="@(vehicle.Stock <= 0 ? "color: #ef4444;" : vehicle.Stock <= 5 ? "color: #ffa500;" : "")">@vehicle.Stock units</span>
-                                        <span class="spec-label">@(vehicle.Stock <= 0 ? "Out of Stock" : vehicle.Stock <= 5 ? "Low Stock" : "In Stock")</span>
                                     </div>
                                 </div>
                             </div>

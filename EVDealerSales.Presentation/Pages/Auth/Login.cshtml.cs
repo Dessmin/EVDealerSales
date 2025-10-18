@@ -1,6 +1,5 @@
 ﻿using EVDealerSales.Business.Interfaces;
 using EVDealerSales.BusinessObject.DTOs.AuthDTOs;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -67,7 +66,7 @@ namespace EVDealerSales.Presentation.Pages.Auth
 
                 if (result == null)
                 {
-                    ErrorMessage = "Email hoặc mật khẩu không chính xác.";
+                    ErrorMessage = "Email & Password may not correct.";
                     return Page();
                 }
 

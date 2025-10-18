@@ -104,25 +104,25 @@
                                         <li>
                                             <a class="dropdown-item" asp-page="/TestDrive/Index">
                                                 <i class="fa-regular fa-calendar-check"></i>
-                                                Manage Appointment
+                                                Appointment
                                             </a>
                                         </li>
                                         <li>
                                             <a class="dropdown-item" asp-page="/Staff/ManageOrders">
                                                 <i class="bi bi-bag-check me-2"></i>
-                                                Manage Orders
+                                                Orders
                                             </a>
                                         </li>
                                         <li>
                                             <a class="dropdown-item" asp-page="/Staff/ManageDeliveries">
                                                 <i class="bi bi-bag-check me-2"></i>
-                                                Manage Deliveries
+                                                Deliveries
                                             </a>
                                         </li>
                                         <li>
                                             <a class="dropdown-item" asp-page="/Staff/Customers">
                                                 <i class="bi bi-people me-2"></i>
-                                                Manage Customer
+                                                Customer
                                             </a>
                                         </li>                                 
                                     }
@@ -131,19 +131,19 @@
                                         <li>
                                             <a class="dropdown-item" asp-page="/Manager/ManagerStaff">
                                                 <i class="bi bi-person-badge me-2"></i>
-                                                Manage Staffs
+                                                Staffs
                                             </a>
                                         </li>
                                         <li>
                                             <a class="dropdown-item" asp-page="/Vehicle/Index">
                                                 <i class="fa-solid fa-car me-2"></i>
-                                                Manage Vehicles
+                                                Vehicles
                                             </a>
                                         </li>
                                         <li>
                                             <a class="dropdown-item" asp-page="/Manager/ManageFeedback">
                                                 <i class="fa-solid fa-car me-2"></i>
-                                                Manage Feedbacks
+                                                Feedbacks
                                             </a>
                                         </li>
                                         <li>
@@ -155,7 +155,6 @@
                                     }
                                     else if (userRole == "Customer")
                                     {
-                                        <li class="dropdown-header">Test Drive</li>
                                         <li>
                                             <a class="dropdown-item" asp-page="/TestDrive/Register">
                                                 <i class="bi bi-calendar-plus me-2"></i>
@@ -168,8 +167,6 @@
                                                 My Test Drives
                                             </a>
                                         </li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li class="dropdown-header">Orders</li>
                                         <li>
                                             <a class="dropdown-item" asp-page="/Order/MyOrders">
                                                 <i class="bi bi-bag-check me-2"></i>
