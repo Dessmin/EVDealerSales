@@ -74,6 +74,22 @@ namespace EVDealerSales.Business.Services
                     throw new InvalidOperationException("Cannot request delivery for unpaid order");
                 }
 
+                // Check if order is confirmed
+                if (order.Status != OrderStatus.Confirmed)
+                {
+                    throw new InvalidOperationException("Can only request delivery for confirmed orders");
+                }
+
+                // Check if request is within 24 hours of order confirmation
+                if (order.UpdatedAt.HasValue)
+                {
+                    var hoursSinceConfirmation = (_currentTime.GetCurrentTime() - order.UpdatedAt.Value).TotalHours;
+                    if (hoursSinceConfirmation > 24)
+                    {
+                        throw new InvalidOperationException("Delivery request must be made within 24 hours after order confirmation");
+                    }
+                }
+
                 // Check if delivery already exists
                 var existingDelivery = await _unitOfWork.Deliveries.GetQueryable()
                     .FirstOrDefaultAsync(d => d.OrderId == request.OrderId && !d.IsDeleted);
@@ -361,16 +377,6 @@ namespace EVDealerSales.Business.Services
                 if (request.Status == DeliveryStatus.Delivered)
                 {
                     delivery.ActualDate = request.ActualDate ?? _currentTime.GetCurrentTime();
-
-                    // Update order status to Delivered
-                    var order = delivery.Order;
-                    if (order.Status != OrderStatus.Delivered)
-                    {
-                        order.Status = OrderStatus.Delivered;
-                        order.UpdatedAt = _currentTime.GetCurrentTime();
-                        order.UpdatedBy = currentUserId;
-                        await _unitOfWork.Orders.Update(order);
-                    }
                 }
 
                 delivery.UpdatedAt = _currentTime.GetCurrentTime();

@@ -53,6 +53,7 @@ namespace EVDealerSales.Business.Services
                     order = await _unitOfWork.Orders.GetQueryable()
                         .Include(o => o.Customer)
                         .Include(o => o.Items).ThenInclude(oi => oi.Vehicle)
+                        .Include(o => o.Delivery)
                         .FirstOrDefaultAsync(o => o.Id == request.OrderId.Value && !o.IsDeleted);
 
                     if (order == null)
@@ -65,10 +66,10 @@ namespace EVDealerSales.Business.Services
                         throw new UnauthorizedAccessException("You can only give feedback for your own orders");
                     }
 
-                    // Check if order is delivered
-                    if (order.Status != OrderStatus.Delivered)
+                    // Check if order is confirmed (completed)
+                    if (order.Status != OrderStatus.Confirmed)
                     {
-                        throw new InvalidOperationException("You can only give feedback for delivered orders");
+                        throw new InvalidOperationException("You can only give feedback for confirmed orders");
                     }
                 }
 

@@ -271,11 +271,6 @@ namespace EVDealerSales.Business.Services
                     throw new InvalidOperationException("Order is already cancelled");
                 }
 
-                if (order.Status == OrderStatus.Delivered)
-                {
-                    throw new InvalidOperationException("Cannot cancel a delivered order");
-                }
-
                 // Check if order has been paid
                 var hasPaidPayment = order.Invoices
                     .SelectMany(i => i.Payments)
@@ -537,7 +532,7 @@ namespace EVDealerSales.Business.Services
             try
             {
                 var query = _unitOfWork.Orders.GetQueryable()
-                    .Where(o => !o.IsDeleted && o.Status == OrderStatus.Confirmed || o.Status == OrderStatus.Delivered);
+                    .Where(o => !o.IsDeleted && o.Status == OrderStatus.Confirmed);
 
                 if (fromDate.HasValue)
                 {

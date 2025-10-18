@@ -257,11 +257,6 @@
                                                         <i class="bi bi-check-circle"></i> Confirmed
                                                     </span>
                                                     break;
-                                                case OrderStatus.Delivered:
-                                                    <span class="badge badge-info">
-                                                        <i class="bi bi-box-seam"></i> Delivered
-                                                    </span>
-                                                    break;
                                                 case OrderStatus.Cancelled:
                                                     <span class="badge badge-danger">
                                                         <i class="bi bi-x-circle"></i> Cancelled
@@ -343,7 +338,6 @@
 
                                                 @* ⭐ LOGIC MỚI: Kiểm tra cả DeliveryStatus *@
                                                 @if (order.PaymentStatus == PaymentStatus.Paid &&
-                                                                                        order.Status != OrderStatus.Delivered &&
                                                                                         order.Status != OrderStatus.Cancelled)
                                                 {
                                                     @if (!order.DeliveryStatus.HasValue)

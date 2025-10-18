@@ -295,7 +295,6 @@
                     <div class="card-header">
                         <h2><i class="bi bi-receipt"></i> Order Information</h2>
                         <span class="@(Model.Order.Status == OrderStatus.Confirmed ? "badge badge-success" :
-                                                                     Model.Order.Status == OrderStatus.Delivered ? "badge badge-info" :
                                                                      Model.Order.Status == OrderStatus.Cancelled ? "badge badge-danger" :
                                                                      "badge badge-warning")">
                         @Model.Order.Status.ToString()
@@ -487,9 +486,29 @@
                     @* Request Delivery Button - Show if paid and no delivery yet (only for customers) *@
                     @if (Model.Order.PaymentStatus == PaymentStatus.Paid && Model.Order.Delivery == null && !isStaff)
                     {
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#requestDeliveryModal">
-                            <i class="bi bi-truck"></i> Request Delivery
-                        </button>
+                        var hoursSinceConfirmation = Model.Order.UpdatedAt.HasValue 
+                            ? (DateTime.UtcNow - Model.Order.UpdatedAt.Value).TotalHours 
+                            : 0;
+                        var canRequestDelivery = hoursSinceConfirmation <= 24;
+                        var hoursRemaining = canRequestDelivery ? (24 - hoursSinceConfirmation) : 0;
+                        
+                        if (canRequestDelivery)
+                        {
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#requestDeliveryModal">
+                                <i class="bi bi-truck"></i> Request Delivery
+                            </button>
+                            <div class="alert alert-info mt-2 mb-0">
+                                <i class="bi bi-clock"></i> 
+                                You have <strong>@hoursRemaining.ToString("F1") hours</strong> remaining to request delivery
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle"></i> 
+                                The 24-hour window to request delivery has expired. Please contact support for assistance.
+                            </div>
+                        }
                     }
 
                     @* Cancel Delivery Button - Show if delivery status is Pending (only for customers) *@
@@ -499,8 +518,8 @@
                             <i class="bi bi-x-circle"></i> Cancel Delivery Request
                         </button>
                     }
-                    @* Feedback Button - Show if delivery is completed (only for customers) *@
-                    @if (Model.Order.Delivery != null && Model.Order.Delivery.Status == DeliveryStatus.Delivered && !isStaff)
+                    @* Feedback Button - Show if order is confirmed (only for customers) *@
+                    @if (Model.Order.Status == OrderStatus.Confirmed && !isStaff)
                     {
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#feedbackModal">
                             <i class="bi bi-chat-left-text"></i> Give Feedback
@@ -597,7 +616,7 @@
                 <div class="modal-body">
                     <div class="alert alert-info">
                         <i class="bi bi-info-circle"></i>
-                        Your feedback helps us improve our service. Please share your experience with your order and delivery.
+                        Your feedback helps us improve our service. Please share your experience with your order, vehicle, and our service.
                     </div>
 
                     <div class="mb-3">
@@ -609,7 +628,7 @@
                                   class="form-control"
                                   rows="5"
                                   required
-                                  placeholder="Tell us about your experience with the vehicle, delivery service, and overall satisfaction..."></textarea>
+                                  placeholder="Tell us about your experience with the vehicle, our service, and overall satisfaction..."></textarea>
                         <div class="form-text">
                             Minimum 10 characters required
                         </div>
