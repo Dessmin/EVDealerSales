@@ -1,5 +1,6 @@
 using EVDealerSales.Business.Utils;
 using EVDealerSales.BusinessObject.DTOs.OrderDTOs;
+using EVDealerSales.BusinessObject.Enums;
 
 namespace EVDealerSales.Business.Interfaces
 {
@@ -16,8 +17,32 @@ namespace EVDealerSales.Business.Interfaces
         Task<OrderResponseDto?> AssignStaffToOrderAsync(Guid orderId, Guid staffId);
         Task<OrderResponseDto?> UpdateOrderStatusAsync(Guid orderId, UpdateOrderStatusRequestDto request);
 
-        // Statistics
+        // ========= Statistics =========
+
+        // General Statistics
         Task<decimal> GetTotalRevenueAsync(DateTime? fromDate = null, DateTime? toDate = null);
         Task<int> GetTotalOrdersCountAsync(DateTime? fromDate = null, DateTime? toDate = null);
+
+        // Order Statistics
+        Task<Dictionary<OrderStatus, int>> GetOrdersByStatusAsync(DateTime? fromDate = null, DateTime? toDate = null);
+        Task<List<MonthlyRevenueDto>> GetMonthlyRevenueAsync(int months = 6);
+        Task<List<VehicleSalesDto>> GetTopSellingVehiclesAsync(int topCount = 5, DateTime? fromDate = null, DateTime? toDate = null);
+        Task<decimal> GetAverageOrderValueAsync(DateTime? fromDate = null, DateTime? toDate = null);
+
+        // Delivery Statistics
+        Task<Dictionary<DeliveryStatus, int>> GetDeliveriesByStatusAsync();
+        Task<double> GetOnTimeDeliveryRateAsync();
+
+        // Customer Statistics
+        Task<int> GetTotalCustomersCountAsync();
+        Task<int> GetNewCustomersCountAsync(DateTime? fromDate = null);
+
+        // Test Drive Statistics
+        Task<int> GetTotalTestDrivesCountAsync(DateTime? fromDate = null, DateTime? toDate = null);
+        Task<double> GetTestDriveConversionRateAsync();
+
+        // Inventory Alerts
+        Task<List<VehicleStockDto>> GetLowStockVehiclesAsync(int threshold = 5);
+        Task<List<VehicleStockDto>> GetOutOfStockVehiclesAsync();
     }
 }
