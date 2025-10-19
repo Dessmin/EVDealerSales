@@ -6,25 +6,20 @@
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/testdrive.css" />
-    <link rel="stylesheet" href="~/css/orders-delivery.css" />
+    <link rel="stylesheet" href="~/css/staff-management.css" />
 }
 
-<div class="testdrive-container">
-    <div class="container-fluid">
+<div class="staff-page-clean">
+    <div class="container">
         <!-- Header -->
-        <div class="testdrive-header">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <h1>
-                        <i class="bi bi-bag-check-fill"></i>
-                        Orders Management
-                    </h1>
-                    <p class="header-subtitle">
-                        Manage and track all customer orders
-                    </p>
-                </div>
-            </div>
+        <div class="staff-header-clean">
+            <h1 class="staff-title-clean">
+                <i class="bi bi-bag-check-fill"></i>
+                Orders Management
+            </h1>
+            <p class="staff-subtitle-clean">
+                Manage and track all customer orders
+            </p>
         </div>
 
         <!-- Alerts -->
@@ -47,100 +42,81 @@
         }
 
         <!-- Search and Filter Card -->
-        <div class="testdrive-card">
-            <div class="testdrive-card-header">
-                <h3>
+        <div class="staff-card-clean">
+            <div class="staff-card-header-clean">
+                <h3 class="staff-card-title-clean">
                     <i class="bi bi-funnel-fill"></i>
                     Search & Filters
                 </h3>
-                <button class="btn btn-sm btn-outline-secondary" type="button"
+                <button class="btn-secondary-clean" type="button" style="padding: 0.5rem 0.75rem; border-radius: 6px;"
                         data-bs-toggle="collapse" data-bs-target="#filterCollapse">
                     <i class="bi bi-chevron-down"></i>
                 </button>
             </div>
             <div class="collapse show" id="filterCollapse">
-                <div class="testdrive-card-body">
-                    <form method="get" class="form-testdrive">
+                <div class="staff-card-body-clean">
+                    <form method="get">
                         <input type="hidden" name="pageNumber" value="1" />
                         <input type="hidden" name="pageSize" asp-for="PageSize" />
 
-                        <!-- Search Term -->
-                        <div class="row mb-3">
-                            <div class="col-md-12">
-                                <div class="form-group-testdrive">
-                                    <label class="form-label-testdrive">
-                                        <i class="bi bi-search"></i>
-                                        Search by Order Number, Customer Name or Email
-                                    </label>
-                                    <input type="text" class="form-control-testdrive" name="searchTerm"
-                                           asp-for="SearchTerm"
-                                           placeholder="Search orders...">
-                                </div>
-                            </div>
+                        <!-- Search Bar -->
+                        <div class="search-bar-clean">
+                            <i class="bi bi-search search-icon-clean"></i>
+                            <input type="text" class="search-input-clean" name="searchTerm"
+                                   asp-for="SearchTerm"
+                                   placeholder="Search by order number, customer name or email...">
                         </div>
 
-                        <!-- Status & Payment Status -->
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="form-group-testdrive">
-                                    <label class="form-label-testdrive">
-                                        <i class="bi bi-info-circle"></i>
-                                        Order Status
-                                    </label>
-                                    <select class="form-control-testdrive" name="status" asp-for="Status">
-                                        <option value="">All Status</option>
-                                        <option value="0">Pending</option>
-                                        <option value="1">Confirmed</option>
-                                        <option value="2">Delivered</option>
-                                        <option value="3">Cancelled</option>
-                                    </select>
-                                </div>
+                        <!-- Filter Grid -->
+                        <div class="filter-grid-clean">
+                            <div class="filter-group-clean">
+                                <label class="filter-label-clean">
+                                    <i class="bi bi-info-circle"></i>
+                                    Order Status
+                                </label>
+                                <select class="filter-input-clean" name="status" asp-for="Status">
+                                    <option value="">All Status</option>
+                                    <option value="0">Pending</option>
+                                    <option value="1">Confirmed</option>
+                                    <option value="2">Delivered</option>
+                                    <option value="3">Cancelled</option>
+                                </select>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group-testdrive">
-                                    <label class="form-label-testdrive">
-                                        <i class="bi bi-credit-card"></i>
-                                        Payment Status
-                                    </label>
-                                    <select class="form-control-testdrive" name="paymentStatus" asp-for="PaymentStatus">
-                                        <option value="">All Payment Status</option>
-                                        <option value="0">Pending</option>
-                                        <option value="1">Paid</option>
-                                        <option value="2">Failed</option>
-                                        <option value="3">Refunded</option>
-                                    </select>
-                                </div>
+                            <div class="filter-group-clean">
+                                <label class="filter-label-clean">
+                                    <i class="bi bi-credit-card"></i>
+                                    Payment Status
+                                </label>
+                                <select class="filter-input-clean" name="paymentStatus" asp-for="PaymentStatus">
+                                    <option value="">All Payment Status</option>
+                                    <option value="0">Pending</option>
+                                    <option value="1">Paid</option>
+                                    <option value="2">Failed</option>
+                                    <option value="3">Refunded</option>
+                                </select>
                             </div>
-                        </div>
-
-                        <!-- Date Range -->
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="form-group-testdrive">
-                                    <label class="form-label-testdrive">
-                                        <i class="bi bi-calendar"></i>
-                                        From Date
-                                    </label>
-                                    <input type="date" class="form-control-testdrive" name="fromDate" asp-for="FromDate">
-                                </div>
+                            <div class="filter-group-clean">
+                                <label class="filter-label-clean">
+                                    <i class="bi bi-calendar"></i>
+                                    From Date
+                                </label>
+                                <input type="date" class="filter-input-clean" name="fromDate" asp-for="FromDate">
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group-testdrive">
-                                    <label class="form-label-testdrive">
-                                        <i class="bi bi-calendar"></i>
-                                        To Date
-                                    </label>
-                                    <input type="date" class="form-control-testdrive" name="toDate" asp-for="ToDate">
-                                </div>
+                            <div class="filter-group-clean">
+                                <label class="filter-label-clean">
+                                    <i class="bi bi-calendar"></i>
+                                    To Date
+                                </label>
+                                <input type="date" class="filter-input-clean" name="toDate" asp-for="ToDate">
                             </div>
                         </div>
 
                         <!-- Action Buttons -->
-                        <div style="display: flex; gap: 0.75rem;">
-                            <button type="submit" class="btn btn-primary">
+                        <div class="filter-actions-clean">
+                            <button type="submit" class="btn-clean btn-primary-clean">
                                 <i class="bi bi-search"></i> Apply Filters
                             </button>
-                            <a asp-page="ManageOrders" class="btn btn-outline-secondary">
+                            <a asp-page="ManageOrders" class="btn-clean btn-secondary-clean">
                                 <i class="bi bi-x-circle"></i> Clear Filters
                             </a>
                         </div>
@@ -150,28 +126,28 @@
         </div>
 
         <!-- Orders List Card -->
-        <div class="testdrive-card">
-            <div class="testdrive-card-header">
-                <h3>
+        <div class="staff-card-clean">
+            <div class="staff-card-header-clean">
+                <h3 class="staff-card-title-clean">
                     <i class="bi bi-list-ul"></i>
                     Orders
                 </h3>
                 @if (Model.Orders != null && Model.Orders.Any())
                 {
-                    <span style="color: #888; font-size: 0.875rem;">
-                        @Model.Orders.TotalCount orders
+                    <span style="color: #888; font-size: 0.875rem; font-weight: 500;">
+                        @Model.Orders.TotalCount total
                     </span>
                 }
             </div>
-            <div class="testdrive-card-body" style="padding: 0;">
+            <div class="staff-card-body-clean" style="padding: 0;">
                 @if (Model.Orders == null || !Model.Orders.Any())
                 {
-                    <div class="empty-state">
-                        <div class="empty-icon">
+                    <div class="empty-state-clean">
+                        <div class="empty-icon-clean">
                             <i class="bi bi-inbox"></i>
                         </div>
-                        <h3 class="empty-title">No Orders Found</h3>
-                        <p class="empty-description">
+                        <h3 class="empty-title-clean">No Orders Found</h3>
+                        <p class="empty-description-clean">
                             @if (!string.IsNullOrEmpty(Model.SearchTerm) || Model.Status.HasValue || Model.PaymentStatus.HasValue)
                             {
                                 <span>Try adjusting your search criteria or filters</span>
@@ -185,102 +161,98 @@
                 }
                 else
                 {
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Order Number</th>
-                                    <th>Customer</th>
-                                    <th>Items</th>
-                                    <th>Total Amount</th>
-                                    <th>Order Status</th>
-                                    <th>Payment Status</th>
-                                    <th>Delivery Status</th>
-                                    <th>Date</th>
-                                    <th style="width: 250px;">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var order in Model.Orders)
-                                {
-                                    <tr>
-                                        <td>
-                                            <div>
-                                                <strong>@order.OrderNumber</strong>
+                    <div style="padding: 1.5rem;">
+                        @foreach (var order in Model.Orders)
+                        {
+                            <div style="background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem; transition: all 0.2s ease;">
+                                <div class="compact-order-row">
+                                    <!-- Left: Order Info & Date -->
+                                    <div class="order-main-info">
+                                        <div>
+                                            <span class="order-number-badge">@order.OrderNumber</span>
+                                        </div>
+                                        <div class="date-cell-clean">
+                                            <span class="date-primary-clean">
+                                                @order.CreatedAt.ToString("MMM dd, yyyy")
+                                            </span>
+                                            <span class="date-secondary-clean">
+                                                @order.CreatedAt.ToString("hh:mm tt")
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Middle: Customer & Items -->
+                                    <div class="order-customer-section">
+                                        <div class="user-cell-clean">
+                                            <div class="user-avatar-clean" style="width: 36px; height: 36px; font-size: 0.9rem;">
+                                                @order.CustomerName.Substring(0, 1).ToUpper()
                                             </div>
-                                        </td>
-                                        <td>
-                                            <div>
-                                                <div style="font-weight: 500;">
-                                                    @order.CustomerName
-                                                </div>
-                                                <div style="color: #888; font-size: 0.875rem;">
-                                                    @order.CustomerEmail
-                                                </div>
-                                                @if (!string.IsNullOrEmpty(order.CustomerPhone))
-                                                {
-                                                    <div style="color: #666; font-size: 0.75rem;">
-                                                        <i class="bi bi-telephone"></i> @order.CustomerPhone
-                                                    </div>
-                                                }
+                                            <div class="user-info-clean">
+                                                <div class="user-name-clean" style="font-size: 0.95rem;">@order.CustomerName</div>
+                                                <div class="user-role-clean" style="font-size: 0.75rem;">@order.CustomerEmail</div>
                                             </div>
-                                        </td>
-                                        <td>
+                                        </div>
+                                        
+                                        <div class="order-items-compact">
                                             @foreach (var item in order.Items)
                                             {
-                                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                                <div class="item-card-mini">
                                                     @if (!string.IsNullOrEmpty(item.VehicleImageUrl))
                                                     {
                                                         <img src="@item.VehicleImageUrl" alt="@item.VehicleModelName"
-                                                             style="width: 40px; height: 40px; border-radius: 4px; object-fit: cover;">
+                                                             style="width: 32px; height: 32px; border-radius: 4px; object-fit: cover;">
                                                     }
-                                                    <div style="font-size: 0.875rem;">
-                                                        <div>@item.VehicleModelName</div>
-                                                        <div style="color: #888;">@item.VehicleTrimName</div>
+                                                    <div style="font-size: 0.75rem; line-height: 1.2;">
+                                                        <div style="color: #fff; font-weight: 500;">@item.VehicleModelName</div>
+                                                        <div style="color: #666;">@item.VehicleTrimName</div>
                                                     </div>
                                                 </div>
                                             }
-                                        </td>
-                                        <td>
-                                            <strong style="color: #28a745;">$@order.TotalAmount.ToString("N0")</strong>
-                                        </td>
-                                        <td>
+                                        </div>
+                                    </div>
+
+                                    <!-- Right: Status Info -->
+                                    <div class="order-status-group">
+                                        <div class="status-row">
+                                            <span class="status-label-mini">Order:</span>
                                             @switch (order.Status)
                                             {
                                                 case OrderStatus.Pending:
-                                                    <span class="badge badge-warning">
+                                                    <span class="badge-clean badge-pending" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">
                                                         <i class="bi bi-clock"></i> Pending
                                                     </span>
                                                     break;
                                                 case OrderStatus.Confirmed:
-                                                    <span class="badge badge-success">
+                                                    <span class="badge-clean badge-success" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">
                                                         <i class="bi bi-check-circle"></i> Confirmed
                                                     </span>
                                                     break;
                                                 case OrderStatus.Cancelled:
-                                                    <span class="badge badge-danger">
+                                                    <span class="badge-clean badge-danger" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">
                                                         <i class="bi bi-x-circle"></i> Cancelled
                                                     </span>
                                                     break;
                                             }
-                                        </td>
-                                        <td>
+                                        </div>
+
+                                        <div class="status-row">
+                                            <span class="status-label-mini">Payment:</span>
                                             @if (order.PaymentStatus.HasValue)
                                             {
                                                 @switch (order.PaymentStatus.Value)
                                                 {
                                                     case PaymentStatus.Pending:
-                                                        <span class="badge" style="background-color: #ffc107;">
+                                                        <span class="badge-clean badge-pending" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">
                                                             <i class="bi bi-hourglass-split"></i> Pending
                                                         </span>
                                                         break;
                                                     case PaymentStatus.Paid:
-                                                        <span class="badge" style="background-color: #28a745;">
+                                                        <span class="badge-clean badge-success" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">
                                                             <i class="bi bi-check-circle-fill"></i> Paid
                                                         </span>
                                                         break;
                                                     case PaymentStatus.Failed:
-                                                        <span class="badge" style="background-color: #dc3545;">
+                                                        <span class="badge-clean badge-danger" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">
                                                             <i class="bi bi-exclamation-triangle-fill"></i> Failed
                                                         </span>
                                                         break;
@@ -288,27 +260,28 @@
                                             }
                                             else
                                             {
-                                                <span class="badge" style="background-color: #6c757d;">N/A</span>
+                                                <span class="badge-clean" style="background: rgba(108, 117, 125, 0.15); border-color: rgba(108, 117, 125, 0.4); color: #6c757d; font-size: 0.7rem; padding: 0.25rem 0.5rem;">N/A</span>
                                             }
-                                        </td>
-                                        <td>
-                                            @* ⭐ THÊM CỘT DELIVERY STATUS *@
+                                        </div>
+
+                                        <div class="status-row">
+                                            <span class="status-label-mini">Delivery:</span>
                                             @if (order.DeliveryStatus.HasValue)
                                             {
                                                 @switch (order.DeliveryStatus.Value)
                                                 {
                                                     case DeliveryStatus.Scheduled:
-                                                        <span class="badge badge-warning">
+                                                        <span class="badge-clean badge-info" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">
                                                             <i class="bi bi-calendar-check"></i> Scheduled
                                                         </span>
                                                         break;
                                                     case DeliveryStatus.InTransit:
-                                                        <span class="badge badge-info">
+                                                        <span class="badge-clean badge-info" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">
                                                             <i class="bi bi-truck"></i> In Transit
                                                         </span>
                                                         break;
                                                     case DeliveryStatus.Delivered:
-                                                        <span class="badge badge-success">
+                                                        <span class="badge-clean badge-success" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">
                                                             <i class="bi bi-check-circle"></i> Delivered
                                                         </span>
                                                         break;
@@ -316,69 +289,64 @@
                                             }
                                             else
                                             {
-                                                <span class="badge" style="background-color: #6c757d;">No Delivery</span>
+                                                <span class="badge-clean" style="background: rgba(108, 117, 125, 0.15); border-color: rgba(108, 117, 125, 0.4); color: #6c757d; font-size: 0.7rem; padding: 0.25rem 0.5rem;">No Delivery</span>
                                             }
-                                        </td>
-                                        <td>
-                                            <div>
-                                                <div style="font-weight: 500;">
-                                                    @order.CreatedAt.ToString("MMM dd, yyyy")
-                                                </div>
-                                                <div style="color: #888; font-size: 0.875rem;">
-                                                    @order.CreatedAt.ToString("hh:mm tt")
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex gap-1">
-                                                <a asp-page="/Order/OrderDetail" asp-route-id="@order.Id"
-                                                   class="btn btn-sm btn-outline-primary" title="View Details">
-                                                    <i class="bi bi-eye"></i>
-                                                </a>
+                                        </div>
+                                    </div>
 
-                                                @* ⭐ LOGIC MỚI: Kiểm tra cả DeliveryStatus *@
-                                                @if (order.PaymentStatus == PaymentStatus.Paid &&
-                                                                                        order.Status != OrderStatus.Cancelled)
+                                    <!-- Far Right: Amount & Actions -->
+                                    <div class="order-actions-section">
+                                        <div class="total-amount-large">
+                                            $@order.TotalAmount.ToString("N0")
+                                        </div>
+                                        
+                                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end;">
+                                            <a asp-page="/Order/OrderDetail" asp-route-id="@order.Id"
+                                               class="btn-action-clean" title="View Details" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+                                                <i class="bi bi-eye"></i> View
+                                            </a>
+
+                                            @if (order.PaymentStatus == PaymentStatus.Paid &&
+                                               order.Status != OrderStatus.Cancelled)
+                                            {
+                                                @if (!order.DeliveryStatus.HasValue)
                                                 {
-                                                    @if (!order.DeliveryStatus.HasValue)
-                                                    {
-                                                        @* Chưa có Delivery → Hiển thị nút Ship *@
-                                                        <form method="post" asp-page-handler="Ship" asp-route-id="@order.Id"
-                                                              style="display: inline;">
-                                                            <button type="submit" class="btn btn-sm btn-success"
-                                                                    title="Create Delivery"
-                                                                    onclick="return confirm('Create delivery for this order?');">
-                                                                <i class="bi bi-truck"></i> Ship
-                                                            </button>
-                                                        </form>
-                                                    }
-                                                    else
-                                                    {
-                                                        @* Đã có Delivery → Hiển thị nút View Delivery *@
-                                                        <a asp-page="/Staff/ManageDeliveries"
-                                                           asp-route-searchTerm="@order.OrderNumber"
-                                                           class="btn btn-sm btn-info"
-                                                           title="View Delivery">
-                                                            <i class="bi bi-box-seam"></i> View Delivery
-                                                        </a>
-                                                    }
+                                                    <form method="post" asp-page-handler="Ship" asp-route-id="@order.Id"
+                                                          style="display: inline;">
+                                                        <button type="submit" class="btn-action-clean btn-action-success"
+                                                                style="font-size: 0.8rem; padding: 0.4rem 0.8rem;"
+                                                                title="Create Delivery"
+                                                                onclick="return confirm('Create delivery for this order?');">
+                                                            <i class="bi bi-truck"></i> Ship
+                                                        </button>
+                                                    </form>
                                                 }
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                                                else
+                                                {
+                                                    <a asp-page="/Staff/ManageDeliveries"
+                                                       asp-route-searchTerm="@order.OrderNumber"
+                                                       class="btn-action-clean"
+                                                       style="border-color: #3b82f6; color: #3b82f6; font-size: 0.8rem; padding: 0.4rem 0.8rem;"
+                                                       title="View Delivery">
+                                                        <i class="bi bi-box-seam"></i>
+                                                    </a>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
                     </div>
 
                     <!-- Pagination -->
                     @if (Model.Orders.TotalPages > 1)
                     {
-                        <div style="padding: 1.5rem;">
-                            <div class="pagination-testdrive">
+                        <div style="padding: 0 1.5rem 1.5rem 1.5rem;">
+                            <div class="pagination-clean">
                                 @if (Model.Orders.HasPrevious)
                                 {
-                                    <a class="page-link-testdrive"
+                                    <a class="page-btn-clean"
                                        asp-page="ManageOrders"
                                        asp-route-pageNumber="@(Model.PageNumber - 1)"
                                        asp-route-pageSize="@Model.PageSize"
@@ -393,7 +361,7 @@
 
                                 @for (int i = Math.Max(1, Model.PageNumber - 2); i <= Math.Min(Model.Orders.TotalPages, Model.PageNumber + 2); i++)
                                 {
-                                    <a class="page-link-testdrive @(Model.PageNumber == i ? "active" : "")"
+                                    <a class="page-btn-clean @(Model.PageNumber == i ? "active" : "")"
                                        asp-page="ManageOrders"
                                        asp-route-pageNumber="@i"
                                        asp-route-pageSize="@Model.PageSize"
@@ -408,7 +376,7 @@
 
                                 @if (Model.Orders.HasNext)
                                 {
-                                    <a class="page-link-testdrive"
+                                    <a class="page-btn-clean"
                                        asp-page="ManageOrders"
                                        asp-route-pageNumber="@(Model.PageNumber + 1)"
                                        asp-route-pageSize="@Model.PageSize"
@@ -422,7 +390,7 @@
                                 }
                             </div>
 
-                            <div style="text-align: center; color: #888; font-size: 0.875rem; margin-top: 1rem;">
+                            <div class="pagination-info-clean">
                                 Showing @((Model.PageNumber - 1) * Model.PageSize + 1) to
                                 @Math.Min(Model.PageNumber * Model.PageSize, Model.Orders.TotalCount) of
                                 @Model.Orders.TotalCount orders
