@@ -5,26 +5,26 @@
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/testdrive.css" />
+    <link rel="stylesheet" href="~/css/staff-management.css" />
 }
 
-<div class="testdrive-container">
-    <div class="container-fluid">
+<div class="staff-page-clean">
+    <div class="container">
         <!-- Header -->
-        <div class="testdrive-header">
-            <div class="d-flex justify-content-between align-items-start">
+        <div class="staff-header-clean">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
                 <div>
-                    <h1>
-                        <i class="fas fa-user-tie"></i>
+                    <h1 class="staff-title-clean">
+                        <i class="bi bi-people"></i>
                         Staff Management
                     </h1>
-                    <p class="header-subtitle">
+                    <p class="staff-subtitle-clean">
                         Manage dealer staff members and their accounts
                     </p>
                 </div>
-                <div class="header-actions">
-                    <button type="button" class="btn-testdrive" data-bs-toggle="modal" data-bs-target="#createStaffModal">
-                        <i class="fas fa-user-plus"></i>
+                <div>
+                    <button type="button" class="btn-clean btn-primary-clean" data-bs-toggle="modal" data-bs-target="#createStaffModal">
+                        <i class="bi bi-person-plus"></i>
                         Add New Staff
                     </button>
                 </div>
@@ -34,79 +34,73 @@
         <!-- Alerts -->
         @if (TempData["SuccessMessage"] != null)
         {
-            <div class="alert-testdrive success">
-                <i class="fas fa-check-circle"></i>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill"></i>
                 @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         }
 
         @if (TempData["ErrorMessage"] != null)
         {
-            <div class="alert-testdrive error">
-                <i class="fas fa-exclamation-circle"></i>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
                 @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         }
 
         <!-- Search and Filter Card -->
-        <div class="testdrive-card">
-            <div class="testdrive-card-header">
-                <h3>
-                    <i class="fas fa-filter"></i>
+        <div class="staff-card-clean">
+            <div class="staff-card-header-clean">
+                <h3 class="staff-card-title-clean">
+                    <i class="bi bi-funnel-fill"></i>
                     Search & Filters
                 </h3>
-                <button class="btn btn-sm btn-outline-secondary" type="button"
+                <button class="btn-secondary-clean" type="button" style="padding: 0.5rem 0.75rem; border-radius: 6px;"
                         data-bs-toggle="collapse" data-bs-target="#filterCollapse">
-                    <i class="fas fa-chevron-down"></i>
+                    <i class="bi bi-chevron-down"></i>
                 </button>
             </div>
             <div class="collapse show" id="filterCollapse">
-                <div class="testdrive-card-body">
-                    <form method="get" class="form-testdrive">
+                <div class="staff-card-body-clean">
+                    <form method="get">
                         <input type="hidden" name="pageNumber" value="1" />
                         <input type="hidden" name="pageSize" asp-for="PageSize" />
 
-                        <div class="row mb-3">
-                            <div class="col-md-12">
-                                <div class="form-group-testdrive">
-                                    <label class="form-label-testdrive">
-                                        <i class="fas fa-search"></i>
-                                        Search by Name, Email or Phone
-                                    </label>
-                                    <input type="text" class="form-control-testdrive" name="searchTerm"
-                                           asp-for="SearchTerm"
-                                           placeholder="Search staff...">
-                                </div>
+                        <!-- Search Bar -->
+                        <div class="search-bar-clean">
+                            <i class="bi bi-search search-icon-clean"></i>
+                            <input type="text" class="search-input-clean" name="searchTerm"
+                                   asp-for="SearchTerm"
+                                   placeholder="Search by name, email or phone...">
+                        </div>
+
+                        <!-- Filter Grid -->
+                        <div class="filter-grid-clean">
+                            <div class="filter-group-clean">
+                                <label class="filter-label-clean">
+                                    <i class="bi bi-calendar"></i>
+                                    From Date
+                                </label>
+                                <input type="date" class="filter-input-clean" name="fromDate" asp-for="FromDate">
+                            </div>
+                            <div class="filter-group-clean">
+                                <label class="filter-label-clean">
+                                    <i class="bi bi-calendar"></i>
+                                    To Date
+                                </label>
+                                <input type="date" class="filter-input-clean" name="toDate" asp-for="ToDate">
                             </div>
                         </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="form-group-testdrive">
-                                    <label class="form-label-testdrive">
-                                        <i class="fas fa-calendar"></i>
-                                        From Date
-                                    </label>
-                                    <input type="date" class="form-control-testdrive" name="fromDate" asp-for="FromDate">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group-testdrive">
-                                    <label class="form-label-testdrive">
-                                        <i class="fas fa-calendar"></i>
-                                        To Date
-                                    </label>
-                                    <input type="date" class="form-control-testdrive" name="toDate" asp-for="ToDate">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="display: flex; gap: 0.75rem;">
-                            <button type="submit" class="btn-testdrive">
-                                <i class="fas fa-search"></i> Apply Filters
+                        <!-- Action Buttons -->
+                        <div class="filter-actions-clean">
+                            <button type="submit" class="btn-clean btn-primary-clean">
+                                <i class="bi bi-search"></i> Apply Filters
                             </button>
-                            <a asp-page="ManageStaff" class="btn-testdrive-secondary">
-                                <i class="fas fa-times"></i> Clear Filters
+                            <a asp-page="ManageStaff" class="btn-clean btn-secondary-clean">
+                                <i class="bi bi-x-circle"></i> Clear Filters
                             </a>
                         </div>
                     </form>
@@ -115,28 +109,28 @@
         </div>
 
         <!-- Staff List Card -->
-        <div class="testdrive-card">
-            <div class="testdrive-card-header">
-                <h3>
-                    <i class="fas fa-users"></i>
+        <div class="staff-card-clean">
+            <div class="staff-card-header-clean">
+                <h3 class="staff-card-title-clean">
+                    <i class="bi bi-people-fill"></i>
                     Staff Members
                 </h3>
                 @if (Model.Staff != null && Model.Staff.Any())
                 {
-                    <span style="color: #888; font-size: 0.875rem;">
-                        @Model.Staff.TotalCount staff members
+                    <span style="color: #888; font-size: 0.875rem; font-weight: 500;">
+                        @Model.Staff.TotalCount total
                     </span>
                 }
             </div>
-            <div class="testdrive-card-body" style="padding: 0;">
+            <div class="staff-card-body-clean" style="padding: 0;">
                 @if (Model.Staff == null || !Model.Staff.Any())
                 {
-                    <div class="empty-state-testdrive">
-                        <div class="empty-icon-testdrive">
-                            <i class="fas fa-user-slash"></i>
+                    <div class="empty-state-clean">
+                        <div class="empty-icon-clean">
+                            <i class="bi bi-person-x"></i>
                         </div>
-                        <h3 class="empty-title-testdrive">No Staff Found</h3>
-                        <p class="empty-description-testdrive">
+                        <h3 class="empty-title-clean">No Staff Found</h3>
+                        <p class="empty-description-clean">
                             @if (!string.IsNullOrEmpty(Model.SearchTerm))
                             {
                                 <span>Try adjusting your search criteria</span>
@@ -146,98 +140,95 @@
                                 <span>No staff members have been added yet</span>
                             }
                         </p>
-                        <button type="button" class="btn-testdrive" data-bs-toggle="modal" data-bs-target="#createStaffModal">
-                            <i class="fas fa-user-plus"></i> Add First Staff
+                        <button type="button" class="btn-clean btn-primary-clean" style="margin-top: 1rem;" 
+                                data-bs-toggle="modal" data-bs-target="#createStaffModal">
+                            <i class="bi bi-person-plus"></i> Add First Staff
                         </button>
                     </div>
                 }
                 else
                 {
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Full Name</th>
-                                    <th>Email</th>
-                                    <th>Phone Number</th>
-                                    <th>Created Date</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var staff in Model.Staff)
-                                {
-                                    <tr>
-                                        <td>
-                                            <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                                <div class="user-avatar" style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
-                                                    @staff.FullName.Substring(0, 1).ToUpper()
-                                                </div>
-                                                <div>
-                                                    <div style="font-weight: 600; color: #fff;">@staff.FullName</div>
-                                                    <div style="font-size: 0.75rem; color: #888;">Staff Member</div>
-                                                </div>
+                    <div style="padding: 1.5rem;">
+                        @foreach (var staff in Model.Staff)
+                        {
+                            <div style="background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; transition: all 0.2s ease;">
+                                <div style="display: grid; grid-template-columns: 2fr 1.5fr 1fr auto; gap: 1.5rem; align-items: center;">
+                                    <!-- Staff Info -->
+                                    <div class="user-cell-clean">
+                                        <div class="user-avatar-clean" style="width: 40px; height: 40px; font-size: 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                            @staff.FullName.Substring(0, 1).ToUpper()
+                                        </div>
+                                        <div class="user-info-clean">
+                                            <div class="user-name-clean">@staff.FullName</div>
+                                            <div class="user-role-clean" style="font-size: 0.75rem;">
+                                                <i class="bi bi-shield-check"></i> Staff Member
                                             </div>
-                                        </td>
-                                        <td>
-                                            <i class="fas fa-envelope" style="color: #888; margin-right: 0.5rem;"></i>
+                                        </div>
+                                    </div>
+
+                                    <!-- Contact Info -->
+                                    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                                        <div style="color: #ccc; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
+                                            <i class="bi bi-envelope" style="color: #888;"></i>
                                             @staff.Email
-                                        </td>
-                                        <td>
-                                            <i class="fas fa-phone" style="color: #888; margin-right: 0.5rem;"></i>
+                                        </div>
+                                        <div style="color: #ccc; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
+                                            <i class="bi bi-telephone" style="color: #888;"></i>
                                             @staff.PhoneNumber
-                                        </td>
-                                        <td>
-                                            <div>
-                                                <div style="font-weight: 500;">
-                                                    @staff.CreatedAt.ToString("MMM dd, yyyy")
-                                                </div>
-                                                <div style="color: #888; font-size: 0.875rem;">
-                                                    @staff.CreatedAt.ToString("hh:mm tt")
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex gap-1">
-                                                <button type="button" class="btn btn-sm btn-outline-primary"
-                                                        onclick="editStaff('@staff.Id', '@staff.FullName', '@staff.Email', '@staff.PhoneNumber')"
-                                                        title="Edit">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-outline-danger"
-                                                        onclick="deleteStaff('@staff.Id', '@staff.FullName')"
-                                                        title="Delete">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                                        </div>
+                                    </div>
+
+                                    <!-- Created Date -->
+                                    <div class="date-cell-clean">
+                                        <span class="date-primary-clean">
+                                            @staff.CreatedAt.ToString("MMM dd, yyyy")
+                                        </span>
+                                        <span class="date-secondary-clean">
+                                            @staff.CreatedAt.ToString("hh:mm tt")
+                                        </span>
+                                    </div>
+
+                                    <!-- Actions -->
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <button type="button" class="btn-action-clean"
+                                                style="font-size: 0.75rem; padding: 0.4rem 0.75rem;"
+                                                onclick="editStaff('@staff.Id', '@staff.FullName', '@staff.Email', '@staff.PhoneNumber')"
+                                                title="Edit Staff">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button type="button" class="btn-action-clean btn-action-danger"
+                                                style="font-size: 0.75rem; padding: 0.4rem 0.75rem;"
+                                                onclick="deleteStaff('@staff.Id', '@staff.FullName')"
+                                                title="Delete Staff">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
                     </div>
 
                     <!-- Pagination -->
                     @if (Model.Staff.TotalPages > 1)
                     {
-                        <div style="padding: 1.5rem;">
-                            <div class="pagination-testdrive">
+                        <div style="padding: 0 1.5rem 1.5rem 1.5rem;">
+                            <div class="pagination-clean">
                                 @if (Model.Staff.HasPrevious)
                                 {
-                                    <a class="page-link-testdrive"
+                                    <a class="page-btn-clean"
                                        asp-page="ManageStaff"
                                        asp-route-pageNumber="@(Model.PageNumber - 1)"
                                        asp-route-pageSize="@Model.PageSize"
                                        asp-route-searchTerm="@Model.SearchTerm"
                                        asp-route-fromDate="@Model.FromDate"
                                        asp-route-toDate="@Model.ToDate">
-                                        <i class="fas fa-chevron-left"></i>
+                                        <i class="bi bi-chevron-left"></i>
                                     </a>
                                 }
 
                                 @for (int i = Math.Max(1, Model.PageNumber - 2); i <= Math.Min(Model.Staff.TotalPages, Model.PageNumber + 2); i++)
                                 {
-                                    <a class="page-link-testdrive @(Model.PageNumber == i ? "active" : "")"
+                                    <a class="page-btn-clean @(Model.PageNumber == i ? "active" : "")"
                                        asp-page="ManageStaff"
                                        asp-route-pageNumber="@i"
                                        asp-route-pageSize="@Model.PageSize"
@@ -250,19 +241,19 @@
 
                                 @if (Model.Staff.HasNext)
                                 {
-                                    <a class="page-link-testdrive"
+                                    <a class="page-btn-clean"
                                        asp-page="ManageStaff"
                                        asp-route-pageNumber="@(Model.PageNumber + 1)"
                                        asp-route-pageSize="@Model.PageSize"
                                        asp-route-searchTerm="@Model.SearchTerm"
                                        asp-route-fromDate="@Model.FromDate"
                                        asp-route-toDate="@Model.ToDate">
-                                        <i class="fas fa-chevron-right"></i>
+                                        <i class="bi bi-chevron-right"></i>
                                     </a>
                                 }
                             </div>
 
-                            <div style="text-align: center; color: #888; font-size: 0.875rem; margin-top: 1rem;">
+                            <div class="pagination-info-clean">
                                 Showing @((Model.PageNumber - 1) * Model.PageSize + 1) to
                                 @Math.Min(Model.PageNumber * Model.PageSize, Model.Staff.TotalCount) of
                                 @Model.Staff.TotalCount staff members
@@ -277,71 +268,61 @@
 
 <!-- Create Staff Modal -->
 <div class="modal fade" id="createStaffModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content-testdrive">
-            <div class="modal-header-testdrive">
-                <h3 style="color: #0070f3;">
-                    <i class="fas fa-user-plus"></i>
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content modal-clean">
+            <div class="modal-header-clean">
+                <h3 class="modal-title-clean">
+                    <i class="bi bi-person-plus"></i>
                     Add New Staff
                 </h3>
-                <button type="button" class="modal-close-testdrive" data-bs-dismiss="modal">
-                    <i class="fas fa-times"></i>
-                </button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form id="createStaffForm">
-                <div class="modal-body-testdrive">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group-testdrive">
-                                <label class="form-label-testdrive">
-                                    <i class="fas fa-user"></i>
-                                    Full Name <span class="text-danger">*</span>
-                                </label>
-                                <input type="text" class="form-control-testdrive" id="createFullName" required
-                                       placeholder="Enter full name">
-                            </div>
+                <div class="modal-body-clean">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="filter-group-clean">
+                            <label class="filter-label-clean">
+                                <i class="bi bi-person"></i>
+                                Full Name <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="text" class="filter-input-clean" id="createFullName" required
+                                   placeholder="Enter full name">
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group-testdrive">
-                                <label class="form-label-testdrive">
-                                    <i class="fas fa-envelope"></i>
-                                    Email <span class="text-danger">*</span>
-                                </label>
-                                <input type="email" class="form-control-testdrive" id="createEmail" required
-                                       placeholder="Enter email address">
-                            </div>
+                        <div class="filter-group-clean">
+                            <label class="filter-label-clean">
+                                <i class="bi bi-envelope"></i>
+                                Email <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="email" class="filter-input-clean" id="createEmail" required
+                                   placeholder="Enter email address">
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group-testdrive">
-                                <label class="form-label-testdrive">
-                                    <i class="fas fa-phone"></i>
-                                    Phone Number <span class="text-danger">*</span>
-                                </label>
-                                <input type="tel" class="form-control-testdrive" id="createPhone" required
-                                       placeholder="Enter phone number">
-                            </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="filter-group-clean">
+                            <label class="filter-label-clean">
+                                <i class="bi bi-telephone"></i>
+                                Phone Number <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="tel" class="filter-input-clean" id="createPhone" required
+                                   placeholder="Enter phone number">
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group-testdrive">
-                                <label class="form-label-testdrive">
-                                    <i class="fas fa-lock"></i>
-                                    Password <span class="text-danger">*</span>
-                                </label>
-                                <input type="password" class="form-control-testdrive" id="createPassword" required
-                                       placeholder="Enter password (min 6 characters)">
-                            </div>
+                        <div class="filter-group-clean">
+                            <label class="filter-label-clean">
+                                <i class="bi bi-lock"></i>
+                                Password <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="password" class="filter-input-clean" id="createPassword" required
+                                   placeholder="Min 6 characters">
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer-testdrive">
-                    <button type="button" class="btn-testdrive-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times"></i> Cancel
+                <div class="modal-footer-clean">
+                    <button type="button" class="btn-clean btn-secondary-clean" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cancel
                     </button>
-                    <button type="submit" class="btn-testdrive">
-                        <i class="fas fa-save"></i> Create Staff
+                    <button type="submit" class="btn-clean btn-success-clean">
+                        <i class="bi bi-save"></i> Create Staff
                     </button>
                 </div>
             </form>
@@ -351,74 +332,65 @@
 
 <!-- Edit Staff Modal -->
 <div class="modal fade" id="editStaffModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content-testdrive">
-            <div class="modal-header-testdrive">
-                <h3 style="color: #0070f3;">
-                    <i class="fas fa-user-edit"></i>
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content modal-clean">
+            <div class="modal-header-clean">
+                <h3 class="modal-title-clean">
+                    <i class="bi bi-pencil-square"></i>
                     Edit Staff
                 </h3>
-                <button type="button" class="modal-close-testdrive" data-bs-dismiss="modal">
-                    <i class="fas fa-times"></i>
-                </button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form id="editStaffForm">
                 <input type="hidden" id="editStaffId">
-                <div class="modal-body-testdrive">
-                    <div class="alert-testdrive" style="background: #e3f2fd; border-left: 4px solid #2196f3;">
-                        <i class="fas fa-info-circle" style="color: #2196f3;"></i>
-                        <span style="color: #0d47a1;">Email cannot be changed. Leave password blank to keep current password.</span>
+                <div class="modal-body-clean">
+                    <div class="alert alert-info" style="margin-bottom: 1.5rem;">
+                        <i class="bi bi-info-circle"></i>
+                        Email cannot be changed. Leave password blank to keep current password.
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group-testdrive">
-                                <label class="form-label-testdrive">
-                                    <i class="fas fa-user"></i>
-                                    Full Name <span class="text-danger">*</span>
-                                </label>
-                                <input type="text" class="form-control-testdrive" id="editFullName" required>
-                            </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="filter-group-clean">
+                            <label class="filter-label-clean">
+                                <i class="bi bi-person"></i>
+                                Full Name <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="text" class="filter-input-clean" id="editFullName" required>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group-testdrive">
-                                <label class="form-label-testdrive">
-                                    <i class="fas fa-envelope"></i>
-                                    Email
-                                </label>
-                                <input type="email" class="form-control-testdrive" id="editEmail" disabled>
-                            </div>
+                        <div class="filter-group-clean">
+                            <label class="filter-label-clean">
+                                <i class="bi bi-envelope"></i>
+                                Email
+                            </label>
+                            <input type="email" class="filter-input-clean" id="editEmail" disabled 
+                                   style="background: #0a0a0a; cursor: not-allowed;">
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group-testdrive">
-                                <label class="form-label-testdrive">
-                                    <i class="fas fa-phone"></i>
-                                    Phone Number <span class="text-danger">*</span>
-                                </label>
-                                <input type="tel" class="form-control-testdrive" id="editPhone" required>
-                            </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="filter-group-clean">
+                            <label class="filter-label-clean">
+                                <i class="bi bi-telephone"></i>
+                                Phone Number <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="tel" class="filter-input-clean" id="editPhone" required>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group-testdrive">
-                                <label class="form-label-testdrive">
-                                    <i class="fas fa-lock"></i>
-                                    New Password (Optional)
-                                </label>
-                                <input type="password" class="form-control-testdrive" id="editPassword"
-                                       placeholder="Leave blank to keep current">
-                            </div>
+                        <div class="filter-group-clean">
+                            <label class="filter-label-clean">
+                                <i class="bi bi-key"></i>
+                                New Password (Optional)
+                            </label>
+                            <input type="password" class="filter-input-clean" id="editPassword"
+                                   placeholder="Leave blank to keep current">
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer-testdrive">
-                    <button type="button" class="btn-testdrive-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times"></i> Cancel
+                <div class="modal-footer-clean">
+                    <button type="button" class="btn-clean btn-secondary-clean" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cancel
                     </button>
-                    <button type="submit" class="btn-testdrive">
-                        <i class="fas fa-save"></i> Update Staff
+                    <button type="submit" class="btn-clean btn-primary-clean">
+                        <i class="bi bi-save"></i> Update Staff
                     </button>
                 </div>
             </form>
@@ -545,11 +517,18 @@
 
         // Auto-hide alerts
         setTimeout(function () {
-            const alerts = document.querySelectorAll('.alert-testdrive');
+            const alerts = document.querySelectorAll('.alert');
             alerts.forEach(alert => {
                 alert.style.opacity = '0';
                 setTimeout(() => alert.remove(), 300);
             });
         }, 5000);
+
+        // Toggle filter collapse icon
+        document.querySelector('[data-bs-toggle="collapse"]')?.addEventListener('click', function() {
+            const icon = this.querySelector('i');
+            icon.classList.toggle('bi-chevron-down');
+            icon.classList.toggle('bi-chevron-up');
+        });
     </script>
 }

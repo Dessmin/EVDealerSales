@@ -5,20 +5,20 @@
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/testdrive.css" />
+    <link rel="stylesheet" href="~/css/staff-management.css" />
 }
 
-<div class="testdrive-container">
-    <div class="container-fluid">
+<div class="staff-page-clean">
+    <div class="container">
         <!-- Header -->
-        <div class="testdrive-header">
-            <div class="d-flex justify-content-between align-items-start">
+        <div class="staff-header-clean">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
                 <div>
-                    <h1>
-                        <i class="fas fa-comments"></i>
+                    <h1 class="staff-title-clean">
+                        <i class="bi bi-chat-left-text"></i>
                         Feedback Management
                     </h1>
-                    <p class="header-subtitle">
+                    <p class="staff-subtitle-clean">
                         Review and manage customer feedback
                     </p>
                 </div>
@@ -28,92 +28,84 @@
         <!-- Alerts -->
         @if (TempData["SuccessMessage"] != null)
         {
-            <div class="alert-testdrive success">
-                <i class="fas fa-check-circle"></i>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill"></i>
                 @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         }
 
         @if (TempData["ErrorMessage"] != null)
         {
-            <div class="alert-testdrive error">
-                <i class="fas fa-exclamation-circle"></i>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
                 @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         }
 
         <!-- Search and Filter Card -->
-        <div class="testdrive-card">
-            <div class="testdrive-card-header">
-                <h3>
-                    <i class="fas fa-filter"></i>
+        <div class="staff-card-clean">
+            <div class="staff-card-header-clean">
+                <h3 class="staff-card-title-clean">
+                    <i class="bi bi-funnel-fill"></i>
                     Search & Filters
                 </h3>
-                <button class="btn btn-sm btn-outline-secondary" type="button"
+                <button class="btn-secondary-clean" type="button" style="padding: 0.5rem 0.75rem; border-radius: 6px;"
                         data-bs-toggle="collapse" data-bs-target="#filterCollapse">
-                    <i class="fas fa-chevron-down"></i>
+                    <i class="bi bi-chevron-down"></i>
                 </button>
             </div>
             <div class="collapse show" id="filterCollapse">
-                <div class="testdrive-card-body">
-                    <form method="get" class="form-testdrive">
+                <div class="staff-card-body-clean">
+                    <form method="get">
                         <input type="hidden" name="pageNumber" value="1" />
                         <input type="hidden" name="pageSize" asp-for="PageSize" />
 
-                        <div class="row mb-3">
-                            <div class="col-md-8">
-                                <div class="form-group-testdrive">
-                                    <label class="form-label-testdrive">
-                                        <i class="fas fa-search"></i>
-                                        Search by Customer, Order Number or Content
-                                    </label>
-                                    <input type="text" class="form-control-testdrive" name="searchTerm"
-                                           asp-for="SearchTerm"
-                                           placeholder="Search feedbacks...">
-                                </div>
+                        <!-- Search Bar -->
+                        <div class="search-bar-clean">
+                            <i class="bi bi-search search-icon-clean"></i>
+                            <input type="text" class="search-input-clean" name="searchTerm"
+                                   asp-for="SearchTerm"
+                                   placeholder="Search by customer, order number or content...">
+                        </div>
+
+                        <!-- Filter Grid -->
+                        <div class="filter-grid-clean">
+                            <div class="filter-group-clean">
+                                <label class="filter-label-clean">
+                                    <i class="bi bi-check-circle"></i>
+                                    Status
+                                </label>
+                                <select class="filter-input-clean" name="isResolved" asp-for="IsResolved">
+                                    <option value="">All Status</option>
+                                    <option value="false">Pending</option>
+                                    <option value="true">Resolved</option>
+                                </select>
                             </div>
-                            <div class="col-md-4">
-                                <div class="form-group-testdrive">
-                                    <label class="form-label-testdrive">
-                                        <i class="fas fa-check-circle"></i>
-                                        Status
-                                    </label>
-                                    <select class="form-control-testdrive" name="isResolved" asp-for="IsResolved">
-                                        <option value="">All Status</option>
-                                        <option value="false">Pending</option>
-                                        <option value="true">Resolved</option>
-                                    </select>
-                                </div>
+                            <div class="filter-group-clean">
+                                <label class="filter-label-clean">
+                                    <i class="bi bi-calendar"></i>
+                                    From Date
+                                </label>
+                                <input type="date" class="filter-input-clean" name="fromDate" asp-for="FromDate">
+                            </div>
+                            <div class="filter-group-clean">
+                                <label class="filter-label-clean">
+                                    <i class="bi bi-calendar"></i>
+                                    To Date
+                                </label>
+                                <input type="date" class="filter-input-clean" name="toDate" asp-for="ToDate">
                             </div>
                         </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="form-group-testdrive">
-                                    <label class="form-label-testdrive">
-                                        <i class="fas fa-calendar"></i>
-                                        From Date
-                                    </label>
-                                    <input type="date" class="form-control-testdrive" name="fromDate" asp-for="FromDate">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group-testdrive">
-                                    <label class="form-label-testdrive">
-                                        <i class="fas fa-calendar"></i>
-                                        To Date
-                                    </label>
-                                    <input type="date" class="form-control-testdrive" name="toDate" asp-for="ToDate">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="display: flex; gap: 0.75rem;">
-                            <button type="submit" class="btn-testdrive">
-                                <i class="fas fa-search"></i> Apply Filters
+                        <!-- Action Buttons -->
+                        <div class="filter-actions-clean">
+                            <button type="submit" class="btn-clean btn-primary-clean">
+                                <i class="bi bi-search"></i> Apply Filters
                             </button>
-                            <a asp-page="ManageFeedback" class="btn-testdrive-secondary">
-                                <i class="fas fa-times"></i> Clear Filters
+                            <a asp-page="ManageFeedback" class="btn-clean btn-secondary-clean">
+                                <i class="bi bi-x-circle"></i> Clear Filters
                             </a>
                         </div>
                     </form>
@@ -122,28 +114,28 @@
         </div>
 
         <!-- Feedback List Card -->
-        <div class="testdrive-card">
-            <div class="testdrive-card-header">
-                <h3>
-                    <i class="fas fa-list"></i>
+        <div class="staff-card-clean">
+            <div class="staff-card-header-clean">
+                <h3 class="staff-card-title-clean">
+                    <i class="bi bi-chat-dots"></i>
                     Customer Feedbacks
                 </h3>
                 @if (Model.Feedbacks != null && Model.Feedbacks.Any())
                 {
-                    <span style="color: #888; font-size: 0.875rem;">
-                        @Model.Feedbacks.TotalCount feedbacks
+                    <span style="color: #888; font-size: 0.875rem; font-weight: 500;">
+                        @Model.Feedbacks.TotalCount total
                     </span>
                 }
             </div>
-            <div class="testdrive-card-body" style="padding: 0;">
+            <div class="staff-card-body-clean" style="padding: 0;">
                 @if (Model.Feedbacks == null || !Model.Feedbacks.Any())
                 {
-                    <div class="empty-state-testdrive">
-                        <div class="empty-icon-testdrive">
-                            <i class="fas fa-comment-slash"></i>
+                    <div class="empty-state-clean">
+                        <div class="empty-icon-clean">
+                            <i class="bi bi-chat-left-text"></i>
                         </div>
-                        <h3 class="empty-title-testdrive">No Feedback Found</h3>
-                        <p class="empty-description-testdrive">
+                        <h3 class="empty-title-clean">No Feedback Found</h3>
+                        <p class="empty-description-clean">
                             @if (!string.IsNullOrEmpty(Model.SearchTerm) || Model.IsResolved.HasValue)
                             {
                                 <span>Try adjusting your search criteria or filters</span>
@@ -157,127 +149,130 @@
                 }
                 else
                 {
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Customer</th>
-                                    <th>Order</th>
-                                    <th>Feedback Content</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var feedback in Model.Feedbacks)
-                                {
-                                    <tr>
-                                        <td>
-                                            <div>
-                                                <div style="font-weight: 600; color: #fff;">
-                                                    @feedback.CustomerName
-                                                </div>
-                                                <div style="color: #888; font-size: 0.875rem;">
-                                                    @feedback.CustomerEmail
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            @if (!string.IsNullOrEmpty(feedback.OrderNumber))
-                                            {
-                                                <div>
-                                                    <div style="font-weight: 500;">
-                                                        @feedback.OrderNumber
-                                                    </div>
+                    <div style="padding: 1.5rem;">
+                        @foreach (var feedback in Model.Feedbacks)
+                        {
+                            <div style="background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; transition: all 0.2s ease;">
+                                <div style="display: grid; grid-template-columns: 1.5fr 2.5fr 1fr auto; gap: 1.5rem; align-items: start;">
+                                    <!-- Customer Info -->
+                                    <div class="user-cell-clean">
+                                        <div class="user-avatar-clean" style="width: 36px; height: 36px; font-size: 0.9rem;">
+                                            @feedback.CustomerName.Substring(0, 1).ToUpper()
+                                        </div>
+                                        <div class="user-info-clean">
+                                            <div class="user-name-clean" style="font-size: 0.9rem;">@feedback.CustomerName</div>
+                                            <div class="user-role-clean" style="font-size: 0.75rem;">@feedback.CustomerEmail</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Order/Vehicle & Feedback Content (Highlighted) -->
+                                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                        <!-- Order/Vehicle Info - Highlighted -->
+                                        @if (!string.IsNullOrEmpty(feedback.OrderNumber))
+                                        {
+                                            <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0.75rem; background: rgba(0, 112, 243, 0.08); border-left: 3px solid #0070f3; border-radius: 6px;">
+                                                <i class="bi bi-receipt" style="color: #0070f3; font-size: 1rem; flex-shrink: 0;"></i>
+                                                <div style="flex: 1;">
+                                                    <div style="font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; line-height: 1; margin-bottom: 0.25rem;">Order</div>
+                                                    <div style="color: #fff; font-weight: 600; font-size: 0.85rem;">@feedback.OrderNumber</div>
                                                     @if (!string.IsNullOrEmpty(feedback.VehicleInfo))
                                                     {
-                                                        <div style="color: #888; font-size: 0.75rem;">
-                                                            @feedback.VehicleInfo
+                                                        <div style="color: #888; font-size: 0.75rem; margin-top: 0.125rem;">
+                                                            <i class="bi bi-car-front"></i> @feedback.VehicleInfo
                                                         </div>
                                                     }
                                                 </div>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge" style="background: #6c757d;">General</span>
-                                            }
-                                        </td>
-                                        <td>
-                                            <div style="max-width: 400px;">
-                                                <p style="margin: 0; color: #ccc; white-space: pre-wrap; word-break: break-word;">
-                                                    @(feedback.Content.Length > 150 ? feedback.Content.Substring(0, 150) + "..." : feedback.Content)
-                                                </p>
                                             </div>
-                                        </td>
-                                        <td>
-                                            <div>
-                                                <div style="font-weight: 500;">
-                                                    @feedback.CreatedAt.ToString("MMM dd, yyyy")
-                                                </div>
-                                                <div style="color: #888; font-size: 0.875rem;">
-                                                    @feedback.CreatedAt.ToString("hh:mm tt")
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            @if (feedback.IsResolved)
-                                            {
-                                                <div>
-                                                    <span class="badge badge-success">
-                                                        <i class="fas fa-check-circle"></i> Resolved
-                                                    </span>
-                                                    @if (!string.IsNullOrEmpty(feedback.ResolverName))
-                                                    {
-                                                        <div style="color: #888; font-size: 0.75rem; margin-top: 0.25rem;">
-                                                            by @feedback.ResolverName
-                                                        </div>
-                                                    }
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge badge-warning">
-                                                    <i class="fas fa-clock"></i> Pending
+                                        }
+                                        else
+                                        {
+                                            <div style="display: inline-block; padding: 0.5rem 0.75rem; background: rgba(108, 117, 125, 0.1); border-left: 3px solid #6c757d; border-radius: 6px;">
+                                                <span style="color: #888; font-size: 0.75rem; font-weight: 600;">
+                                                    <i class="bi bi-chat-square-text"></i> General Feedback
                                                 </span>
-                                            }
-                                        </td>
-                                        <td>
-                                            <div class="d-flex gap-1">
-                                                <button type="button" class="btn btn-sm btn-outline-primary"
-                                                        onclick="viewFeedback('@feedback.Id', '@feedback.CustomerName', '@feedback.OrderNumber', '@feedback.Content', '@feedback.CreatedAt.ToString("MMM dd, yyyy hh:mm tt")', @feedback.IsResolved.ToString().ToLower(), '@feedback.ResolverName')"
-                                                        title="View Details">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                @if (!feedback.IsResolved)
-                                                {
-                                                    <button type="button" class="btn btn-sm btn-outline-success"
-                                                            onclick="resolveFeedback('@feedback.Id', '@feedback.CustomerName')"
-                                                            title="Resolve">
-                                                        <i class="fas fa-check"></i>
-                                                    </button>
-                                                }
-                                                <button type="button" class="btn btn-sm btn-outline-danger"
-                                                        onclick="deleteFeedback('@feedback.Id', '@feedback.CustomerName')"
-                                                        title="Delete">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
                                             </div>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                                        }
+
+                                        <!-- Feedback Content - Highlighted -->
+                                        <div style="padding: 0.5rem 0.75rem; background: rgba(139, 92, 246, 0.08); border-left: 3px solid #8b5cf6; border-radius: 6px;">
+                                            <div style="font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; line-height: 1; margin-bottom: 0.25rem;">
+                                                <i class="bi bi-chat-quote"></i> Feedback
+                                            </div>
+                                            <p style="margin: 0; color: #ccc; font-size: 0.85rem; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                                @feedback.Content
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Date & Status -->
+                                    <div>
+                                        <div class="date-cell-clean" style="margin-bottom: 0.75rem;">
+                                            <span class="date-primary-clean">
+                                                @feedback.CreatedAt.ToString("MMM dd, yyyy")
+                                            </span>
+                                            <span class="date-secondary-clean">
+                                                @feedback.CreatedAt.ToString("hh:mm tt")
+                                            </span>
+                                        </div>
+                                        @if (feedback.IsResolved)
+                                        {
+                                            <div>
+                                                <span class="badge-clean badge-success" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">
+                                                    <i class="bi bi-check-circle"></i> Resolved
+                                                </span>
+                                                @if (!string.IsNullOrEmpty(feedback.ResolverName))
+                                                {
+                                                    <div style="color: #666; font-size: 0.7rem; margin-top: 0.25rem;">
+                                                        by @feedback.ResolverName
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge-clean badge-pending" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">
+                                                <i class="bi bi-clock"></i> Pending
+                                            </span>
+                                        }
+                                    </div>
+
+                                    <!-- Actions -->
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <button type="button" class="btn-action-clean"
+                                                style="font-size: 0.75rem; padding: 0.4rem 0.75rem;"
+                                                onclick="viewFeedback('@feedback.Id', '@feedback.CustomerName', '@feedback.OrderNumber', '@Html.Raw(System.Text.Json.JsonSerializer.Serialize(feedback.Content))', '@feedback.CreatedAt.ToString("MMM dd, yyyy hh:mm tt")', @feedback.IsResolved.ToString().ToLower(), '@feedback.ResolverName', '@feedback.VehicleInfo')"
+                                                title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        @if (!feedback.IsResolved)
+                                        {
+                                            <button type="button" class="btn-action-clean btn-action-success"
+                                                    style="font-size: 0.75rem; padding: 0.4rem 0.75rem;"
+                                                    onclick="resolveFeedback('@feedback.Id', '@feedback.CustomerName')"
+                                                    title="Resolve">
+                                                <i class="bi bi-check-circle"></i>
+                                            </button>
+                                        }
+                                        <button type="button" class="btn-action-clean btn-action-danger"
+                                                style="font-size: 0.75rem; padding: 0.4rem 0.75rem;"
+                                                onclick="deleteFeedback('@feedback.Id', '@feedback.CustomerName')"
+                                                title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
                     </div>
 
                     <!-- Pagination -->
                     @if (Model.Feedbacks.TotalPages > 1)
                     {
-                        <div style="padding: 1.5rem;">
-                            <div class="pagination-testdrive">
+                        <div style="padding: 0 1.5rem 1.5rem 1.5rem;">
+                            <div class="pagination-clean">
                                 @if (Model.Feedbacks.HasPrevious)
                                 {
-                                    <a class="page-link-testdrive"
+                                    <a class="page-btn-clean"
                                        asp-page="ManageFeedback"
                                        asp-route-pageNumber="@(Model.PageNumber - 1)"
                                        asp-route-pageSize="@Model.PageSize"
@@ -285,13 +280,13 @@
                                        asp-route-isResolved="@Model.IsResolved"
                                        asp-route-fromDate="@Model.FromDate"
                                        asp-route-toDate="@Model.ToDate">
-                                        <i class="fas fa-chevron-left"></i>
+                                        <i class="bi bi-chevron-left"></i>
                                     </a>
                                 }
 
                                 @for (int i = Math.Max(1, Model.PageNumber - 2); i <= Math.Min(Model.Feedbacks.TotalPages, Model.PageNumber + 2); i++)
                                 {
-                                    <a class="page-link-testdrive @(Model.PageNumber == i ? "active" : "")"
+                                    <a class="page-btn-clean @(Model.PageNumber == i ? "active" : "")"
                                        asp-page="ManageFeedback"
                                        asp-route-pageNumber="@i"
                                        asp-route-pageSize="@Model.PageSize"
@@ -305,7 +300,7 @@
 
                                 @if (Model.Feedbacks.HasNext)
                                 {
-                                    <a class="page-link-testdrive"
+                                    <a class="page-btn-clean"
                                        asp-page="ManageFeedback"
                                        asp-route-pageNumber="@(Model.PageNumber + 1)"
                                        asp-route-pageSize="@Model.PageSize"
@@ -313,12 +308,12 @@
                                        asp-route-isResolved="@Model.IsResolved"
                                        asp-route-fromDate="@Model.FromDate"
                                        asp-route-toDate="@Model.ToDate">
-                                        <i class="fas fa-chevron-right"></i>
+                                        <i class="bi bi-chevron-right"></i>
                                     </a>
                                 }
                             </div>
 
-                            <div style="text-align: center; color: #888; font-size: 0.875rem; margin-top: 1rem;">
+                            <div class="pagination-info-clean">
                                 Showing @((Model.PageNumber - 1) * Model.PageSize + 1) to
                                 @Math.Min(Model.PageNumber * Model.PageSize, Model.Feedbacks.TotalCount) of
                                 @Model.Feedbacks.TotalCount feedbacks
@@ -334,22 +329,20 @@
 <!-- View Feedback Modal -->
 <div class="modal fade" id="viewFeedbackModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content-testdrive">
-            <div class="modal-header-testdrive">
-                <h3 style="color: #0070f3;">
-                    <i class="fas fa-comment-dots"></i>
+        <div class="modal-content modal-clean">
+            <div class="modal-header-clean">
+                <h3 class="modal-title-clean">
+                    <i class="bi bi-chat-dots"></i>
                     Feedback Details
                 </h3>
-                <button type="button" class="modal-close-testdrive" data-bs-dismiss="modal">
-                    <i class="fas fa-times"></i>
-                </button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body-testdrive" id="feedbackDetailsContent">
+            <div class="modal-body-clean" id="feedbackDetailsContent">
                 <!-- Content will be populated by JavaScript -->
             </div>
-            <div class="modal-footer-testdrive">
-                <button type="button" class="btn-testdrive-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-times"></i> Close
+            <div class="modal-footer-clean">
+                <button type="button" class="btn-clean btn-secondary-clean" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Close
                 </button>
             </div>
         </div>
@@ -359,65 +352,73 @@
 @section Scripts {
     <script>
         // View Feedback Details
-        function viewFeedback(id, customerName, orderNumber, content, date, isResolved, resolverName) {
+        function viewFeedback(id, customerName, orderNumber, content, date, isResolved, resolverName, vehicleInfo) {
+            // Parse the JSON content
+            const feedbackContent = JSON.parse(content);
+            
             const statusBadge = isResolved
-                ? '<span class="badge badge-success"><i class="fas fa-check-circle"></i> Resolved</span>'
-                : '<span class="badge badge-warning"><i class="fas fa-clock"></i> Pending</span>';
+                ? '<span class="badge-clean badge-success"><i class="bi bi-check-circle"></i> Resolved</span>'
+                : '<span class="badge-clean badge-pending"><i class="bi bi-clock"></i> Pending</span>';
 
             const resolverInfo = isResolved && resolverName
-                ? `<div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #1a1a1a;">
-                       <div style="color: #888; font-size: 0.875rem; margin-bottom: 0.25rem;">
-                           <i class="fas fa-user-check"></i> Resolved By
+                ? `<div class="info-item-clean">
+                       <div class="info-label-clean">
+                           <i class="bi bi-person-check"></i> Resolved By
                        </div>
-                       <div style="color: #fff; font-weight: 500;">${resolverName}</div>
+                       <div class="info-value-clean">${resolverName}</div>
                    </div>`
                 : '';
 
             const orderInfo = orderNumber && orderNumber !== ''
-                ? `<div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #1a1a1a;">
-                       <div style="color: #888; font-size: 0.875rem; margin-bottom: 0.25rem;">
-                           <i class="fas fa-receipt"></i> Order Number
+                ? `<div class="info-item-clean">
+                       <div class="info-label-clean">
+                           <i class="bi bi-receipt"></i> Order Number
                        </div>
-                       <div style="color: #fff; font-weight: 500;">${orderNumber}</div>
-                   </div>`
+                       <div class="info-value-clean">${orderNumber}</div>
+                   </div>
+                   ${vehicleInfo && vehicleInfo !== '' ? 
+                     `<div class="info-item-clean">
+                         <div class="info-label-clean">
+                             <i class="bi bi-car-front"></i> Vehicle
+                         </div>
+                         <div class="info-value-clean">${vehicleInfo}</div>
+                     </div>` : ''}`
                 : '';
 
             const contentHtml = `
-                <div style="padding: 1.5rem;">
-                    <div style="background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
-                        <div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #1a1a1a;">
-                            <div style="color: #888; font-size: 0.875rem; margin-bottom: 0.25rem;">
-                                <i class="fas fa-user"></i> Customer
-                            </div>
-                            <div style="color: #fff; font-weight: 500;">${customerName}</div>
+                <div class="info-card-clean">
+                    <div class="info-item-clean">
+                        <div class="info-label-clean">
+                            <i class="bi bi-person"></i> Customer
                         </div>
+                        <div class="info-value-clean">${customerName}</div>
+                    </div>
 
-                        ${orderInfo}
+                    ${orderInfo}
 
-                        <div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #1a1a1a;">
-                            <div style="color: #888; font-size: 0.875rem; margin-bottom: 0.25rem;">
-                                <i class="fas fa-calendar"></i> Submitted Date
-                            </div>
-                            <div style="color: #fff; font-weight: 500;">${date}</div>
+                    <div class="info-item-clean">
+                        <div class="info-label-clean">
+                            <i class="bi bi-calendar"></i> Submitted Date
                         </div>
+                        <div class="info-value-clean">${date}</div>
+                    </div>
 
-                        <div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #1a1a1a;">
-                            <div style="color: #888; font-size: 0.875rem; margin-bottom: 0.25rem;">
-                                <i class="fas fa-info-circle"></i> Status
-                            </div>
-                            <div>${statusBadge}</div>
+                    <div class="info-item-clean">
+                        <div class="info-label-clean">
+                            <i class="bi bi-info-circle"></i> Status
                         </div>
+                        <div class="info-value-clean">${statusBadge}</div>
+                    </div>
 
-                        ${resolverInfo}
+                    ${resolverInfo}
+                </div>
 
-                        <div>
-                            <div style="color: #888; font-size: 0.875rem; margin-bottom: 0.5rem;">
-                                <i class="fas fa-comment-alt"></i> Feedback Content
-                            </div>
-                            <div style="background: #000; border: 1px solid #1a1a1a; border-radius: 6px; padding: 1rem; color: #ccc; white-space: pre-wrap; word-break: break-word; line-height: 1.6;">
-                                ${content}
-                            </div>
-                        </div>
+                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #1a1a1a;">
+                    <div style="color: #888; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 0.75rem;">
+                        <i class="bi bi-chat-text"></i> Feedback Content
+                    </div>
+                    <div style="background: #000; border: 1px solid #1a1a1a; border-radius: 8px; padding: 1rem; color: #ccc; white-space: pre-wrap; word-break: break-word; line-height: 1.6;">
+                        ${feedbackContent}
                     </div>
                 </div>
             `;
@@ -489,11 +490,18 @@
 
         // Auto-hide alerts
         setTimeout(function () {
-            const alerts = document.querySelectorAll('.alert-testdrive');
+            const alerts = document.querySelectorAll('.alert');
             alerts.forEach(alert => {
                 alert.style.opacity = '0';
                 setTimeout(() => alert.remove(), 300);
             });
         }, 5000);
+
+        // Toggle filter collapse icon
+        document.querySelector('[data-bs-toggle="collapse"]')?.addEventListener('click', function() {
+            const icon = this.querySelector('i');
+            icon.classList.toggle('bi-chevron-down');
+            icon.classList.toggle('bi-chevron-up');
+        });
     </script>
 }
