@@ -149,177 +149,168 @@
                 }
                 else
                 {
-                    <div style="overflow-x: auto;">
-                        <table class="table-clean">
-                            <thead>
-                                <tr>
-                                    <th>Order</th>
-                                    <th>Customer</th>
-                                    <th>Vehicle</th>
-                                    <th>Shipping Address</th>
-                                    <th>Planned Date</th>
-                                    <th>Actual Date</th>
-                                    <th>Status</th>
-                                    <th style="width: 200px;">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var delivery in Model.Deliveries)
-                                {
-                                    <tr>
-                                        <td>
-                                            <strong style="color: #0070f3;">@delivery.OrderNumber</strong>
-                                        </td>
-                                        <td>
-                                            <div class="user-cell-clean">
-                                                <div class="user-avatar-clean">
-                                                    @delivery.CustomerName.Substring(0, 1).ToUpper()
-                                                </div>
-                                                <div class="user-info-clean">
-                                                    <div class="user-name-clean">@delivery.CustomerName</div>
-                                                    <div class="user-role-clean">@delivery.CustomerEmail</div>
-                                                    @if (!string.IsNullOrEmpty(delivery.CustomerPhone))
-                                                    {
-                                                        <div class="user-role-clean">
-                                                            <i class="bi bi-telephone"></i> @delivery.CustomerPhone
-                                                        </div>
-                                                    }
-                                                </div>
+                    <div style="padding: 1.5rem;">
+                        @foreach (var delivery in Model.Deliveries)
+                        {
+                            <div style="background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; transition: all 0.2s ease;">
+                                <!-- Top Row: Order Number, Status, Dates -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid #1a1a1a;">
+                                    <div style="display: flex; align-items: center; gap: 1rem;">
+                                        <span class="order-number-badge">@delivery.OrderNumber</span>
+                                        @switch (delivery.Status)
+                                        {
+                                            case DeliveryStatus.Pending:
+                                                <span class="badge-clean badge-pending" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">
+                                                    <i class="bi bi-clock"></i> Pending
+                                                </span>
+                                                break;
+                                            case DeliveryStatus.Scheduled:
+                                                <span class="badge-clean badge-info" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">
+                                                    <i class="bi bi-calendar-check"></i> Scheduled
+                                                </span>
+                                                break;
+                                            case DeliveryStatus.InTransit:
+                                                <span class="badge-clean badge-info" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">
+                                                    <i class="bi bi-truck"></i> In Transit
+                                                </span>
+                                                break;
+                                            case DeliveryStatus.Delivered:
+                                                <span class="badge-clean badge-success" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">
+                                                    <i class="bi bi-check-circle"></i> Delivered
+                                                </span>
+                                                break;
+                                            case DeliveryStatus.Cancelled:
+                                                <span class="badge-clean badge-danger" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">
+                                                    <i class="bi bi-x-circle"></i> Cancelled
+                                                </span>
+                                                break;
+                                        }
+                                    </div>
+                                    <div style="display: flex; gap: 1rem; font-size: 0.75rem;">
+                                        @if (delivery.PlannedDate.HasValue)
+                                        {
+                                            <div style="color: #888;">
+                                                <i class="bi bi-calendar-check"></i> Planned: 
+                                                <span style="color: #ccc;">@delivery.PlannedDate.Value.ToString("MMM dd, yyyy")</span>
                                             </div>
-                                        </td>
-                                        <td>
-                                            <div style="font-size: 0.875rem; color: #ccc;">
-                                                @delivery.VehicleInfo
+                                        }
+                                        @if (delivery.ActualDate.HasValue)
+                                        {
+                                            <div style="color: #888;">
+                                                <i class="bi bi-check-circle"></i> Delivered: 
+                                                <span style="color: #22c55e;">@delivery.ActualDate.Value.ToString("MMM dd, yyyy")</span>
                                             </div>
-                                        </td>
-                                        <td>
-                                            <div style="font-size: 0.875rem; color: #ccc; max-width: 200px;">
-                                                @(delivery.ShippingAddress ?? "N/A")
-                                            </div>
-                                        </td>
-                                        <td>
-                                            @if (delivery.PlannedDate.HasValue)
-                                            {
-                                                <div class="date-cell-clean">
-                                                    <span class="date-primary-clean">
-                                                        @delivery.PlannedDate.Value.ToString("MMM dd, yyyy")
-                                                    </span>
-                                                    <span class="date-secondary-clean">
-                                                        @delivery.PlannedDate.Value.ToString("hh:mm tt")
-                                                    </span>
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <span style="color: #666;">Not set</span>
-                                            }
-                                        </td>
-                                        <td>
-                                            @if (delivery.ActualDate.HasValue)
-                                            {
-                                                <div class="date-cell-clean">
-                                                    <span class="date-primary-clean">
-                                                        @delivery.ActualDate.Value.ToString("MMM dd, yyyy")
-                                                    </span>
-                                                    <span class="date-secondary-clean">
-                                                        @delivery.ActualDate.Value.ToString("hh:mm tt")
-                                                    </span>
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <span style="color: #666;">N/A</span>
-                                            }
-                                        </td>
-                                        <td>
-                                            @switch (delivery.Status)
-                                            {
-                                                case DeliveryStatus.Pending:
-                                                    <span class="badge-clean badge-pending">
-                                                        <i class="bi bi-clock"></i> Pending
-                                                    </span>
-                                                    break;
-                                                case DeliveryStatus.Scheduled:
-                                                    <span class="badge-clean badge-info">
-                                                        <i class="bi bi-calendar-check"></i> Scheduled
-                                                    </span>
-                                                    break;
-                                                case DeliveryStatus.InTransit:
-                                                    <span class="badge-clean badge-info">
-                                                        <i class="bi bi-truck"></i> In Transit
-                                                    </span>
-                                                    break;
-                                                case DeliveryStatus.Delivered:
-                                                    <span class="badge-clean badge-success">
-                                                        <i class="bi bi-check-circle"></i> Delivered
-                                                    </span>
-                                                    break;
-                                                case DeliveryStatus.Cancelled:
-                                                    <span class="badge-clean badge-danger">
-                                                        <i class="bi bi-x-circle"></i> Cancelled
-                                                    </span>
-                                                    break;
-                                            }
-                                        </td>
-                                        <td>
-                                            <div class="action-group-clean">
-                                                @* Pending Status - Show Confirm Button *@
-                                                @if (delivery.Status == DeliveryStatus.Pending)
-                                                {
-                                                    <button type="button" class="btn-action-clean btn-action-success"
-                                                            onclick="showConfirmModal('@delivery.Id', '@delivery.OrderNumber')"
-                                                            title="Confirm and Schedule Delivery">
-                                                        <i class="bi bi-check-circle"></i> Confirm
-                                                    </button>
-                                                    <button type="button" class="btn-action-clean btn-action-danger"
-                                                            onclick="cancelDelivery('@delivery.Id')"
-                                                            title="Cancel Delivery Request">
-                                                        <i class="bi bi-x-circle"></i>
-                                                    </button>
-                                                }
+                                        }
+                                    </div>
+                                </div>
 
-                                                @* Scheduled Status - Show Ship Button *@
-                                                @if (delivery.Status == DeliveryStatus.Scheduled)
-                                                {
-                                                    <button type="button" class="btn-action-clean"
-                                                            onclick="updateStatus('@delivery.Id', '@((int)DeliveryStatus.InTransit)', 'In Transit')"
-                                                            title="Mark as In Transit">
-                                                        <i class="bi bi-truck"></i> Ship
-                                                    </button>
-                                                    <button type="button" class="btn-action-clean btn-action-danger"
-                                                            onclick="cancelDelivery('@delivery.Id')"
-                                                            title="Cancel Delivery">
-                                                        <i class="bi bi-x-circle"></i>
-                                                    </button>
-                                                }
+                                <!-- Main Content Row: Customer, Vehicle, Address, Actions -->
+                                <div style="display: grid; grid-template-columns: 2fr 3fr auto; gap: 1.5rem; align-items: start;">
+                                    <!-- Customer Info -->
+                                    <div class="user-cell-clean">
+                                        <div class="user-avatar-clean" style="width: 36px; height: 36px; font-size: 0.9rem;">
+                                            @delivery.CustomerName.Substring(0, 1).ToUpper()
+                                        </div>
+                                        <div class="user-info-clean">
+                                            <div class="user-name-clean" style="font-size: 0.9rem;">@delivery.CustomerName</div>
+                                            <div class="user-role-clean" style="font-size: 0.75rem;">@delivery.CustomerEmail</div>
+                                            @if (!string.IsNullOrEmpty(delivery.CustomerPhone))
+                                            {
+                                                <div class="user-role-clean" style="font-size: 0.7rem;">
+                                                    <i class="bi bi-telephone"></i> @delivery.CustomerPhone
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
 
-                                                @* InTransit Status - Show Deliver Button *@
-                                                @if (delivery.Status == DeliveryStatus.InTransit)
-                                                {
-                                                    <button type="button" class="btn-action-clean btn-action-success"
-                                                            onclick="updateStatus('@delivery.Id', '@((int)DeliveryStatus.Delivered)', 'Delivered')"
-                                                            title="Mark as Delivered">
-                                                        <i class="bi bi-check-circle"></i> Deliver
-                                                    </button>
-                                                }
-
-                                                @* View Order Button - Always show *@
-                                                <a asp-page="/Order/OrderDetail" asp-route-id="@delivery.OrderId"
-                                                   class="btn-action-clean" title="View Order Details">
-                                                    <i class="bi bi-eye"></i>
-                                                </a>
+                                    <!-- Vehicle & Address (Inline, Compact) -->
+                                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                        <!-- Vehicle - Inline with Icon -->
+                                        <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: rgba(0, 112, 243, 0.08); border-left: 3px solid #0070f3; border-radius: 4px;">
+                                            <i class="bi bi-car-front-fill" style="color: #0070f3; font-size: 1rem; flex-shrink: 0;"></i>
+                                            <div>
+                                                <div style="font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; line-height: 1;">Vehicle</div>
+                                                <div style="color: #fff; font-weight: 600; font-size: 0.85rem; margin-top: 0.125rem;">@delivery.VehicleInfo</div>
                                             </div>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                                        </div>
+
+                                        <!-- Address - Inline with Icon -->
+                                        @if (!string.IsNullOrEmpty(delivery.ShippingAddress))
+                                        {
+                                            <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: rgba(34, 197, 94, 0.08); border-left: 3px solid #22c55e; border-radius: 4px;">
+                                                <i class="bi bi-geo-alt-fill" style="color: #22c55e; font-size: 1rem; flex-shrink: 0;"></i>
+                                                <div>
+                                                    <div style="font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; line-height: 1;">Delivery To</div>
+                                                    <div style="color: #fff; font-size: 0.8rem; margin-top: 0.125rem; line-height: 1.3;">@delivery.ShippingAddress</div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <!-- Actions -->
+                                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end;">
+                                        @* View Order Button - Always show first *@
+                                        <a asp-page="/Order/OrderDetail" asp-route-id="@delivery.OrderId"
+                                           class="btn-action-clean" 
+                                           style="font-size: 0.75rem; padding: 0.4rem 0.75rem;"
+                                           title="View Order Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+
+                                        @* Pending Status - Show Confirm & Cancel *@
+                                        @if (delivery.Status == DeliveryStatus.Pending)
+                                        {
+                                            <button type="button" class="btn-action-clean btn-action-success"
+                                                    style="font-size: 0.75rem; padding: 0.4rem 0.75rem;"
+                                                    onclick="showConfirmModal('@delivery.Id', '@delivery.OrderNumber')"
+                                                    title="Confirm and Schedule Delivery">
+                                                <i class="bi bi-check-circle"></i>
+                                            </button>
+                                            <button type="button" class="btn-action-clean btn-action-danger"
+                                                    style="font-size: 0.75rem; padding: 0.4rem 0.75rem;"
+                                                    onclick="cancelDelivery('@delivery.Id')"
+                                                    title="Cancel Delivery Request">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        }
+
+                                        @* Scheduled Status - Show Ship & Cancel *@
+                                        @if (delivery.Status == DeliveryStatus.Scheduled)
+                                        {
+                                            <button type="button" class="btn-action-clean"
+                                                    style="font-size: 0.75rem; padding: 0.4rem 0.75rem;"
+                                                    onclick="updateStatus('@delivery.Id', '@((int)DeliveryStatus.InTransit)', 'In Transit')"
+                                                    title="Mark as In Transit">
+                                                <i class="bi bi-truck"></i>
+                                            </button>
+                                            <button type="button" class="btn-action-clean btn-action-danger"
+                                                    style="font-size: 0.75rem; padding: 0.4rem 0.75rem;"
+                                                    onclick="cancelDelivery('@delivery.Id')"
+                                                    title="Cancel Delivery">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        }
+
+                                        @* InTransit Status - Show Deliver *@
+                                        @if (delivery.Status == DeliveryStatus.InTransit)
+                                        {
+                                            <button type="button" class="btn-action-clean btn-action-success"
+                                                    style="font-size: 0.75rem; padding: 0.4rem 0.75rem;"
+                                                    onclick="updateStatus('@delivery.Id', '@((int)DeliveryStatus.Delivered)', 'Delivered')"
+                                                    title="Mark as Delivered">
+                                                <i class="bi bi-check-circle"></i>
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
                     </div>
 
                     <!-- Pagination -->
                     @if (Model.Deliveries.TotalPages > 1)
                     {
-                        <div style="padding: 1.5rem;">
+                        <div style="padding: 0 1.5rem 1.5rem 1.5rem;">
                             <div class="pagination-clean">
                                 @if (Model.Deliveries.HasPrevious)
                                 {
