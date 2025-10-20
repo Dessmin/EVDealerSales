@@ -1,6 +1,7 @@
 using EVDealerSales.DataAccess;
 using EVDealerSales.Presentation.Architecture;
 using EVDealerSales.Presentation.Helper;
+using EVDealerSales.Presentation.Hubs;
 using System.IdentityModel.Tokens.Jwt;
 using Stripe;
 using EVDealerSales.Presentation.Configuration;
@@ -50,6 +51,12 @@ if (string.IsNullOrEmpty(stripeSecretKey))
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+// Add SignalR
+builder.Services.AddSignalR();
+
+// Add Memory Cache for chat storage
+builder.Services.AddMemoryCache();
 
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
@@ -104,5 +111,8 @@ app.UseAuthorization();
 app.MapGet("/", () => Results.Redirect("/Home/LandingPage"));
 
 app.MapRazorPages();
+
+// Map SignalR Hub
+app.MapHub<ChatHub>("/chatHub");
 
 app.Run();
