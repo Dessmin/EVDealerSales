@@ -608,8 +608,8 @@
                     @if (userRole == "DealerStaff")
                     {
                         <div class="chat-tabs" id="chatTabs">
-                            <button class="chat-tab-btn active" id="tabCustomers">Customers</button>
-                            <button class="chat-tab-btn" id="tabManagers">Managers</button>
+                            <button type="button" class="chat-tab-btn active" id="tabCustomers">Customers</button>
+                            <button type="button" class="chat-tab-btn" id="tabManagers">Managers</button>
                         </div>
                     }
 
@@ -718,6 +718,7 @@
                 const typingIndicator = document.getElementById('typingIndicator');
                 const tabCustomers = document.getElementById('tabCustomers');
                 const tabManagers = document.getElementById('tabManagers');
+                const chatTabsContainer = document.getElementById('chatTabs');
 
                 // Role from server
                 const currentUserRole = '@userRole';
@@ -750,6 +751,9 @@
                         await connection.start();
                         console.log("SignalR Connected");
 
+                        // Ensure correct tab state applied on load
+                        if (currentUserRole === 'DealerStaff') switchTab(currentTab);
+
                         // Load available users
                         await connection.invoke("GetAvailableUsers");
                     } catch (err) {
@@ -777,6 +781,16 @@
                         </div>`;
 
                     renderUsersList(availableUsers);
+                }
+
+                // Event-delegation for tabs to ensure clicks are handled even if buttons are re-rendered
+                if (chatTabsContainer) {
+                    chatTabsContainer.addEventListener('click', function (e) {
+                        const btn = e.target.closest('.chat-tab-btn');
+                        if (!btn) return;
+                        if (btn.id === 'tabCustomers') switchTab('customers');
+                        if (btn.id === 'tabManagers') switchTab('managers');
+                    });
                 }
 
                 // Setup SignalR event handlers
@@ -1024,7 +1038,6 @@
                 }
 
                 function showError(message) {
-                    // You can implement a toast notification here
                     console.error(message);
                 }
 
