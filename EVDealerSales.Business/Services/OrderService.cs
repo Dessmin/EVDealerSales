@@ -950,6 +950,88 @@ namespace EVDealerSales.Business.Services
             }
         }
 
+        public async Task<int> GetTotalFeedbacksCountAsync(DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            try
+            {
+                var query = _unitOfWork.Feedbacks.GetQueryable()
+                    .Where(f => !f.IsDeleted);
+
+                if (fromDate.HasValue)
+                {
+                    query = query.Where(f => f.CreatedAt >= fromDate);
+                }
+
+                if (toDate.HasValue)
+                {
+                    query = query.Where(f => f.CreatedAt <= toDate);
+                }
+
+                return await query.CountAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error counting total feedbacks");
+                throw;
+            }
+        }
+
+        public async Task<int> GetPendingFeedbacksCountAsync()
+        {
+            try
+            {
+                return await _unitOfWork.Feedbacks.GetQueryable()
+                    .Where(f => !f.IsDeleted && f.ResolvedBy == null)
+                    .CountAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error counting pending feedbacks");
+                throw;
+            }
+        }
+
+        public async Task<int> GetResolvedFeedbacksCountAsync()
+        {
+            try
+            {
+                return await _unitOfWork.Feedbacks.GetQueryable()
+                    .Where(f => !f.IsDeleted && f.ResolvedBy != null)
+                    .CountAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error counting resolved feedbacks");
+                throw;
+            }
+        }
+
+        public async Task<double> GetFeedbackResolutionRateAsync()
+        {
+            try
+            {
+                var totalFeedbacks = await _unitOfWork.Feedbacks.GetQueryable()
+                    .Where(f => !f.IsDeleted)
+                    .CountAsync();
+
+                if (totalFeedbacks == 0)
+                {
+                    return 0;
+                }
+
+                var resolvedFeedbacks = await _unitOfWork.Feedbacks.GetQueryable()
+                    .Where(f => !f.IsDeleted && f.ResolvedBy != null)
+                    .CountAsync();
+
+                return (double)resolvedFeedbacks / totalFeedbacks * 100;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calculating feedback resolution rate");
+                throw;
+            }
+        }
+
         private async Task<string> GenerateOrderNumberAsync()
         {
             var date = _currentTime.GetCurrentTime();

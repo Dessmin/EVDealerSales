@@ -41,6 +41,12 @@ namespace EVDealerSales.Business.Interfaces
         Task<int> GetTotalTestDrivesCountAsync(DateTime? fromDate = null, DateTime? toDate = null);
         Task<double> GetTestDriveConversionRateAsync();
 
+        // Feedback Statistics
+        Task<int> GetTotalFeedbacksCountAsync(DateTime? fromDate = null, DateTime? toDate = null);
+        Task<int> GetPendingFeedbacksCountAsync();
+        Task<int> GetResolvedFeedbacksCountAsync();
+        Task<double> GetFeedbackResolutionRateAsync();
+
         // Inventory Alerts
         Task<List<VehicleStockDto>> GetLowStockVehiclesAsync(int threshold = 5);
         Task<List<VehicleStockDto>> GetOutOfStockVehiclesAsync();

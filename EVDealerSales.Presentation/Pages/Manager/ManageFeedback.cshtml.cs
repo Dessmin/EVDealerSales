@@ -11,15 +11,26 @@ namespace EVDealerSales.Presentation.Pages.Manager
     public class ManageFeedbackModel : PageModel
     {
         private readonly IFeedbackService _feedbackService;
+        private readonly IOrderService _orderService;
         private readonly ILogger<ManageFeedbackModel> _logger;
 
-        public ManageFeedbackModel(IFeedbackService feedbackService, ILogger<ManageFeedbackModel> logger)
+        public ManageFeedbackModel(
+            IFeedbackService feedbackService, 
+            IOrderService orderService,
+            ILogger<ManageFeedbackModel> logger)
         {
             _feedbackService = feedbackService;
+            _orderService = orderService;
             _logger = logger;
         }
 
         public Pagination<FeedbackResponseDto> Feedbacks { get; set; } = null!;
+
+        // Feedback Statistics
+        public int TotalFeedbacks { get; set; }
+        public int PendingFeedbacks { get; set; }
+        public int ResolvedFeedbacks { get; set; }
+        public double ResolutionRate { get; set; }
 
         [BindProperty(SupportsGet = true)]
         public string? SearchTerm { get; set; }
@@ -52,6 +63,12 @@ namespace EVDealerSales.Presentation.Pages.Manager
                 };
 
                 Feedbacks = await _feedbackService.GetAllFeedbacksAsync(PageNumber, PageSize, filter);
+
+                // Load feedback statistics
+                TotalFeedbacks = await _orderService.GetTotalFeedbacksCountAsync(FromDate, ToDate);
+                PendingFeedbacks = await _orderService.GetPendingFeedbacksCountAsync();
+                ResolvedFeedbacks = await _orderService.GetResolvedFeedbacksCountAsync();
+                ResolutionRate = await _orderService.GetFeedbackResolutionRateAsync();
 
                 return Page();
             }

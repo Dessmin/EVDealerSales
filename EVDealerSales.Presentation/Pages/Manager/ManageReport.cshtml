@@ -100,9 +100,59 @@
             </div>
         </div>
 
-        <!-- Charts Row 1 -->
-        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
-            <!-- Revenue Trend Chart -->
+        <!-- Feedback Statistics Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+            <!-- Total Feedbacks -->
+            <div style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); border-radius: 12px; padding: 1.5rem; color: #1a1a1a; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 5rem; opacity: 0.15;">
+                    <i class="bi bi-chat-dots"></i>
+                </div>
+                <div style="position: relative; z-index: 1;">
+                    <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; margin-bottom: 0.5rem; font-weight: 700;">Total Feedbacks</div>
+                    <div style="font-size: 2rem; font-weight: 700; margin-bottom: 0.25rem;">@Model.TotalFeedbacks</div>
+                    <div style="font-size: 0.75rem; opacity: 0.7;">Customer feedback received</div>
+                </div>
+            </div>
+
+            <!-- Pending Feedbacks -->
+            <div style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); border-radius: 12px; padding: 1.5rem; color: #1a1a1a; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 5rem; opacity: 0.15;">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <div style="position: relative; z-index: 1;">
+                    <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; margin-bottom: 0.5rem; font-weight: 700;">Pending</div>
+                    <div style="font-size: 2rem; font-weight: 700; margin-bottom: 0.25rem;">@Model.PendingFeedbacks</div>
+                    <div style="font-size: 0.75rem; opacity: 0.7;">Awaiting resolution</div>
+                </div>
+            </div>
+
+            <!-- Resolved Feedbacks -->
+            <div style="background: linear-gradient(135deg, #c2e9fb 0%, #a1c4fd 100%); border-radius: 12px; padding: 1.5rem; color: #1a1a1a; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 5rem; opacity: 0.15;">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <div style="position: relative; z-index: 1;">
+                    <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; margin-bottom: 0.5rem; font-weight: 700;">Resolved</div>
+                    <div style="font-size: 2rem; font-weight: 700; margin-bottom: 0.25rem;">@Model.ResolvedFeedbacks</div>
+                    <div style="font-size: 0.75rem; opacity: 0.7;">Successfully handled</div>
+                </div>
+            </div>
+
+            <!-- Resolution Rate -->
+            <div style="background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%); border-radius: 12px; padding: 1.5rem; color: #1a1a1a; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 5rem; opacity: 0.15;">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <div style="position: relative; z-index: 1;">
+                    <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; margin-bottom: 0.5rem; font-weight: 700;">Resolution Rate</div>
+                    <div style="font-size: 2rem; font-weight: 700; margin-bottom: 0.25rem;">@Model.FeedbackResolutionRate.ToString("F1")%</div>
+                    <div style="font-size: 0.75rem; opacity: 0.7;">Team efficiency</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1 - Revenue Chart (Full Width) -->
+        <div style="margin-bottom: 1.5rem;">
             <div class="staff-card-clean">
                 <div class="staff-card-header-clean">
                     <h3 class="staff-card-title-clean">
@@ -112,6 +162,22 @@
                 </div>
                 <div class="staff-card-body-clean">
                     <canvas id="revenueChart" height="80"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 2 -->
+        <div style="display: grid; grid-template-columns: 7fr 3fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+            <!-- Top Selling Vehicles -->
+            <div class="staff-card-clean">
+                <div class="staff-card-header-clean">
+                    <h3 class="staff-card-title-clean">
+                        <i class="bi bi-trophy"></i>
+                        Top Selling Vehicles
+                    </h3>
+                </div>
+                <div class="staff-card-body-clean">
+                    <canvas id="topVehiclesChart" height="130"></canvas>
                 </div>
             </div>
 
@@ -124,26 +190,13 @@
                     </h3>
                 </div>
                 <div class="staff-card-body-clean">
-                    <canvas id="ordersStatusChart" height="160"></canvas>
+                    <canvas id="ordersStatusChart" height="100"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- Charts Row 2 -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
-            <!-- Top Selling Vehicles -->
-            <div class="staff-card-clean">
-                <div class="staff-card-header-clean">
-                    <h3 class="staff-card-title-clean">
-                        <i class="bi bi-trophy"></i>
-                        Top Selling Vehicles
-                    </h3>
-                </div>
-                <div class="staff-card-body-clean">
-                    <canvas id="topVehiclesChart" height="100"></canvas>
-                </div>
-            </div>
-
+        <!-- Charts Row 3 -->
+        <div style="display: grid; grid-template-columns: 7fr 3fr; gap: 1.5rem; margin-bottom: 1.5rem;">
             <!-- Delivery Status Chart -->
             <div class="staff-card-clean">
                 <div class="staff-card-header-clean">
@@ -153,7 +206,20 @@
                     </h3>
                 </div>
                 <div class="staff-card-body-clean">
-                    <canvas id="deliveryStatusChart" height="100"></canvas>
+                    <canvas id="deliveryStatusChart" height="130"></canvas>
+                </div>
+            </div>
+
+            <!-- Feedback Status Chart -->
+            <div class="staff-card-clean">
+                <div class="staff-card-header-clean">
+                    <h3 class="staff-card-title-clean">
+                        <i class="bi bi-chat-dots"></i>
+                        Feedback Status
+                    </h3>
+                </div>
+                <div class="staff-card-body-clean">
+                    <canvas id="feedbackStatusChart" height="100"></canvas>
                 </div>
             </div>
         </div>
@@ -331,16 +397,30 @@
             }
         });
 
-        // Top Vehicles Chart
+        // Top Vehicles Chart with different colors for each bar
         const topVehiclesCtx = document.getElementById('topVehiclesChart').getContext('2d');
+        const topVehiclesData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TopSellingVehicles.Select(v => v.UnitsSold)));
+        
+        // Define a vibrant color palette for vehicle bars
+        const vehicleColors = [
+            '#0070f3', // Blue
+            '#7c3aed', // Purple
+            '#ec4899', // Pink
+            '#f59e0b', // Amber
+            '#10b981'  // Green
+        ];
+        
+        // Assign colors based on data length
+        const backgroundColors = topVehiclesData.map((_, index) => vehicleColors[index % vehicleColors.length]);
+        
         const topVehiclesChart = new Chart(topVehiclesCtx, {
             type: 'bar',
             data: {
                 labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TopSellingVehicles.Select(v => v.ModelName + " " + v.TrimName))),
                 datasets: [{
                     label: 'Units Sold',
-                    data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TopSellingVehicles.Select(v => v.UnitsSold))),
-                    backgroundColor: '#0070f3',
+                    data: topVehiclesData,
+                    backgroundColor: backgroundColors,
                     borderRadius: 6,
                     barThickness: 40
                 }]
@@ -358,15 +438,30 @@
                         borderColor: '#0070f3',
                         borderWidth: 1,
                         padding: 12,
-                        displayColors: false
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                return 'Units Sold: ' + context.parsed.x;
+                            }
+                        }
                     }
                 },
                 scales: {
                     x: {
                         beginAtZero: true,
-                        grid: { color: '#1a1a1a' }
+                        grid: { color: '#1a1a1a' },
+                        ticks: {
+                            precision: 0
+                        }
                     },
-                    y: { grid: { display: false } }
+                    y: { 
+                        grid: { display: false },
+                        ticks: {
+                            font: {
+                                size: 11
+                            }
+                        }
+                    }
                 }
             }
         });
@@ -411,6 +506,50 @@
                         grid: { color: '#1a1a1a' }
                     },
                     x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Feedback Status Chart
+        const feedbackStatusCtx = document.getElementById('feedbackStatusChart').getContext('2d');
+        const feedbackStatusChart = new Chart(feedbackStatusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pending', 'Resolved'],
+                datasets: [{
+                    data: [@Model.PendingFeedbacks, @Model.ResolvedFeedbacks],
+                    backgroundColor: ['#f59e0b', '#22c55e'],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#000',
+                        titleColor: '#fff',
+                        bodyColor: '#ccc',
+                        borderColor: '#0070f3',
+                        borderWidth: 1,
+                        padding: 12,
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
                 }
             }
         });

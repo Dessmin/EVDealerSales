@@ -41,6 +41,11 @@ namespace EVDealerSales.Presentation.Pages.Manager
         public int OutOfStockCount { get; set; }
         public int NewCustomersThisMonth { get; set; }
 
+        // Feedback Statistics
+        public int TotalFeedbacks { get; set; }
+        public int ResolvedFeedbacks { get; set; }
+        public double FeedbackResolutionRate { get; set; }
+
         // Chart Data
         public List<MonthlyRevenueDto> MonthlyRevenue { get; set; } = new();
         public Dictionary<OrderStatus, int> OrdersByStatus { get; set; } = new();
@@ -66,6 +71,12 @@ namespace EVDealerSales.Presentation.Pages.Manager
                 OnTimeDeliveryRate = await _orderService.GetOnTimeDeliveryRateAsync();
                 NewCustomersThisMonth = await _orderService.GetNewCustomersCountAsync(startOfMonth);
 
+                // Feedback Statistics
+                TotalFeedbacks = await _orderService.GetTotalFeedbacksCountAsync();
+                PendingFeedbacks = await _orderService.GetPendingFeedbacksCountAsync();
+                ResolvedFeedbacks = await _orderService.GetResolvedFeedbacksCountAsync();
+                FeedbackResolutionRate = await _orderService.GetFeedbackResolutionRateAsync();
+
                 // Chart data
                 MonthlyRevenue = await _orderService.GetMonthlyRevenueAsync(6);
                 OrdersByStatus = await _orderService.GetOrdersByStatusAsync();
@@ -78,10 +89,6 @@ namespace EVDealerSales.Presentation.Pages.Manager
                 PendingOrders = OrdersByStatus.GetValueOrDefault(OrderStatus.Pending, 0);
                 ActiveDeliveries = DeliveriesByStatus.GetValueOrDefault(DeliveryStatus.Scheduled, 0) +
                                    DeliveriesByStatus.GetValueOrDefault(DeliveryStatus.InTransit, 0);
-                
-                // Get pending feedbacks count
-                var feedbacks = await _feedbackService.GetAllFeedbacksAsync(1, 1, new BusinessObject.DTOs.FeedbackDTOs.FeedbackFilterDto { IsResolved = false });
-                PendingFeedbacks = feedbacks?.TotalCount ?? 0;
 
                 LowStockCount = LowStockVehicles.Count;
                 OutOfStockCount = OutOfStockVehicles.Count;

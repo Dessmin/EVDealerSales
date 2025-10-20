@@ -89,7 +89,7 @@ try
         var dbContext = scope.ServiceProvider.GetRequiredService<EVDealerSalesDbContext>();
         await DbSeeder.SeedUsersAsync(dbContext);
         await DbSeeder.SeedVehiclesAsync(dbContext);
-        //await DbSeeder.SeedReportsDataAsync(dbContext);
+        await DbSeeder.SeedReportDataAsync(dbContext);
     }
 }
 catch (Exception e)

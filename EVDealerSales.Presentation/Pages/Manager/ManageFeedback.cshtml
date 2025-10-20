@@ -44,6 +44,57 @@
             </div>
         }
 
+        <!-- Feedback Statistics Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+            <!-- Total Feedbacks -->
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 1.5rem; color: white; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 5rem; opacity: 0.2;">
+                    <i class="bi bi-chat-dots"></i>
+                </div>
+                <div style="position: relative; z-index: 1;">
+                    <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; margin-bottom: 0.5rem;">Total Feedbacks</div>
+                    <div style="font-size: 2rem; font-weight: 700; margin-bottom: 0.25rem;">@Model.TotalFeedbacks</div>
+                    <div style="font-size: 0.75rem; opacity: 0.8;">All customer feedback</div>
+                </div>
+            </div>
+
+            <!-- Pending Feedbacks -->
+            <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px; padding: 1.5rem; color: white; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 5rem; opacity: 0.2;">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <div style="position: relative; z-index: 1;">
+                    <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; margin-bottom: 0.5rem;">Pending</div>
+                    <div style="font-size: 2rem; font-weight: 700; margin-bottom: 0.25rem;">@Model.PendingFeedbacks</div>
+                    <div style="font-size: 0.75rem; opacity: 0.8;">Awaiting resolution</div>
+                </div>
+            </div>
+
+            <!-- Resolved Feedbacks -->
+            <div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border-radius: 12px; padding: 1.5rem; color: white; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 5rem; opacity: 0.2;">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <div style="position: relative; z-index: 1;">
+                    <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; margin-bottom: 0.5rem;">Resolved</div>
+                    <div style="font-size: 2rem; font-weight: 700; margin-bottom: 0.25rem;">@Model.ResolvedFeedbacks</div>
+                    <div style="font-size: 0.75rem; opacity: 0.8;">Successfully handled</div>
+                </div>
+            </div>
+
+            <!-- Resolution Rate -->
+            <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border-radius: 12px; padding: 1.5rem; color: white; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 5rem; opacity: 0.2;">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <div style="position: relative; z-index: 1;">
+                    <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; margin-bottom: 0.5rem;">Resolution Rate</div>
+                    <div style="font-size: 2rem; font-weight: 700; margin-bottom: 0.25rem;">@Model.ResolutionRate.ToString("F1")%</div>
+                    <div style="font-size: 0.75rem; opacity: 0.8;">Team efficiency</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Search and Filter Card -->
         <div class="staff-card-clean">
             <div class="staff-card-header-clean">
