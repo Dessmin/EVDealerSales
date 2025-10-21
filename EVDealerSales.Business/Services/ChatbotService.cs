@@ -18,70 +18,79 @@ namespace EVDealerSales.Business.Services
         }
 
         public async Task<string> FreestyleAskAsync(string prompt, string? groupId = null)
-        {
-            if (string.IsNullOrWhiteSpace(prompt))
-                throw new ArgumentException("Prompt is required.");
+    {
+        if (string.IsNullOrWhiteSpace(prompt))
+            throw new ArgumentException("Prompt is required.");
 
-            var vehicles = await _analyzerService.AnalyzeVehiclesAsync();
-            var orders = await _analyzerService.AnalyzeSalesAsync();
-            var feedbacks = await _analyzerService.AnalyzeFeedbacksAsync();
+        // --- Retrieve analytical data ---
+        var vehicles = await _analyzerService.AnalyzeVehiclesAsync();
+        var orders = await _analyzerService.AnalyzeSalesAsync();
+        var feedbacks = await _analyzerService.AnalyzeFeedbacksAsync();
 
-            // Format vehicle data
-            var vehicleContext = string.Join("\n", vehicles.Select(v =>
-                $"""
-                Make: {v.TrimName}
-                Model: {v.ModelName}
-                Year: {v.ModelYear}
-                Price: {v.BasePrice}
-                Battery: {v.BatteryCapacity}
-                Range: {v.RangeKM}
-                Charging Time: {v.ChargingTime}
-                Top Speed: {v.TopSpeed}
-                Stock: {v.Stock}
-                """
-            ));
+        // --- Format vehicle data ---
+        var vehicleContext = string.Join("\n", vehicles.Select(v => $"""
+            Trim: {v.TrimName}
+            Model: {v.ModelName}
+            Year: {v.ModelYear}
+            Price: {v.BasePrice}
+            Battery: {v.BatteryCapacity}
+            Range: {v.RangeKM}
+            Charging Time: {v.ChargingTime}
+            Top Speed: {v.TopSpeed}
+            Stock: {v.Stock}
+            """));
 
-            // Format order data (null-safe for items)
-            var orderContext = string.Join("\n", orders.Select(o =>
-                $"""
-                Order ID: {o.Id}
-                Customer: {o.Customer?.FullName}
-                Total Items: {o.Items?.Count ?? 0} => {string.Join(", ", (o.Items?.Select(i => i?.Vehicle?.ModelName) ?? Enumerable.Empty<string>()))}
-                Total Price: {o.TotalAmount}
-                Status: {o.Status}
-                Notes: {o.Notes}
-                """
-            ));
+        // --- Format order data (null-safe) ---
+        var orderContext = string.Join("\n", orders.Select(o => $"""
+            Order ID: {o.Id}
+            Customer: {o.Customer?.FullName}
+            Total Items: {o.Items?.Count ?? 0} 
+            => {string.Join(", ", o.Items?.Select(i => i?.Vehicle?.ModelName) ?? Enumerable.Empty<string>())}
+            Total Price: {o.TotalAmount}
+            Status: {o.Status}
+            Notes: {o.Notes}
+            """));
 
-            // Format feedback data
-            var feedbackContext = string.Join("\n", feedbacks.Select(f =>
-                $"""
-                Feedback ID: {f.Id}
-                Customer: {f.Customer?.FullName}
-                Order ID: {f.OrderId}
-                Content: {f.Content}
-                Resolved By: {f.Resolver?.FullName ?? "Unresolved"}
-                """
-            ));
+        // --- Format feedback data ---
+        var feedbackContext = string.Join("\n", feedbacks.Select(f => $"""
+            Feedback ID: {f.Id}
+            Customer: {f.Customer?.FullName}
+            Order ID: {f.OrderId}
+            Content: {f.Content}
+            Resolved By: {f.Resolver?.FullName ?? "Unresolved"}
+            """));
 
-            // Combine context and prompt
-            var contextPrompt = $"""
-            [Vehicle Context]
-            {vehicleContext}
+        // --- Build prompt for Gemini ---
+        var contextPrompt = $"""
+        [System Instruction]
+        You are an advanced EV dealership consultant with market knowledge beyond the local store inventory.
+        You can use your general understanding of global EV models, brands, specifications, and market trends
+        to answer user questions — even if the vehicle is not present in the provided context.
 
-            [Order Context]
-            {orderContext}
+        When discussing a vehicle not found in the current store:
+        - Provide known or estimated information (range, price range, battery, market demand).
+        - Mention it is not currently in inventory.
+        - Suggest if it should be imported, based on market demand and category fit.
+        - Avoid saying “I don’t know” or “not in inventory” unless explicitly asked about stock availability.
 
-            [Feedback Context]
-            {feedbackContext}
+        If the user asks for comparison, include both in-store and external vehicles in your analysis.
+        [/System Instruction]
 
-            [User Question]
-            {prompt}
-            """;
+        [Vehicle Context]
+        {vehicleContext}
 
-            var response = await _geminiService.GetGeminiResponseAsync(contextPrompt);
-            return response;
-        }
+        [Order Context]
+        {orderContext}
+
+        [Feedback Context]
+        {feedbackContext}
+
+        [User Question]
+        {prompt}
+        """;
+
+        return await _geminiService.GetGeminiResponseAsync(contextPrompt);
+    }
 
         /// <summary>
         /// Use the chatbot to generate a vehicle specification and create it via IVehicleService.
@@ -196,7 +205,7 @@ namespace EVDealerSales.Business.Services
 
                 if (createDto == null)
                 {
-            // Try JSON parse first, then fall back to tolerant text parsing
+                    // Try JSON parse first, then fall back to tolerant text parsing
                     // fallback to tolerant plain-text parsing
                     createDto = ParseSpecTextToDto(spec);
                 }
@@ -312,8 +321,8 @@ namespace EVDealerSales.Business.Services
                 }
                 catch { /* ignore parse errors per-line */ }
             }
-                            // Parse plain-text assistant outputs into CreateVehicleRequestDto. This supports lines like:
-                            // "Make: Volvo", "Model: XC40 Recharge (Long Range)", "Price: 49,950.00", "Battery: 78 kWh", etc.
+            // Parse plain-text assistant outputs into CreateVehicleRequestDto. This supports lines like:
+            // "Make: Volvo", "Model: XC40 Recharge (Long Range)", "Price: 49,950.00", "Battery: 78 kWh", etc.
 
             // If ModelName not set but there is a combined 'Make: Model (Trim)' format, try to extract
             if (string.IsNullOrWhiteSpace(dto.TrimName) && !string.IsNullOrWhiteSpace(dto.ModelName))
@@ -418,10 +427,6 @@ namespace EVDealerSales.Business.Services
             return anySet ? dto : null;
         }
 
-        /// <summary>
-        /// Generate a vehicle specification JSON based on current inventory/sales/feedback context
-        /// and a manager instruction. Returns the assistant's raw response (ideally a JSON object).
-        /// </summary>
         public async Task<string> GenerateVehicleSpecAsync(string instruction)
         {
             if (string.IsNullOrWhiteSpace(instruction))
@@ -446,34 +451,38 @@ namespace EVDealerSales.Business.Services
             ));
 
             // Instruct assistant to return a JSON matching CreateVehicleRequestDto
-            var jsonInstruction = $"""
-            You are provided with current inventory, recent sales, and customer feedback. Based on the manager instruction below, suggest one vehicle to add to inventory and return only a single JSON object matching CreateVehicleRequestDto exactly (no surrounding text):
+var jsonInstruction = $"""
+[System Instruction]
+You are an AI Electric Vehicle dealership consultant.
+You may recommend vehicles not currently in stock if they fit the customer's demand 
+or align with current EV market trends.
+[/System Instruction]
 
-            [CreateVehicleRequestDto]
-              "ModelName": string,
-              "TrimName": string,
-              "ModelYear": integer or null,
-              "BasePrice": number,
-              "ImageUrl": string,
-              "BatteryCapacity": integer,
-              "RangeKM": integer,
-              "ChargingTime": integer,
-              "TopSpeed": integer,
-              "Stock": integer,
-              "IsActive": boolean
-            [/CreateVehicleRequestDto]
+Return a single JSON object matching the following schema exactly (no extra fields) to create a new vehicle in inventory:
+[CreateVehicleRequestDto]
+  "ModelName": string,
+  "TrimName": string,
+  "ModelYear": integer or null,
+  "BasePrice": number,
+  "ImageUrl": string,
+  "BatteryCapacity": integer,
+  "RangeKM": integer,
+  "ChargingTime": integer,
+  "TopSpeed": integer,
+  "Stock": integer,
+  "IsActive": boolean
+[/CreateVehicleRequestDto]
 
-            Context Summary:
-            Vehicles:\n{vehicleSummary}
+Context Summary:
+Vehicles:\n{vehicleSummary}
 
-            Recent Sales:\n{salesSummary}
+Recent Sales:\n{salesSummary}
 
-            Feedbacks:\n{feedbackSummary}
+Feedbacks:\n{feedbackSummary}
 
-            Manager Instruction:\n{instruction}
+Manager Instruction:\n{instruction}
 
-            Use realistic values. Do not include any explanatory text — only output the JSON object.
-            """;
+""";
 
             var response = await _geminiService.GetGeminiResponseAsync(jsonInstruction);
             return response;
