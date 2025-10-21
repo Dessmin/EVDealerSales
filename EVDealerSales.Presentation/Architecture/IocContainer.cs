@@ -6,7 +6,6 @@ using EVDealerSales.DataAccess.Interfaces;
 using EVDealerSales.DataAccess.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
@@ -65,6 +64,9 @@ namespace EVDealerSales.Presentation.Architecture
             services.AddScoped<IFeedbackService, FeedbackService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IChatService, ChatService>();
+            services.AddScoped<IDataAnalyzerService, DataAnalyzerService>();
+            services.AddScoped<IGeminiService, GeminiService>();
+            services.AddScoped<IChatbotService, ChatbotService>();
             services.AddHttpContextAccessor();
 
             return services;
@@ -108,11 +110,11 @@ namespace EVDealerSales.Presentation.Architecture
                         {
                             // Read from Session
                             var token = context.HttpContext.Session.GetString("AuthToken");
-                            
+
                             // For SignalR: read token from query string
                             var accessToken = context.Request.Query["access_token"];
                             var path = context.HttpContext.Request.Path;
-                            
+
                             if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
                             {
                                 context.Token = accessToken;
@@ -121,7 +123,7 @@ namespace EVDealerSales.Presentation.Architecture
                             {
                                 context.Token = token;
                             }
-                            
+
                             return Task.CompletedTask;
                         }
                     };
