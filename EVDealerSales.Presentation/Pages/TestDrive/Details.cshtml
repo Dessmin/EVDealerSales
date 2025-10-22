@@ -122,9 +122,16 @@
 
                                 @if (Model.TestDrive.Status == EVDealerSales.BusinessObject.Enums.TestDriveStatus.Confirmed)
                                 {
-                                    <button type="button" class="btn-clean btn-primary-clean" data-bs-toggle="modal" data-bs-target="#completeModal">
+                                    var canComplete = Model.TestDrive.ScheduledAt <= DateTime.Now;
+                                    <button type="button" class="btn-clean btn-primary-clean" 
+                                            @(canComplete ? "data-bs-toggle=\"modal\" data-bs-target=\"#completeModal\"" : "disabled=\"disabled\"")>
                                         <i class="bi bi-check-circle-fill"></i> Complete
                                     </button>
+
+                                    @if (!canComplete)
+                                    {
+                                        <div style="font-size:0.85rem; color:#888; margin-top:6px;">Cannot complete before scheduled time. Scheduled: @Model.TestDrive.ScheduledAt.ToString("MMM dd, yyyy hh:mm tt")</div>
+                                    }
                                 }
                             }
 
@@ -402,7 +409,8 @@
                     <button type="button" class="btn-clean btn-secondary-clean" data-bs-dismiss="modal">
                         Cancel
                     </button>
-                    <button type="submit" class="btn-clean btn-primary-clean">
+                    @{ var canCompleteModal = Model.TestDrive != null && Model.TestDrive.ScheduledAt <= DateTime.Now; }
+                    <button type="submit" class="btn-clean btn-primary-clean" @(canCompleteModal ? "" : "disabled=\"disabled\"")>
                         <i class="bi bi-check-circle-fill"></i> Complete
                     </button>
                 </div>

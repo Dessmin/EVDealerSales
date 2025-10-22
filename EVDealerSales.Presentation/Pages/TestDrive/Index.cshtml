@@ -285,13 +285,21 @@
 
                                         @if (testDrive.Status == EVDealerSales.BusinessObject.Enums.TestDriveStatus.Confirmed)
                                         {
+                                            var canComplete = testDrive.ScheduledAt <= DateTime.Now;
                                             <form method="post" asp-page-handler="Complete" asp-route-id="@testDrive.Id"
                                                   onsubmit="return confirm('Mark as completed?');" style="display: inline;">
                                                 <button type="submit" class="btn-action-clean btn-action-success"
-                                                        title="Complete" style="font-size: 0.75rem; padding: 0.4rem 0.75rem;">
+                                                        title="@(canComplete ? "Complete" : "Cannot complete before scheduled time")"
+                                                        disabled="@(canComplete ? null : "disabled")"
+                                                        style="font-size: 0.75rem; padding: 0.4rem 0.75rem;">
                                                     <i class="bi bi-check-circle-fill"></i>
                                                 </button>
                                             </form>
+
+                                            @if (!canComplete)
+                                            {
+                                                <span style="display:block; font-size:0.75rem; color:#888; margin-top:4px;">Scheduled: @testDrive.ScheduledAt.ToString("MMM dd, yyyy hh:mm tt")</span>
+                                            }
                                         }
 
                                         @if (testDrive.Status != EVDealerSales.BusinessObject.Enums.TestDriveStatus.Completed &&
