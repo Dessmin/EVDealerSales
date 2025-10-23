@@ -11,15 +11,18 @@ namespace EVDealerSales.Presentation.Pages.Vehicle
     public class IndexModel : PageModel
     {
         private readonly IVehicleService _vehicleService;
+        private readonly IChatbotService? _chatbotService;
         private readonly ILogger<IndexModel> _logger;
 
-        public IndexModel(IVehicleService vehicleService, ILogger<IndexModel> logger)
+        // Single constructor: IChatbotService is optional (nullable) so DI can still construct this page model
+        public IndexModel(IVehicleService vehicleService, ILogger<IndexModel> logger, IChatbotService? chatbotService = null)
         {
             _vehicleService = vehicleService;
             _logger = logger;
+            _chatbotService = chatbotService;
         }
 
-        public Pagination<VehicleResponseDto> Vehicles { get; set; }
+    public Pagination<VehicleResponseDto> Vehicles { get; set; } = new Pagination<VehicleResponseDto>(new List<VehicleResponseDto>(), 0, 1, 10);
 
         [BindProperty(SupportsGet = true)]
         public int PageNumber { get; set; } = 1;
@@ -70,6 +73,13 @@ namespace EVDealerSales.Presentation.Pages.Vehicle
         [BindProperty(SupportsGet = true)]
         public bool SortDesc { get; set; }
 
+    // Chat properties for manager chat with chatbot
+    [BindProperty]
+    public string ChatPrompt { get; set; } = string.Empty;
+
+    [TempData]
+    public string? ChatResponse { get; set; }
+
         public async Task<IActionResult> OnGetAsync()
         {
             try
@@ -112,6 +122,39 @@ namespace EVDealerSales.Presentation.Pages.Vehicle
                 Vehicles = new Pagination<VehicleResponseDto>(new List<VehicleResponseDto>(), 0, 1, PageSize);
                 return Page();
             }
+        }
+
+        // POST handler for asking the chatbot from the manager UI
+        public async Task<IActionResult> OnPostAskChatbotAsync()
+        {
+            if (string.IsNullOrWhiteSpace(ChatPrompt))
+            {
+                TempData["ErrorMessage"] = "Please enter a question for the chatbot.";
+                return RedirectToPage(new { PageNumber, PageSize, SearchTerm, SortBy, SortDesc });
+            }
+
+            try
+            {
+                _logger.LogInformation("Manager asked chatbot: {Prompt}", ChatPrompt);
+
+                if (_chatbotService == null)
+                {
+                    _logger.LogWarning("IChatbotService not available via DI.");
+                    TempData["ErrorMessage"] = "Chat service is not available.";
+                    return RedirectToPage(new { PageNumber, PageSize, SearchTerm, SortBy, SortDesc });
+                }
+
+                var response = await _chatbotService.FreestyleAskAsync(ChatPrompt, groupId: Guid.NewGuid().ToString());
+                ChatResponse = response;
+                TempData["SuccessMessage"] = "Chatbot replied successfully.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while asking chatbot");
+                TempData["ErrorMessage"] = "An error occurred while contacting the chatbot.";
+            }
+
+            return RedirectToPage(new { PageNumber, PageSize, SearchTerm, SortBy, SortDesc });
         }
 
         public async Task<IActionResult> OnPostDeleteAsync(Guid id)

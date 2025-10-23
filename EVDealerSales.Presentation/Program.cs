@@ -1,10 +1,12 @@
 using EVDealerSales.DataAccess;
 using EVDealerSales.Presentation.Architecture;
+using EVDealerSales.Presentation.Configuration;
 using EVDealerSales.Presentation.Helper;
 using EVDealerSales.Presentation.Hubs;
-using System.IdentityModel.Tokens.Jwt;
 using Stripe;
-using EVDealerSales.Presentation.Configuration;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.DataProtection;
+using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,6 +64,30 @@ JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
 builder.WebHost.UseUrls("http://0.0.0.0:5000");
 builder.Services.AddDistributedMemoryCache();
+// Configure data protection key persistence. Keys will be written to a folder
+// mounted into the container (e.g. host ./data/keys -> container /keys).
+// The path can be overridden via configuration: DataProtection:KeyPath or env DATA_PROTECTION_KEY_PATH.
+var dataProtectionPath = builder.Configuration["DataProtection:KeyPath"]
+                        ?? Environment.GetEnvironmentVariable("DATA_PROTECTION_KEY_PATH")
+                        ?? "/keys";
+
+try
+{
+    if (!Directory.Exists(dataProtectionPath))
+    {
+        Directory.CreateDirectory(dataProtectionPath);
+    }
+
+    builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionPath))
+        .SetApplicationName("EVDealerSales");
+}
+catch (Exception ex)
+{
+    // If key storage cannot be configured (e.g., missing permissions), continue with default ephemeral keys but warn in logs at runtime.
+    Console.WriteLine($"Warning: could not configure persistent data protection keys at '{dataProtectionPath}': {ex.Message}");
+}
+
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -114,5 +140,6 @@ app.MapRazorPages();
 
 // Map SignalR Hub
 app.MapHub<ChatHub>("/chatHub");
+app.MapHub<ChatbotHub>("/chatbotHub");
 
 app.Run();
