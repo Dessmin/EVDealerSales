@@ -35,7 +35,7 @@ namespace EVDealerSales.Business.Services
             try
             {
                 var currentUserId = _claimsService.GetCurrentUserId;
-                _logger.LogInformation("User {UserId} registering test drive for vehicle {VehicleId}", 
+                _logger.LogInformation("User {UserId} registering test drive for vehicle {VehicleId}",
                     currentUserId, request.VehicleId);
 
                 // Validate scheduled time
@@ -58,8 +58,8 @@ namespace EVDealerSales.Business.Services
 
                 // Check availability
                 var (isAvailable, reason) = await CheckAvailabilityAsync(
-                    request.VehicleId, 
-                    request.CustomerEmail, 
+                    request.VehicleId,
+                    request.CustomerEmail,
                     request.ScheduledAt);
 
                 if (!isAvailable)
@@ -95,7 +95,7 @@ namespace EVDealerSales.Business.Services
                 await _unitOfWork.TestDrives.AddAsync(testDrive);
                 await _unitOfWork.SaveChangesAsync();
 
-                _logger.LogInformation("Test drive {TestDriveId} registered successfully by customer {CustomerId}", 
+                _logger.LogInformation("Test drive {TestDriveId} registered successfully by customer {CustomerId}",
                     testDrive.Id, customer.Id);
 
                 return await MapToResponseDto(testDrive);
@@ -124,7 +124,7 @@ namespace EVDealerSales.Business.Services
                     throw new UnauthorizedAccessException("Only staff can register test drives for customers");
                 }
 
-                _logger.LogInformation("Staff {StaffId} registering test drive for customer {CustomerEmail}", 
+                _logger.LogInformation("Staff {StaffId} registering test drive for customer {CustomerEmail}",
                     currentUserId, request.CustomerEmail);
 
                 // Validate scheduled time
@@ -185,7 +185,7 @@ namespace EVDealerSales.Business.Services
                 await _unitOfWork.TestDrives.AddAsync(testDrive);
                 await _unitOfWork.SaveChangesAsync();
 
-                _logger.LogInformation("Test drive {TestDriveId} registered and confirmed by staff {StaffId}", 
+                _logger.LogInformation("Test drive {TestDriveId} registered and confirmed by staff {StaffId}",
                     testDrive.Id, currentUserId);
 
                 return await MapToResponseDto(testDrive);
@@ -370,7 +370,7 @@ namespace EVDealerSales.Business.Services
                 await _unitOfWork.TestDrives.Update(testDrive);
                 await _unitOfWork.SaveChangesAsync();
 
-                _logger.LogInformation("Test drive {TestDriveId} confirmed by staff {StaffId}", 
+                _logger.LogInformation("Test drive {TestDriveId} confirmed by staff {StaffId}",
                     testDriveId, currentUserId);
 
                 return await MapToResponseDto(testDrive);
@@ -437,7 +437,7 @@ namespace EVDealerSales.Business.Services
                 await _unitOfWork.TestDrives.Update(testDrive);
                 await _unitOfWork.SaveChangesAsync();
 
-                _logger.LogInformation("Test drive {TestDriveId} canceled by user {UserId}", 
+                _logger.LogInformation("Test drive {TestDriveId} canceled by user {UserId}",
                     testDriveId, currentUserId);
 
                 return await MapToResponseDto(testDrive);
@@ -477,6 +477,11 @@ namespace EVDealerSales.Business.Services
                     throw new KeyNotFoundException($"Test drive with ID {testDriveId} not found");
                 }
 
+                if (testDrive.ScheduledAt > _currentTime.GetCurrentTime())
+                {
+                    throw new InvalidOperationException("Cannot complete a test drive before its scheduled time");
+                }
+
                 if (testDrive.Status != TestDriveStatus.Confirmed)
                 {
                     throw new InvalidOperationException($"Can only complete confirmed test drives. Current status: {testDrive.Status}");
@@ -486,8 +491,8 @@ namespace EVDealerSales.Business.Services
                 testDrive.CompletedAt = _currentTime.GetCurrentTime();
                 if (!string.IsNullOrWhiteSpace(notes))
                 {
-                    testDrive.Notes = string.IsNullOrWhiteSpace(testDrive.Notes) 
-                        ? notes 
+                    testDrive.Notes = string.IsNullOrWhiteSpace(testDrive.Notes)
+                        ? notes
                         : $"{testDrive.Notes}\n{notes}";
                 }
                 testDrive.UpdatedAt = _currentTime.GetCurrentTime();
@@ -496,7 +501,7 @@ namespace EVDealerSales.Business.Services
                 await _unitOfWork.TestDrives.Update(testDrive);
                 await _unitOfWork.SaveChangesAsync();
 
-                _logger.LogInformation("Test drive {TestDriveId} completed by staff {StaffId}", 
+                _logger.LogInformation("Test drive {TestDriveId} completed by staff {StaffId}",
                     testDriveId, currentUserId);
 
                 return await MapToResponseDto(testDrive);
@@ -531,21 +536,29 @@ namespace EVDealerSales.Business.Services
                     return (false, "Customer not found");
                 }
 
-                // Check if customer has any pending or confirmed test drive
-                var existingCustomerTestDrive = await _unitOfWork.TestDrives.GetQueryable()
-                    .Where(td => td.CustomerId == customer.Id 
+                var testDriveEnd = scheduledAt.AddHours(TEST_DRIVE_DURATION_HOURS);
+
+                // Check if customer has any overlapping test drive in the same time period
+                var overlappingCustomerTestDrives = await _unitOfWork.TestDrives.GetQueryable()
+                    .Where(td => td.CustomerId == customer.Id
                         && !td.IsDeleted
                         && (td.Status == TestDriveStatus.Pending || td.Status == TestDriveStatus.Confirmed)
                         && (excludeTestDriveId == null || td.Id != excludeTestDriveId))
-                    .FirstOrDefaultAsync();
+                    .ToListAsync();
 
-                if (existingCustomerTestDrive != null)
+                foreach (var existingTestDrive in overlappingCustomerTestDrives)
                 {
-                    return (false, $"Customer already has a {existingCustomerTestDrive.Status.ToString().ToLower()} test drive scheduled at {existingCustomerTestDrive.ScheduledAt:yyyy-MM-dd HH:mm}");
+                    var existingEnd = existingTestDrive.ScheduledAt.AddHours(TEST_DRIVE_DURATION_HOURS);
+
+                    // Check for time overlap
+                    if (scheduledAt < existingEnd && testDriveEnd > existingTestDrive.ScheduledAt)
+                    {
+                        return (false, $"Customer already has a {existingTestDrive.Status.ToString().ToLower()} test drive that overlaps with this time. Existing test drive: {existingTestDrive.ScheduledAt:yyyy-MM-dd HH:mm} - {existingEnd:yyyy-MM-dd HH:mm}");
+                    }
                 }
 
                 // Check if vehicle has overlapping test drive
-                var testDriveEnd = scheduledAt.AddHours(TEST_DRIVE_DURATION_HOURS);
+
 
                 var overlappingTestDrive = await _unitOfWork.TestDrives.GetQueryable()
                     .Where(td => td.VehicleId == vehicleId
@@ -557,7 +570,7 @@ namespace EVDealerSales.Business.Services
                 foreach (var td in overlappingTestDrive)
                 {
                     var existingEnd = td.ScheduledAt.AddHours(TEST_DRIVE_DURATION_HOURS);
-                    
+
                     // Check for overlap
                     if (scheduledAt < existingEnd && testDriveEnd > td.ScheduledAt)
                     {
@@ -626,13 +639,13 @@ namespace EVDealerSales.Business.Services
             // Ensure navigation properties are loaded
             if (testDrive.Customer == null)
             {
-                testDrive.Customer = await _unitOfWork.Users.GetByIdAsync(testDrive.CustomerId) 
+                testDrive.Customer = await _unitOfWork.Users.GetByIdAsync(testDrive.CustomerId)
                     ?? throw new InvalidOperationException("Customer not found");
             }
 
             if (testDrive.Vehicle == null)
             {
-                testDrive.Vehicle = await _unitOfWork.Vehicles.GetByIdAsync(testDrive.VehicleId) 
+                testDrive.Vehicle = await _unitOfWork.Vehicles.GetByIdAsync(testDrive.VehicleId)
                     ?? throw new InvalidOperationException("Vehicle not found");
             }
 

@@ -310,9 +310,9 @@ namespace EVDealerSales.Business.Services
                 }
 
                 // Validate Battery Capacity
-                if (request.BatteryCapacity < 0.1m || request.BatteryCapacity > 1000m)
+                if (request.BatteryCapacity < 1 || request.BatteryCapacity > 1000)
                 {
-                    throw new ArgumentException("Battery capacity must be between 0.1 and 1000 kWh");
+                    throw new ArgumentException("Battery capacity must be between 1 and 1000 kWh");
                 }
 
                 // Validate Range
@@ -333,6 +333,12 @@ namespace EVDealerSales.Business.Services
                     throw new ArgumentException("Top speed must be between 1 and 500 km/h");
                 }
 
+                // Validate Stock
+                if (request.Stock < 0)
+                {
+                    throw new ArgumentException("Stock cannot be negative");
+                }
+
                 _logger.LogDebug("Vehicle request validation passed");
 
                 // Create vehicle entity
@@ -347,6 +353,7 @@ namespace EVDealerSales.Business.Services
                     RangeKM = request.RangeKM,
                     ChargingTime = request.ChargingTime,
                     TopSpeed = request.TopSpeed,
+                    Stock = request.Stock,
                     IsActive = request.IsActive,
                     CreatedBy = currentUserId
                 };
@@ -480,10 +487,6 @@ namespace EVDealerSales.Business.Services
                 // Update BatteryCapacity only if provided and different
                 if (request.BatteryCapacity > 0 && request.BatteryCapacity != vehicle.BatteryCapacity)
                 {
-                    if (request.BatteryCapacity < 0.1m || request.BatteryCapacity > 1000m)
-                    {
-                        throw new ArgumentException("Battery capacity must be between 0.1 and 1000 kWh");
-                    }
                     changes.Add($"BatteryCapacity: {vehicle.BatteryCapacity} kWh → {request.BatteryCapacity} kWh");
                     vehicle.BatteryCapacity = request.BatteryCapacity;
                     hasChanges = true;
@@ -522,6 +525,14 @@ namespace EVDealerSales.Business.Services
                     }
                     changes.Add($"TopSpeed: {vehicle.TopSpeed} km/h → {request.TopSpeed} km/h");
                     vehicle.TopSpeed = request.TopSpeed;
+                    hasChanges = true;
+                }
+
+                // Update Stock only if provided and different
+                if (request.Stock >= 0 && request.Stock != vehicle.Stock)
+                {
+                    changes.Add($"Stock: {vehicle.Stock} → {request.Stock}");
+                    vehicle.Stock = request.Stock;
                     hasChanges = true;
                 }
 
@@ -701,6 +712,7 @@ namespace EVDealerSales.Business.Services
                 RangeKM = vehicle.RangeKM,
                 ChargingTime = vehicle.ChargingTime,
                 TopSpeed = vehicle.TopSpeed,
+                Stock = vehicle.Stock,
                 IsActive = vehicle.IsActive,
                 CreatedAt = vehicle.CreatedAt,
                 UpdatedAt = vehicle.UpdatedAt

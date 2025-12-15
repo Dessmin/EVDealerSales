@@ -58,6 +58,15 @@ namespace EVDealerSales.Presentation.Architecture
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IVehicleService, VehicleService>();
             services.AddScoped<ITestDriveService, TestDriveService>();
+            services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IPaymentService, PaymentService>();
+            services.AddScoped<IDeliveryService, DeliveryService>();
+            services.AddScoped<IFeedbackService, FeedbackService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IChatService, ChatService>();
+            services.AddScoped<IDataAnalyzerService, DataAnalyzerService>();
+            services.AddScoped<IGeminiService, GeminiService>();
+            services.AddScoped<IChatbotService, ChatbotService>();
             services.AddHttpContextAccessor();
 
             return services;
@@ -99,12 +108,22 @@ namespace EVDealerSales.Presentation.Architecture
                     {
                         OnMessageReceived = context =>
                         {
-                            //Read from Session instead of cookie
+                            // Read from Session
                             var token = context.HttpContext.Session.GetString("AuthToken");
-                            if (!string.IsNullOrEmpty(token))
+
+                            // For SignalR: read token from query string
+                            var accessToken = context.Request.Query["access_token"];
+                            var path = context.HttpContext.Request.Path;
+
+                            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
+                            {
+                                context.Token = accessToken;
+                            }
+                            else if (!string.IsNullOrEmpty(token))
                             {
                                 context.Token = token;
                             }
+
                             return Task.CompletedTask;
                         }
                     };

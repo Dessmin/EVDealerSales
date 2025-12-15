@@ -2,8 +2,10 @@
 {
     public enum DeliveryStatus
     {
-        Scheduled = 0,
-        InTransit = 1,
-        Delivered = 2,
+        Pending = 0,      // Customer requested delivery, waiting for staff confirmation
+        Scheduled = 1,    // Staff confirmed and scheduled delivery
+        InTransit = 2,    // Delivery in progress
+        Delivered = 3,    // Delivery completed
+        Cancelled = 4     // Delivery cancelled
     }
 }

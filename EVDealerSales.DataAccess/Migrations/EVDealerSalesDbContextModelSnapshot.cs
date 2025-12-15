@@ -46,11 +46,20 @@ namespace EVDealerSales.DataAccess.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("PlannedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("ShippingAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StaffNotes")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -202,6 +211,13 @@ namespace EVDealerSales.DataAccess.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OrderNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid?>("StaffId")
                         .HasColumnType("uniqueidentifier");
 
@@ -301,8 +317,17 @@ namespace EVDealerSales.DataAccess.Migrations
                     b.Property<DateTime>("PaymentDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("PaymentIntentId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PaymentMethod")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<string>("TransactionId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -445,8 +470,8 @@ namespace EVDealerSales.DataAccess.Migrations
                     b.Property<decimal>("BasePrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("BatteryCapacity")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("BatteryCapacity")
+                        .HasColumnType("int");
 
                     b.Property<int>("ChargingTime")
                         .HasColumnType("int");
@@ -481,6 +506,9 @@ namespace EVDealerSales.DataAccess.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("RangeKM")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Stock")
                         .HasColumnType("int");
 
                     b.Property<int>("TopSpeed")
@@ -644,8 +672,7 @@ namespace EVDealerSales.DataAccess.Migrations
 
             modelBuilder.Entity("EVDealerSales.DataAccess.Entities.Order", b =>
                 {
-                    b.Navigation("Delivery")
-                        .IsRequired();
+                    b.Navigation("Delivery");
 
                     b.Navigation("Feedbacks");
 

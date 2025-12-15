@@ -45,6 +45,8 @@
             }
 
             <form method="post" class="auth-form">
+                <input type="hidden" name="ReturnUrl" value="@Model.ReturnUrl" />
+
                 <div class="form-row">
                     <div class="form-group form-group-half">
                         <label asp-for="FullName" class="form-label">Name</label>
@@ -86,7 +88,9 @@
             <div class="auth-form-footer">
                 <p class="auth-switch-text">
                     Already have an account?
-                    <a asp-page="/Auth/Login" class="auth-switch-link">Login</a>
+                    <a asp-page="/Auth/Login"
+                       asp-route-returnUrl="@Model.ReturnUrl"
+                       class="auth-switch-link">Login</a>
                 </p>
             </div>
         </div>
